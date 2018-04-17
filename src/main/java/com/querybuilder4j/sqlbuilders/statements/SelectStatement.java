@@ -1,14 +1,20 @@
 package com.querybuilder4j.sqlbuilders.statements;
 
 
+import com.querybuilder4j.config.DatabaseType;
+import com.querybuilder4j.sqlbuilders.AbstractSqlBuilder;
+
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import static com.querybuilder4j.config.SqlBuilderFactory.buildSqlBuilder;
+
 public class SelectStatement {
     private String queryName;
     private Properties properties;
+    private AbstractSqlBuilder sqlBuilder;
     private ResultSetMetaData tableSchema;
     private boolean distinct;
     private List<String> columns;
@@ -210,6 +216,17 @@ public class SelectStatement {
             return addCriteria(criteria);
         } catch (Exception ex) {
             return false;
+        }
+    }
+
+    public String buildSql() {
+        try {
+            String databaseTypeProp = properties.getProperty("databaseType");
+            DatabaseType databaseType = Enum.valueOf(DatabaseType.class, databaseTypeProp) ;
+            sqlBuilder = buildSqlBuilder(databaseType);
+            return sqlBuilder.buildSql(this);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 

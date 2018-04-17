@@ -20,6 +20,7 @@ public class DbConnectionImplTest {
         properties.setProperty("username", "postgres");
         properties.setProperty("password", "budgeto");
         properties.setProperty("driverClass", "org.postgresql.Driver");
+        properties.setProperty("databaseType", "PostgreSQL");
         dbConnection = new DbConnectionImpl(properties);
     }
 

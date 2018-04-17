@@ -47,8 +47,22 @@ public class DbConnectionImpl implements DbConnection {
     }
 
     @Override
-    public ResultSet getDbSchemas() {
-        return null;
+    public ResultSet getDbSchemas() throws SQLException {
+//        String driverName = properties.getProperty("driverClass");
+//        if (driverName.toLowerCase().contains("mysql")) {
+            DatabaseMetaData metaData = connection.getMetaData();
+            return metaData.getSchemas();
+//        } else if (driverName.toLowerCase().contains("oracle")) {
+//
+//        } else if (driverName.toLowerCase().contains("postgresql")) {
+//
+//        } else if (driverName.toLowerCase().contains("redshift")) {
+//
+//        } else if (driverName.toLowerCase().contains("sqlserver")) {
+//
+//        } else if (driverName.toLowerCase().contains("sqlite")) {
+//
+//        }
     }
 
     @Override
