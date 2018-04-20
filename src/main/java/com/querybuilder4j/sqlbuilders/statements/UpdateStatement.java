@@ -1,4 +1,8 @@
 package com.querybuilder4j.sqlbuilders.statements;
 
-public class UpdateStatement {
+public class UpdateStatement extends Statement {
+    @Override
+    public String buildSql() {
+        return null;
+    }
 }

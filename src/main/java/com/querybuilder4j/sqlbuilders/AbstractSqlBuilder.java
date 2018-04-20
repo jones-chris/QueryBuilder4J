@@ -94,11 +94,11 @@ public abstract class AbstractSqlBuilder {
                             throw new BadSqlException(String.format("The criteria in position %d has a null or empty filter, but the operator is not \"IsNull\" or \"IsNotNull\""));
                         }
 
-                        if (criteriaClone.isFilterSubquery()) {
-                            criteriaClone.filter = escapeAndRemove(criteriaClone.filter);
-                            sql.append(String.format(" %s ", criteriaClone.toString()));
-                            continue;
-                        }
+//                        if (criteriaClone.isFilterSubquery()) {
+//                            criteriaClone.filter = escapeAndRemove(criteriaClone.filter);
+//                            sql.append(String.format(" %s ", criteriaClone.toString()));
+//                            continue;
+//                        }
 
                         boolean shouldHaveQuotes = isColumnQuoted(getColumnDataType(criteriaClone.column));
                         if (criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) {

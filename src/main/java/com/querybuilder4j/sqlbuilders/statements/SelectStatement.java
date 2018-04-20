@@ -5,21 +5,18 @@ import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.sqlbuilders.AbstractSqlBuilder;
 
 import java.sql.ResultSetMetaData;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static com.querybuilder4j.config.SqlBuilderFactory.buildSqlBuilder;
 
-public class SelectStatement {
-    private String queryName;
-    private Properties properties;
-    private AbstractSqlBuilder sqlBuilder;
-    private ResultSetMetaData tableSchema;
+public class SelectStatement extends Statement {
+//    private String queryName;
+//    private Properties properties;
+//    private ResultSetMetaData tableSchema;
     private boolean distinct;
-    private List<String> columns;
+    private List<String> columns = new ArrayList<>();
     private String table;
-    private List<Criteria> criteria;
+    private SortedSet<Criteria> criteria = new TreeSet<>();
     private boolean groupBy;
     private boolean orderBy;
     private Long limit;
@@ -34,9 +31,7 @@ public class SelectStatement {
         this.properties = properties;
         tableSchema = null;
         distinct = false;
-        columns = new ArrayList<>();
         table = null;
-        criteria = new ArrayList<>();
         groupBy = false;
         orderBy = false;
         limit = null;
@@ -98,11 +93,11 @@ public class SelectStatement {
         return this;
     }
 
-    public List<Criteria> getCriteria() {
+    public SortedSet<Criteria> getCriteria() {
         return criteria;
     }
 
-    public SelectStatement setCriteria(List<Criteria> criteria) {
+    public SelectStatement setCriteria(SortedSet<Criteria> criteria) {
         this.criteria = criteria;
         return this;
     }
@@ -219,11 +214,12 @@ public class SelectStatement {
         }
     }
 
+    @Override
     public String buildSql() {
         try {
             String databaseTypeProp = properties.getProperty("databaseType");
             DatabaseType databaseType = Enum.valueOf(DatabaseType.class, databaseTypeProp) ;
-            sqlBuilder = buildSqlBuilder(databaseType);
+            AbstractSqlBuilder sqlBuilder = buildSqlBuilder(databaseType);
             return sqlBuilder.buildSql(this);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());

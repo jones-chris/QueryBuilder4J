@@ -7,11 +7,16 @@ import com.querybuilder4j.config.Parenthesis;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlType(namespace = "Criteria")
 @XmlRootElement(namespace = "Criteria")
-public class Criteria implements Cloneable {
-    private boolean orIsNull = false;
+public class Criteria implements Cloneable, Comparable {
+    private Integer id;
+    private Integer rank;
+    public Integer parentCriteriaId;
+    //private boolean orIsNull = false;
     public Conjunction conjunction;
     public Parenthesis frontParenthesis;
     public String column;
@@ -20,17 +25,27 @@ public class Criteria implements Cloneable {
     public Parenthesis endParenthesis;
 
 
-    public Criteria() {}
-
-    public boolean isOrIsNull() {
-        return orIsNull;
+    public Criteria(Integer id) {
+        this.id = id;
     }
 
-    public void setOrIsNull(boolean orIsNull) {
-        frontParenthesis = Parenthesis.FrontParenthesis;
-        this.orIsNull = orIsNull;
-        endParenthesis = Parenthesis.EndParenthesis;
+    public Integer getRank() {
+        return rank;
     }
+
+    public void setRank(Integer rank) {
+        this.rank = rank;
+    }
+
+//    public boolean isOrIsNull() {
+//        return orIsNull;
+//    }
+//
+//    public void setOrIsNull(boolean orIsNull) {
+//        //frontParenthesis = Parenthesis.FrontParenthesis;
+//        this.orIsNull = orIsNull;
+//        //endParenthesis = Parenthesis.EndParenthesis;
+//    }
 
 //    public Conjunction getConjunction() {
 //        return conjunction;
@@ -85,58 +100,65 @@ public class Criteria implements Cloneable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Criteria criteria = (Criteria) o;
-
-        if (!column.equals(criteria.column)) return false;
-        if (operator != criteria.operator) return false;
-        return filter != null ? filter.equals(criteria.filter) : criteria.filter == null;
+        Criteria that = (Criteria) o;
+        return this.id.equals(that.id);
+//        if (!column.equals(criteria.column)) return false;
+//        if (operator != criteria.operator) return false;
+//        return filter != null ? filter.equals(criteria.filter) : criteria.filter == null;
     }
 
-    @Override
-    public int hashCode() {
-        int result = column.hashCode();
-        result = 31 * result + operator.hashCode();
-        result = 31 * result + (filter != null ? filter.hashCode() : 0);
-        return result;
-    }
+//    @Override
+//    public int hashCode() {
+//        int result = column.hashCode();
+//        result = 31 * result + operator.hashCode();
+//        result = 31 * result + (filter != null ? filter.hashCode() : 0);
+//        return result;
+//    }
 
     @Override
     public String toString() throws IllegalArgumentException {
-        String modifiedFilter;
-        if (isFilterSubquery()) {
-            modifiedFilter = String.format("(%s)", filter);
-        } else if (operator.equals(Operator.between) || operator.equals(Operator.notBetween)) {
-            String[] filterArgs = filter.split(",");
+//        String modifiedFilter;
+//        if (isFilterSubquery()) {
+//            modifiedFilter = String.format("(%s)", filter);
+//        } else if (operator.equals(Operator.between) || operator.equals(Operator.notBetween)) {
+//            String[] filterArgs = filter.split(",");
+//
+//            if (filterArgs.length != 2) throw new IllegalArgumentException();
+//
+//            modifiedFilter = String.format("%s AND %s", filterArgs[0], filterArgs[1]);
+//        } else {
+//            modifiedFilter = filter;
+//        }
+//
+//        if (orIsNull && filter != null) {
+//            return String.format(" %s %s%s %s %s OR %s IS NULL %s ", conjunction, frontParenthesis, column,
+//                    operator.toString(), modifiedFilter, column, endParenthesis);
+//        } else if (orIsNull && filter == null) {
+//            return String.format(" %s %s IS NULL ", conjunction, column);
+//        } else {
+//            return String.format(" %s %s%s %s %s%s ",
+//                    conjunction, frontParenthesis, column, operator.toString(), modifiedFilter, endParenthesis);
+//        }
 
-            if (filterArgs.length != 2) throw new IllegalArgumentException();
-
-            modifiedFilter = String.format("%s AND %s", filterArgs[0], filterArgs[1]);
-        } else {
-            modifiedFilter = filter;
-        }
-
-        if (orIsNull && filter != null) {
-            return String.format(" %s %s%s %s %s OR %s IS NULL %s ", conjunction, frontParenthesis, column,
-                    operator.toString(), modifiedFilter, column, endParenthesis);
-        } else if (orIsNull && filter == null) {
-            return String.format(" %s %s IS NULL ", conjunction, column);
-        } else {
-            return String.format(" %s %s%s %s %s%s ",
-                    conjunction, frontParenthesis, column, operator.toString(), modifiedFilter, endParenthesis);
-        }
+        return String.format(" %s %s%s %s %s%s ", conjunction, frontParenthesis, column, operator.toString(), filter, endParenthesis);
     }
+
 
     @Override
     public Object clone() throws CloneNotSupportedException {
         Criteria newCriteria = (Criteria) super.clone();
 
-        newCriteria.orIsNull = orIsNull;
+        //newCriteria.orIsNull = orIsNull;
+        newCriteria.id = id;
+        newCriteria.rank = rank;
+        newCriteria.parentCriteriaId = parentCriteriaId;
         newCriteria.conjunction = conjunction;
         newCriteria.frontParenthesis = frontParenthesis;
         newCriteria.column = column;
         newCriteria.operator = operator;
         newCriteria.filter = filter;
         newCriteria.endParenthesis = endParenthesis;
+        //newCriteria.childCriteria = new ArrayList<>(childCriteria);
 
         return newCriteria;
     }
@@ -147,13 +169,25 @@ public class Criteria implements Cloneable {
         return true;
     }
 
-    public boolean isFilterSubquery() {
-        if (filter == null) return false;
+    @Override
+    public int compareTo(Object o) {
+        if (this.equals(o)) return 0;
 
-        if (filter.length() >= 6) {
-            return (filter.substring(0, 6).toLowerCase().equals("select"));
+        Criteria that = (Criteria) o;
+        if ((this.id - that.id) == 0) {
+            return this.rank - that.rank;
+        } else {
+            return this.id - that.id;
         }
-
-        return false;
     }
+
+//    public boolean isFilterSubquery() {
+//        if (filter == null) return false;
+//
+//        if (filter.length() >= 6) {
+//            return (filter.substring(0, 6).toLowerCase().equals("select"));
+//        }
+//
+//        return false;
+//    }
 }

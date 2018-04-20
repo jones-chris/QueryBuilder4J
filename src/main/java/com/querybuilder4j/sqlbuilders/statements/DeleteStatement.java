@@ -1,4 +1,8 @@
 package com.querybuilder4j.sqlbuilders.statements;
 
-public class DeleteStatement {
+public class DeleteStatement extends Statement {
+    @Override
+    public String buildSql() {
+        return null;
+    }
 }

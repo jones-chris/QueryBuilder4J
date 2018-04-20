@@ -3,7 +3,8 @@ package com.querybuilder4j.sqlbuilders;
 
 public class SqlCleanser {
     private static final Character[] charsNeedingEscaping = new Character[] {'\'', '"'};
-    private static final String[] stringsNeedingRemoval = new String[] {"-", "=", ">", "<", "!=", "<>", ">=", "<=", ";", " DROP ", " CREATE ", " DELETE ", " INSERT ", " UPDATE ", "`"};
+    private static final String[] stringsNeedingRemoval = new String[] {"-", "=", ">", "<", "!=", "<>", ">=", "<=", ";",
+            " DROP ", " CREATE ", " DELETE ", " INSERT ", " UPDATE ", " SELECT ",  " FROM ","`"};
 
     public static String escape(String sql) {
         for (Character c : charsNeedingEscaping) {
