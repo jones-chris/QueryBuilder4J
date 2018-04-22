@@ -14,5 +14,12 @@ public enum Parenthesis {
         public String toString() {
             return ")";
         }
+    },
+
+    Empty {
+        @Override
+        public String toString() {
+            return "";
+        }
     }
 }

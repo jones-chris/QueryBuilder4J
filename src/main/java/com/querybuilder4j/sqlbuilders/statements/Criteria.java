@@ -4,15 +4,17 @@ package com.querybuilder4j.sqlbuilders.statements;
 import com.querybuilder4j.config.Conjunction;
 import com.querybuilder4j.config.Operator;
 import com.querybuilder4j.config.Parenthesis;
+import com.sun.istack.internal.NotNull;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import java.util.ArrayList;
-import java.util.List;
+
+import static java.util.Optional.ofNullable;
 
 @XmlType(namespace = "Criteria")
 @XmlRootElement(namespace = "Criteria")
 public class Criteria implements Cloneable, Comparable {
+    @NotNull
     private Integer id;
     private Integer rank;
     public Integer parentCriteriaId;
@@ -27,6 +29,10 @@ public class Criteria implements Cloneable, Comparable {
 
     public Criteria(Integer id) {
         this.id = id;
+    }
+
+    public Integer getId() {
+        return id;
     }
 
     public Integer getRank() {
@@ -140,7 +146,12 @@ public class Criteria implements Cloneable, Comparable {
 //                    conjunction, frontParenthesis, column, operator.toString(), modifiedFilter, endParenthesis);
 //        }
 
-        return String.format(" %s %s%s %s %s%s ", conjunction, frontParenthesis, column, operator.toString(), filter, endParenthesis);
+        return String.format(" %s %s%s %s %s%s ", ofNullable(conjunction).orElse(Conjunction.Empty),
+                                                  ofNullable(frontParenthesis).orElse(Parenthesis.Empty),
+                                                  column,
+                                                  operator.toString(),
+                                                  ofNullable(filter).orElse(""),
+                                                  ofNullable(endParenthesis).orElse(Parenthesis.Empty));
     }
 
 
@@ -174,11 +185,29 @@ public class Criteria implements Cloneable, Comparable {
         if (this.equals(o)) return 0;
 
         Criteria that = (Criteria) o;
-        if ((this.id - that.id) == 0) {
-            return this.rank - that.rank;
+        // if two object's parentId is not null
+        if (this.parentCriteriaId != null) {
+            // if parentid and id are the same, compare rank
+            if ((this.parentCriteriaId - that.getId()) == 0) {
+                if (this.rank != null && that.rank != null) {
+                    return this.rank - that.rank;
+                } else {
+                    return this.getId() - that.getId();
+                }
+            } else {
+                return this.getId() - that.getId();
+            }
         } else {
             return this.id - that.id;
         }
+//            // check if parentid is null
+//            // check parentiddifference
+//            //
+//        if ((this.id - that.id) == 0) {
+//            return this.rank - that.rank;
+//        } else {
+//            return this.id - that.id;
+//        }
     }
 
 //    public boolean isFilterSubquery() {

@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.escapeAndRemove;
 
@@ -69,7 +70,7 @@ public abstract class AbstractSqlBuilder {
         return sql;
     }
 
-    protected StringBuilder createWhereClause(List<Criteria> criteria) throws Exception {
+    protected StringBuilder createWhereClause(SortedSet<Criteria> criteria) throws Exception {
         if (criteria == null) throw new IllegalArgumentException("The criteria parameter is null");
 
         if (criteria.size() == 0) {
@@ -77,12 +78,12 @@ public abstract class AbstractSqlBuilder {
         } else {
             StringBuilder sql = new StringBuilder(" WHERE ");
 
-            for (int i=0; i<criteria.size(); i++) {
+            for (Criteria crit : criteria) {
                 // clone criteria
                 try {
-                    Criteria criteriaClone = (Criteria) criteria.get(i).clone();
+                    Criteria criteriaClone = (Criteria) crit.clone();
 
-                    if (i == 0) criteriaClone.conjunction = null;
+                    if (criteriaClone.getId() == 0) criteriaClone.conjunction = null;
 
                     if (criteriaClone.isValid()) {
                         if (criteriaClone.operator.equals(Operator.isNull) || criteriaClone.operator.equals(Operator.isNotNull)) {
@@ -115,7 +116,7 @@ public abstract class AbstractSqlBuilder {
                         }
 
                     } else {
-                        throw new BadSqlException(String.format("The criteria in position %d is not valid", i));
+                        throw new BadSqlException(String.format("The criteria in position %d is not valid"));
                     }
                 } catch (CloneNotSupportedException ex) {
                     throw new Exception(ex.getMessage());
