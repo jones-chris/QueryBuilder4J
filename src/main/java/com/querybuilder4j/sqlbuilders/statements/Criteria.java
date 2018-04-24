@@ -11,14 +11,40 @@ import javax.xml.bind.annotation.XmlType;
 
 import static java.util.Optional.ofNullable;
 
+// ASSUMPTION #1:  criteria ids are ordered when coming from client
+// ASSUMPTION #2:  a criteria's parent id refers to a criteria id prior to it.
+
+
+// id = 0, parent id = null       column1 = filter1
+// id = 1, parent id = null       AND (column2 = filter2
+    // id = 2, parent id = 1        AND (column3 = filter3
+        // id = 3, parent id = 2       OR column3 = filter3.1
+        // id = 4, parent id = 2       OR column 3 = filter 3.2)
+    // id = 5, parent id = 1        AND column4 = filter4)
+// id = 6, parent id = null       AND column5 = filter5
+
+// TRY THIS!!!!
+// search if criteria id is a parentid, if true, add beginning parethesis.
+// if this index in set == last indexOf criteria with same parentId, then set end parenthesis.
+
+
+
+// rule:  if parent id is different from parent id BEFORE it, then set front parenthesis
+// rule:  if parent id is different from parent id AFTER it, then set end parenthesis
+
+// if this id == next parent id set beginning parenthesis.
+// if this index in set == last indexOf criteria with same parentId, then set end parenthesis.
+
+// find index of last criteria with parentid, if equal to this criteria index, then don't set end parenthesis
+// loop through each criteria (using index)
+        // find first index of parent
+
 @XmlType(namespace = "Criteria")
 @XmlRootElement(namespace = "Criteria")
 public class Criteria implements Cloneable, Comparable {
     @NotNull
     private Integer id;
-    private Integer rank;
-    public Integer parentCriteriaId;
-    //private boolean orIsNull = false;
+    public Integer parentId;
     public Conjunction conjunction;
     public Parenthesis frontParenthesis;
     public String column;
@@ -26,6 +52,8 @@ public class Criteria implements Cloneable, Comparable {
     public String filter;
     public Parenthesis endParenthesis;
 
+
+    public Criteria() {}
 
     public Criteria(Integer id) {
         this.id = id;
@@ -35,71 +63,7 @@ public class Criteria implements Cloneable, Comparable {
         return id;
     }
 
-    public Integer getRank() {
-        return rank;
-    }
-
-    public void setRank(Integer rank) {
-        this.rank = rank;
-    }
-
-//    public boolean isOrIsNull() {
-//        return orIsNull;
-//    }
-//
-//    public void setOrIsNull(boolean orIsNull) {
-//        //frontParenthesis = Parenthesis.FrontParenthesis;
-//        this.orIsNull = orIsNull;
-//        //endParenthesis = Parenthesis.EndParenthesis;
-//    }
-
-//    public Conjunction getConjunction() {
-//        return conjunction;
-//    }
-//
-//    public void setConjunction(Conjunction conjunction) {
-//        this.conjunction = conjunction;
-//    }
-//
-//    public Parenthesis getFrontParenthesis() {
-//        return frontParenthesis;
-//    }
-//
-//    public void setFrontParenthesis(Parenthesis frontParenthesis) {
-//        this.frontParenthesis = frontParenthesis;
-//    }
-//
-//    public String getColumn() {
-//        return column;
-//    }
-//
-//    public void setColumn(String column) {
-//        this.column = column;
-//    }
-//
-//    public Operator getOperator() {
-//        return operator;
-//    }
-//
-//    public void setOperator(Operator operator) {
-//        this.operator = operator;
-//    }
-//
-//    public String getFilter() {
-//        return filter;
-//    }
-//
-//    public void setFilter(String filter) {
-//        this.filter = filter;
-//    }
-//
-//    public Parenthesis getEndParenthesis() {
-//        return endParenthesis;
-//    }
-//
-//    public void setEndParenthesis(Parenthesis endParenthesis) {
-//        this.endParenthesis = endParenthesis;
-//    }
+    public void setId(Integer id) { this.id = id; }
 
     @Override
     public boolean equals(Object o) {
@@ -108,50 +72,17 @@ public class Criteria implements Cloneable, Comparable {
 
         Criteria that = (Criteria) o;
         return this.id.equals(that.id);
-//        if (!column.equals(criteria.column)) return false;
-//        if (operator != criteria.operator) return false;
-//        return filter != null ? filter.equals(criteria.filter) : criteria.filter == null;
     }
 
-//    @Override
-//    public int hashCode() {
-//        int result = column.hashCode();
-//        result = 31 * result + operator.hashCode();
-//        result = 31 * result + (filter != null ? filter.hashCode() : 0);
-//        return result;
-//    }
 
     @Override
     public String toString() throws IllegalArgumentException {
-//        String modifiedFilter;
-//        if (isFilterSubquery()) {
-//            modifiedFilter = String.format("(%s)", filter);
-//        } else if (operator.equals(Operator.between) || operator.equals(Operator.notBetween)) {
-//            String[] filterArgs = filter.split(",");
-//
-//            if (filterArgs.length != 2) throw new IllegalArgumentException();
-//
-//            modifiedFilter = String.format("%s AND %s", filterArgs[0], filterArgs[1]);
-//        } else {
-//            modifiedFilter = filter;
-//        }
-//
-//        if (orIsNull && filter != null) {
-//            return String.format(" %s %s%s %s %s OR %s IS NULL %s ", conjunction, frontParenthesis, column,
-//                    operator.toString(), modifiedFilter, column, endParenthesis);
-//        } else if (orIsNull && filter == null) {
-//            return String.format(" %s %s IS NULL ", conjunction, column);
-//        } else {
-//            return String.format(" %s %s%s %s %s%s ",
-//                    conjunction, frontParenthesis, column, operator.toString(), modifiedFilter, endParenthesis);
-//        }
-
         return String.format(" %s %s%s %s %s%s ", ofNullable(conjunction).orElse(Conjunction.Empty),
-                                                  ofNullable(frontParenthesis).orElse(Parenthesis.Empty),
-                                                  column,
-                                                  operator.toString(),
-                                                  ofNullable(filter).orElse(""),
-                                                  ofNullable(endParenthesis).orElse(Parenthesis.Empty));
+                                                     ofNullable(frontParenthesis).orElse(Parenthesis.Empty),
+                                                     column,
+                                                     operator,
+                                                     ofNullable(filter).orElse(""),
+                                                     ofNullable(endParenthesis).orElse(Parenthesis.Empty));
     }
 
 
@@ -159,17 +90,14 @@ public class Criteria implements Cloneable, Comparable {
     public Object clone() throws CloneNotSupportedException {
         Criteria newCriteria = (Criteria) super.clone();
 
-        //newCriteria.orIsNull = orIsNull;
         newCriteria.id = id;
-        newCriteria.rank = rank;
-        newCriteria.parentCriteriaId = parentCriteriaId;
+        newCriteria.parentId = parentId;
         newCriteria.conjunction = conjunction;
         newCriteria.frontParenthesis = frontParenthesis;
         newCriteria.column = column;
         newCriteria.operator = operator;
         newCriteria.filter = filter;
         newCriteria.endParenthesis = endParenthesis;
-        //newCriteria.childCriteria = new ArrayList<>(childCriteria);
 
         return newCriteria;
     }
@@ -185,38 +113,8 @@ public class Criteria implements Cloneable, Comparable {
         if (this.equals(o)) return 0;
 
         Criteria that = (Criteria) o;
-        // if two object's parentId is not null
-        if (this.parentCriteriaId != null) {
-            // if parentid and id are the same, compare rank
-            if ((this.parentCriteriaId - that.getId()) == 0) {
-                if (this.rank != null && that.rank != null) {
-                    return this.rank - that.rank;
-                } else {
-                    return this.getId() - that.getId();
-                }
-            } else {
-                return this.getId() - that.getId();
-            }
-        } else {
-            return this.id - that.id;
-        }
-//            // check if parentid is null
-//            // check parentiddifference
-//            //
-//        if ((this.id - that.id) == 0) {
-//            return this.rank - that.rank;
-//        } else {
-//            return this.id - that.id;
-//        }
+
+        return this.getId().compareTo(that.getId());
     }
 
-//    public boolean isFilterSubquery() {
-//        if (filter == null) return false;
-//
-//        if (filter.length() >= 6) {
-//            return (filter.substring(0, 6).toLowerCase().equals("select"));
-//        }
-//
-//        return false;
-//    }
 }

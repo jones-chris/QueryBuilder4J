@@ -97,10 +97,10 @@ public class SelectStatement extends Statement {
         return criteria;
     }
 
-    public SelectStatement setCriteria(SortedSet<Criteria> criteria) {
-        this.criteria = criteria;
-        return this;
-    }
+//    public SelectStatement setCriteria(SortedSet<Criteria> criteria) {
+//        this.criteria = criteria;
+//        return this;
+//    }
 
     public boolean isGroupBy() {
         return groupBy;
