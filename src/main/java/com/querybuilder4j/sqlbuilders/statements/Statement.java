@@ -27,8 +27,6 @@ public abstract class Statement {
     public abstract String buildSql();
 
     public void addParenthesisToCriteria() {
-        // add logic to add/remove parenthesis to criteria
-
         List<Criteria> criteriaList = new ArrayList<>(criteria);
         if (criteria.size() > 0) {
             for (int i=0; i<criteria.size(); i++) {
@@ -38,12 +36,37 @@ public abstract class Statement {
                 if (isCriteriaAParent(theCriteria.getId())) {
                     theCriteria.frontParenthesis = FrontParenthesis;
                 }
-
                 // if this is the last index of the criteria with this parent id, then add end parenthesis.
-                if (getLastIndexOfCriteriaAsParent(theCriteria.parentId) == i) {
-                    theCriteria.endParenthesis = EndParenthesis;
+                else if (getLastIndexOfCriteriaAsParent(theCriteria.parentId) == i) {
+                    theCriteria.endParenthesis.add(EndParenthesis);
                 }
 
+            }
+
+            // Determine if any remaining closing parenthesis are needed at end of criteria.  This only applies to criteria
+            // sets that end on a child criteria.
+            StringBuilder s = new StringBuilder();
+            for (Criteria crit : criteria) {
+                s.append(crit.toString());
+            }
+
+            char[] chars = s.toString().toCharArray();
+            int numOfBegParen = 0;
+            int numOfEndParen = 0;
+
+            for (Character c : chars) {
+                if (c.equals('(')) {
+                    numOfBegParen++;
+                } else if (c.equals(')')) {
+                    numOfEndParen++;
+                }
+            }
+
+            int parenDiff = numOfBegParen - numOfEndParen;
+            if (parenDiff > 0) {
+                for (int i=0; i<parenDiff; i++) {
+                    criteria.last().endParenthesis.add(EndParenthesis);
+                }
             }
         }
 

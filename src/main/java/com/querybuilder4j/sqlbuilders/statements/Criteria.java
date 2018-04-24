@@ -9,6 +9,9 @@ import com.sun.istack.internal.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static java.util.Optional.ofNullable;
 
 // ASSUMPTION #1:  criteria ids are ordered when coming from client
@@ -50,7 +53,7 @@ public class Criteria implements Cloneable, Comparable {
     public String column;
     public Operator operator;
     public String filter;
-    public Parenthesis endParenthesis;
+    public List<Parenthesis> endParenthesis = new ArrayList<>();
 
 
     public Criteria() {}
@@ -77,12 +80,14 @@ public class Criteria implements Cloneable, Comparable {
 
     @Override
     public String toString() throws IllegalArgumentException {
+        List<Parenthesis> emptyParenthesis = new ArrayList<>();
+        emptyParenthesis.add(Parenthesis.Empty);
         return String.format(" %s %s%s %s %s%s ", ofNullable(conjunction).orElse(Conjunction.Empty),
                                                      ofNullable(frontParenthesis).orElse(Parenthesis.Empty),
                                                      column,
                                                      operator,
                                                      ofNullable(filter).orElse(""),
-                                                     ofNullable(endParenthesis).orElse(Parenthesis.Empty));
+                                                     ofNullable(endParenthesis).orElse(emptyParenthesis));
     }
 
 
