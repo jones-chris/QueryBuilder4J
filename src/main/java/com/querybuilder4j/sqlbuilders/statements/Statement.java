@@ -1,17 +1,21 @@
 package com.querybuilder4j.sqlbuilders.statements;
 
+import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.config.Parenthesis;
+import com.querybuilder4j.sqlbuilders.AbstractSqlBuilder;
 
 import java.sql.ResultSetMetaData;
 import java.util.*;
 
 import static com.querybuilder4j.config.Parenthesis.*;
+import static com.querybuilder4j.config.SqlBuilderFactory.buildSqlBuilder;
 
 public abstract class Statement {
-    protected String queryName;
+    protected String name;
     protected Properties properties;
     protected ResultSetMetaData tableSchema;
     private SortedSet<Criteria> criteria = new TreeSet<>();
+
 
     public Statement() {}
 
@@ -24,7 +28,7 @@ public abstract class Statement {
         return this;
     }
 
-    public abstract String buildSql();
+    public abstract String toSql();
 
     public void addParenthesisToCriteria() {
         List<Criteria> criteriaList = new ArrayList<>(criteria);

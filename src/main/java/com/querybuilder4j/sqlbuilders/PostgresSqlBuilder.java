@@ -63,17 +63,17 @@ public class PostgresSqlBuilder extends AbstractSqlBuilder {
     }
 
     @Override
-    public String buildSql(InsertStatement query) {
+    public String buildSql(InsertStatement query) throws Exception {
         return null;
     }
 
     @Override
-    public String buildSql(UpdateStatement query) {
+    public String buildSql(UpdateStatement query)throws Exception  {
         return null;
     }
 
     @Override
-    public String buildSql(DeleteStatement query) {
+    public String buildSql(DeleteStatement query) throws Exception {
         return null;
     }
 }

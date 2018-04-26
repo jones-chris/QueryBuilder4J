@@ -26,8 +26,8 @@ public class SelectStatement extends Statement {
 
     public SelectStatement() {}
 
-    public SelectStatement(String queryName, Properties properties) {
-        this.queryName = queryName;
+    public SelectStatement(String name, Properties properties) {
+        this.name = name;
         this.properties = properties;
         tableSchema = null;
         distinct = false;
@@ -41,11 +41,11 @@ public class SelectStatement extends Statement {
     }
 
     public String getQueryName() {
-        return queryName;
+        return name;
     }
 
     public SelectStatement setQueryName(String queryName) {
-        this.queryName = queryName;
+        this.name = queryName;
         return this;
     }
 
@@ -215,7 +215,7 @@ public class SelectStatement extends Statement {
     }
 
     @Override
-    public String buildSql() {
+    public String toSql() {
         try {
             String databaseTypeProp = properties.getProperty("databaseType");
             DatabaseType databaseType = Enum.valueOf(DatabaseType.class, databaseTypeProp) ;

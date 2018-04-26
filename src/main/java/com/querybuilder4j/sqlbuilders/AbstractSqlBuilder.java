@@ -38,9 +38,9 @@ public abstract class AbstractSqlBuilder {
     public AbstractSqlBuilder() {}
 
     public abstract String buildSql(SelectStatement query) throws Exception;
-    public abstract String buildSql(InsertStatement query);
-    public abstract String buildSql(UpdateStatement query);
-    public abstract String buildSql(DeleteStatement query);
+    public abstract String buildSql(InsertStatement query) throws Exception;
+    public abstract String buildSql(UpdateStatement query) throws Exception;
+    public abstract String buildSql(DeleteStatement query) throws Exception;
 
     protected StringBuilder createSelectClause(boolean distinct, List<String> columns)
             throws IllegalArgumentException, EmptyCollectionException {
@@ -198,6 +198,74 @@ public abstract class AbstractSqlBuilder {
 
             return sql.append(") ");
         }
+    }
+
+    protected StringBuilder createInsertTableClause(String table) {
+        String tableWithDelims = String.format("%s%s%s", beginningDelimiter, table, endingDelimter);
+        return new StringBuilder("INSERT INTO ").append(tableWithDelims).append(" ");
+    }
+
+    protected StringBuilder createInsertColumnsClause(List<String> columns) throws SQLException, ColumnNameNotFoundException, DataTypeNotFoundException {
+        StringBuilder s = new StringBuilder(" (");
+
+        columns.forEach(column -> s.append(beginningDelimiter).append(columns).append(endingDelimter).append(','));
+
+        return s.append(") ");
+    }
+
+    protected StringBuilder createInsertValuesClause(List<String> values) throws SQLException, ColumnNameNotFoundException, DataTypeNotFoundException {
+        StringBuilder s = new StringBuilder("VALUES (");
+
+        for (String value : values) {
+
+            String dataType = getColumnDataType(value);
+
+            if (isColumnQuoted(dataType)) {
+                s.append('\'').append(value).append('\'').append(',');
+            } else {
+                s.append(value).append(',');
+            }
+        }
+
+        return s.append(") ");
+
+    }
+
+    protected StringBuilder createUpdateTableClause(String table) {
+        String tableWithDelims = String.format("%s%s%s", beginningDelimiter, table, endingDelimter);
+        return new StringBuilder("UPDATE ").append(tableWithDelims).append(" ");
+    }
+
+    protected StringBuilder createUpdateSetClause(List<String> columns, List<String> values) throws SQLException, ColumnNameNotFoundException, DataTypeNotFoundException {
+        // check that both lists have same number of elements
+        if (columns.size() != values.size()) throw new RuntimeException("The Columns and Values collections have different sizes.");
+
+        // loop thru each item (using index)
+        StringBuilder s = new StringBuilder(" SET ");
+        for (int i=0; i<columns.size(); i++) {
+            String column = columns.get(i);
+            String value = values.get(i);
+            s.append(beginningDelimiter).append(column).append(endingDelimter).append(" = ");
+
+            String dataType = getColumnDataType(value);
+
+            if (isColumnQuoted(dataType)) {
+                s.append('\'').append(value).append('\'').append(',');
+            } else {
+                s.append(value).append(',');
+            }
+        }
+
+        // remove trialing comma
+        s.deleteCharAt(s.length() - 1);
+
+        // return stringbuilder
+        return s;
+    }
+
+    protected StringBuilder createDeleteTableClause(String table) {
+        String tableWithDelims = String.format("%s%s%s", beginningDelimiter, table, endingDelimter);
+        return new StringBuilder("DELETE FROM ").append(tableWithDelims).append(" ");
     }
 
     private String getColumnDataType(String columnName) throws SQLException, ColumnNameNotFoundException {
