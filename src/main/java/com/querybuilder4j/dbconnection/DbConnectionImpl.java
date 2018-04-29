@@ -35,18 +35,6 @@ public class DbConnectionImpl implements DbConnection {
     }
 
     @Override
-    public void userSignIn() throws Exception {
-        try {
-            Class.forName(driverClassName);
-            connection = getConnection(properties.getProperty("url"),
-                    properties.getProperty("username"),
-                    properties.getProperty("password"));
-        } finally {
-            connection.close();
-        }
-    }
-
-    @Override
     public ResultSet getDbSchemas() throws SQLException {
 //        String driverName = properties.getProperty("driverClass");
 //        if (driverName.toLowerCase().contains("mysql")) {

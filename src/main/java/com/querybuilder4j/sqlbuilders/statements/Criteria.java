@@ -80,14 +80,19 @@ public class Criteria implements Cloneable, Comparable {
 
     @Override
     public String toString() throws IllegalArgumentException {
-        List<Parenthesis> emptyParenthesis = new ArrayList<>();
-        emptyParenthesis.add(Parenthesis.Empty);
+        String endParenthesisString = "";
+        if (endParenthesis != null) {
+            for (Parenthesis paren : endParenthesis) {
+                endParenthesisString += paren;
+            }
+        }
+
         return String.format(" %s %s%s %s %s%s ", ofNullable(conjunction).orElse(Conjunction.Empty),
-                                                     ofNullable(frontParenthesis).orElse(Parenthesis.Empty),
-                                                     column,
-                                                     operator,
-                                                     ofNullable(filter).orElse(""),
-                                                     ofNullable(endParenthesis).orElse(emptyParenthesis));
+                                                  ofNullable(frontParenthesis).orElse(Parenthesis.Empty),
+                                                  column,
+                                                  operator,
+                                                  ofNullable(filter).orElse(""),
+                                                  endParenthesisString);
     }
 
 

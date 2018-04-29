@@ -69,4 +69,32 @@ public class StatementTest {
         System.out.println(criteria);
         assertTrue(true);
     }
+
+    @Test
+    public void addParenthesisToCriteriaTest2() {
+        // id = 0, parent id = null    (column1 = filter1
+        // id = 1, parent id = 0       AND (column2 = filter2
+        // id = 2, parent id = 1           AND column3 = filter3
+        // id = 3, parent id = 1           AND column4 = filter4)
+        // id = 4, parent id = 0       AND column5 = filter5)
+
+        Criteria criteria5 = new Criteria(4);
+        criteria5.conjunction = And;
+        criteria5.column = "column5";
+        criteria5.operator = equalTo;
+        criteria5.filter = "filter5";
+
+        SortedSet<Criteria> criteria = new TreeSet<>();
+        criteria.add(criteria1);
+        criteria.add(criteria2);
+        criteria.add(criteria3);
+        criteria.add(criteria4);
+        criteria.add(criteria5);
+        statement.setCriteria(criteria);
+
+        statement.addParenthesisToCriteria();
+
+        System.out.println(criteria);
+        assertTrue(true);
+    }
 }

@@ -4,8 +4,8 @@ import com.querybuilder4j.sqlbuilders.*;
 
 public class SqlBuilderFactory {
 
-    public static AbstractSqlBuilder buildSqlBuilder(DatabaseType databaseType) {
-        AbstractSqlBuilder sqlBuilder;
+    public static SqlBuilder buildSqlBuilder(DatabaseType databaseType) {
+        SqlBuilder sqlBuilder;
         switch (databaseType) {
             case MySql:      sqlBuilder = new MySqlSqlBuilder();
                              break;

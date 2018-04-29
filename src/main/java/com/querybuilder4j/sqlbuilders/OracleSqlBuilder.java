@@ -1,11 +1,8 @@
 package com.querybuilder4j.sqlbuilders;
 
-import com.querybuilder4j.sqlbuilders.statements.DeleteStatement;
-import com.querybuilder4j.sqlbuilders.statements.InsertStatement;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
-import com.querybuilder4j.sqlbuilders.statements.UpdateStatement;
 
-public class OracleSqlBuilder extends AbstractSqlBuilder {
+public class OracleSqlBuilder extends SqlBuilder {
 
     public OracleSqlBuilder() {
         beginningDelimiter = '"';
@@ -60,21 +57,6 @@ public class OracleSqlBuilder extends AbstractSqlBuilder {
         } catch (Exception e) {
             throw e;
         }
-    }
-
-    @Override
-    public String buildSql(InsertStatement query) throws Exception {
-        return null;
-    }
-
-    @Override
-    public String buildSql(UpdateStatement query) throws Exception {
-        return null;
-    }
-
-    @Override
-    public String buildSql(DeleteStatement query) throws Exception {
-        return null;
     }
 
     @Override

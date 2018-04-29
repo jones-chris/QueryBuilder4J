@@ -40,25 +40,6 @@ public class DbConnectionImplTest {
     }
 
     @Test
-    public void userSignIn() throws Exception {
-        dbConnection.userSignIn();
-
-        assertTrue(true);
-    }
-
-    @Test(expected = Exception.class)
-    public void userSignInThrowsExceptionOnFail() throws Exception {
-        Properties badProperties = new Properties();
-        badProperties.setProperty("url", "jdbc:postgresql://localhost:5432/postgres");
-        badProperties.setProperty("username", "postgres");
-        badProperties.setProperty("password", "a_bad_password");
-        badProperties.setProperty("driverClass", "org.postgresql.Driver");
-        DbConnection badDbConnection = new DbConnectionImpl(badProperties);
-
-        badDbConnection.userSignIn();
-    }
-
-    @Test
     public void getDbSchemas() throws Exception {
 
     }

@@ -1,11 +1,8 @@
 package com.querybuilder4j.sqlbuilders;
 
-import com.querybuilder4j.sqlbuilders.statements.DeleteStatement;
-import com.querybuilder4j.sqlbuilders.statements.InsertStatement;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
-import com.querybuilder4j.sqlbuilders.statements.UpdateStatement;
 
-public class RedshiftSqlBuilder extends AbstractSqlBuilder {
+public class RedshiftSqlBuilder extends SqlBuilder {
 
     public RedshiftSqlBuilder() {
         beginningDelimiter = '"';
@@ -58,18 +55,4 @@ public class RedshiftSqlBuilder extends AbstractSqlBuilder {
         }
     }
 
-    @Override
-    public String buildSql(InsertStatement query) throws Exception {
-        return null;
-    }
-
-    @Override
-    public String buildSql(UpdateStatement query) throws Exception {
-        return null;
-    }
-
-    @Override
-    public String buildSql(DeleteStatement query) throws Exception {
-        return null;
-    }
 }

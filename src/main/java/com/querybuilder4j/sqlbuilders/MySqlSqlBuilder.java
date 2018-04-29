@@ -2,7 +2,7 @@ package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.sqlbuilders.statements.*;
 
-public class MySqlSqlBuilder extends AbstractSqlBuilder {
+public class MySqlSqlBuilder extends SqlBuilder {
 
     public MySqlSqlBuilder() {
         beginningDelimiter = '`';
@@ -53,26 +53,6 @@ public class MySqlSqlBuilder extends AbstractSqlBuilder {
 
     @Override
     public String buildSql(SelectStatement query) throws Exception {
-        return null;
-    }
-
-    @Override
-    public String buildSql(InsertStatement query) throws Exception {
-        StringBuilder sql = new StringBuilder();
-        sql.append(createInsertTableClause(query.getTable()));
-        sql.append(createInsertColumnsClause(query.getColumns()));
-        sql.append(createInsertValuesClause(query.getValues()));
-
-        return sql.toString();
-    }
-
-    @Override
-    public String buildSql(UpdateStatement query) throws Exception {
-        return null;
-    }
-
-    @Override
-    public String buildSql(DeleteStatement query) throws Exception {
         return null;
     }
 

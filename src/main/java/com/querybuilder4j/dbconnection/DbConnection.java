@@ -6,7 +6,6 @@ import java.sql.SQLException;
 
 public interface DbConnection {
     ResultSet execute(String sql) throws Exception;
-    void userSignIn() throws Exception;
     ResultSet getDbSchemas() throws SQLException;
     ResultSet getSchemaTables(String schemaName);
     ResultSet getSchemaViews(String schemaName);

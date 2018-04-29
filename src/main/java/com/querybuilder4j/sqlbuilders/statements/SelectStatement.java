@@ -2,7 +2,7 @@ package com.querybuilder4j.sqlbuilders.statements;
 
 
 import com.querybuilder4j.config.DatabaseType;
-import com.querybuilder4j.sqlbuilders.AbstractSqlBuilder;
+import com.querybuilder4j.sqlbuilders.SqlBuilder;
 
 import java.sql.ResultSetMetaData;
 import java.util.*;
@@ -10,13 +10,7 @@ import java.util.*;
 import static com.querybuilder4j.config.SqlBuilderFactory.buildSqlBuilder;
 
 public class SelectStatement extends Statement {
-//    private String queryName;
-//    private Properties properties;
-//    private ResultSetMetaData tableSchema;
     private boolean distinct;
-    private List<String> columns = new ArrayList<>();
-    private String table;
-    private SortedSet<Criteria> criteria = new TreeSet<>();
     private boolean groupBy;
     private boolean orderBy;
     private Long limit;
@@ -40,32 +34,6 @@ public class SelectStatement extends Statement {
         suppressNulls = false;
     }
 
-    public String getQueryName() {
-        return name;
-    }
-
-    public SelectStatement setQueryName(String queryName) {
-        this.name = queryName;
-        return this;
-    }
-
-    public Properties getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Properties properties) {
-        this.properties = properties;
-    }
-
-    public ResultSetMetaData getTableSchema() {
-        return tableSchema;
-    }
-
-    public SelectStatement setTableSchema(ResultSetMetaData tableSchema) {
-        this.tableSchema = tableSchema;
-        return this;
-    }
-
     public boolean isDistinct() {
         return distinct;
     }
@@ -74,33 +42,6 @@ public class SelectStatement extends Statement {
         this.distinct = distinct;
         return this;
     }
-
-    public List<String> getColumns() {
-        return columns;
-    }
-
-    public SelectStatement setColumns(List<String> columns) {
-        this.columns = columns;
-        return this;
-    }
-
-    public String getTable() {
-        return table;
-    }
-
-    public SelectStatement setTable(String table) {
-        this.table = table;
-        return this;
-    }
-
-    public SortedSet<Criteria> getCriteria() {
-        return criteria;
-    }
-
-//    public SelectStatement setCriteria(SortedSet<Criteria> criteria) {
-//        this.criteria = criteria;
-//        return this;
-//    }
 
     public boolean isGroupBy() {
         return groupBy;
@@ -215,11 +156,11 @@ public class SelectStatement extends Statement {
     }
 
     @Override
-    public String toSql() {
+    public String toString() {
         try {
             String databaseTypeProp = properties.getProperty("databaseType");
             DatabaseType databaseType = Enum.valueOf(DatabaseType.class, databaseTypeProp) ;
-            AbstractSqlBuilder sqlBuilder = buildSqlBuilder(databaseType);
+            SqlBuilder sqlBuilder = buildSqlBuilder(databaseType);
             return sqlBuilder.buildSql(this);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());

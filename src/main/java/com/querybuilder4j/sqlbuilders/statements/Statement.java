@@ -1,20 +1,17 @@
 package com.querybuilder4j.sqlbuilders.statements;
 
-import com.querybuilder4j.config.DatabaseType;
-import com.querybuilder4j.config.Parenthesis;
-import com.querybuilder4j.sqlbuilders.AbstractSqlBuilder;
-
 import java.sql.ResultSetMetaData;
 import java.util.*;
 
 import static com.querybuilder4j.config.Parenthesis.*;
-import static com.querybuilder4j.config.SqlBuilderFactory.buildSqlBuilder;
 
 public abstract class Statement {
     protected String name;
     protected Properties properties;
     protected ResultSetMetaData tableSchema;
-    private SortedSet<Criteria> criteria = new TreeSet<>();
+    protected List<String> columns = new ArrayList<>();
+    protected String table;
+    protected SortedSet<Criteria> criteria = new TreeSet<>();
 
 
     public Statement() {}
@@ -28,7 +25,50 @@ public abstract class Statement {
         return this;
     }
 
-    public abstract String toSql();
+    public String getName() {
+        return name;
+    }
+
+    public Statement setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public Statement setProperties(Properties properties) {
+        this.properties = properties;
+        return this;
+    }
+
+    public ResultSetMetaData getTableSchema() {
+        return tableSchema;
+    }
+
+    public Statement setTableSchema(ResultSetMetaData tableSchema) {
+        this.tableSchema = tableSchema;
+        return this;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public Statement setTable(String table) {
+        this.table = table;
+        return this;
+    }
+
+    public List<String> getColumns() {
+        return columns;
+    }
+
+    public Statement setColumns(List<String> columns) {
+        this.columns = columns;
+        return this;
+    }
 
     public void addParenthesisToCriteria() {
         List<Criteria> criteriaList = new ArrayList<>(criteria);

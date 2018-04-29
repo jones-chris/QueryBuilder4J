@@ -1,11 +1,8 @@
 package com.querybuilder4j.sqlbuilders;
 
-import com.querybuilder4j.sqlbuilders.statements.DeleteStatement;
-import com.querybuilder4j.sqlbuilders.statements.InsertStatement;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
-import com.querybuilder4j.sqlbuilders.statements.UpdateStatement;
 
-public class SqliteSqlBuilder extends AbstractSqlBuilder {
+public class SqliteSqlBuilder extends SqlBuilder {
 
     public SqliteSqlBuilder() {
         beginningDelimiter = '"';
@@ -67,18 +64,4 @@ public class SqliteSqlBuilder extends AbstractSqlBuilder {
         }
     }
 
-    @Override
-    public String buildSql(InsertStatement query) throws Exception {
-        return null;
-    }
-
-    @Override
-    public String buildSql(UpdateStatement query) throws Exception {
-        return null;
-    }
-
-    @Override
-    public String buildSql(DeleteStatement query) throws Exception {
-        return null;
-    }
 }

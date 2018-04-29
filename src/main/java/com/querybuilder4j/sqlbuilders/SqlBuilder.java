@@ -18,7 +18,7 @@ import java.util.SortedSet;
 
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.escapeAndRemove;
 
-public abstract class AbstractSqlBuilder {
+public abstract class SqlBuilder {
     protected Map<String, Boolean> typeMappings = new HashMap<>();
     protected char beginningDelimiter;
     protected char endingDelimter;
@@ -35,12 +35,9 @@ public abstract class AbstractSqlBuilder {
     }
 
 
-    public AbstractSqlBuilder() {}
+    public SqlBuilder() {}
 
     public abstract String buildSql(SelectStatement query) throws Exception;
-    public abstract String buildSql(InsertStatement query) throws Exception;
-    public abstract String buildSql(UpdateStatement query) throws Exception;
-    public abstract String buildSql(DeleteStatement query) throws Exception;
 
     protected StringBuilder createSelectClause(boolean distinct, List<String> columns)
             throws IllegalArgumentException, EmptyCollectionException {

@@ -1,7 +1,7 @@
 package com.querybuilder4j.sqlbuilders.statements;
 
-import com.querybuilder4j.config.Conjunction;
 import com.querybuilder4j.config.Operator;
+import com.querybuilder4j.config.Parenthesis;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import static com.querybuilder4j.TestUtils.charsMatch;
 import static com.querybuilder4j.config.Conjunction.*;
 import static com.querybuilder4j.config.Operator.*;
 import static org.junit.Assert.*;
@@ -27,21 +28,18 @@ public class CriteriaTest {
         criteria1.filter = "filter1";
 
         criteria2.parentId = 0;
-        //criteria2.setRank(1);
         criteria2.conjunction = And;
         criteria2.column = "column2";
         criteria2.operator = equalTo;
         criteria2.filter = "filter2";
 
         criteria3.parentId = 0;
-        //criteria3.setRank(2);
         criteria3.conjunction = And;
         criteria3.column = "column3";
         criteria3.operator = equalTo;
         criteria3.filter = "filter3";
 
         criteria4.parentId = 1;
-        //criteria4.setRank(1);
         criteria4.conjunction = And;
         criteria4.column = "column4";
         criteria4.operator = equalTo;
@@ -58,19 +56,58 @@ public class CriteriaTest {
 
     }
 
-//    @Test
-//    public void toString() throws Exception {
-//
-//    }
-//
-//    @Test
-//    public void clone() throws Exception {
-//
-//    }
+    @Test
+    public void isValid_ColumnIsNullReturnsFalse() throws Exception {
+        Criteria criteria = new Criteria();
+        criteria.setId(1);
+        criteria.column = null;
+        criteria.operator = Operator.equalTo;
+
+        assertFalse(criteria.isValid());
+    }
 
     @Test
-    public void isValid() throws Exception {
+    public void isValid_OperatorIsNullReturnsFalse() throws Exception {
+        Criteria criteria = new Criteria();
+        criteria.setId(1);
+        criteria.column = "column1";
+        criteria.operator = null;
 
+        assertFalse(criteria.isValid());
+    }
+
+    @Test
+    public void isValid_ColumnAndOperatorAreNullReturnsFalse() throws Exception {
+        Criteria criteria = new Criteria();
+        criteria.setId(1);
+        criteria.column = null;
+        criteria.operator = null;
+
+        assertFalse(criteria.isValid());
+    }
+
+    @Test
+    public void isValid_ColumnAndOperatorAreNotNullReturnsTrue() throws Exception {
+        Criteria criteria = new Criteria();
+        criteria.setId(1);
+        criteria.column = "column1";
+        criteria.operator = Operator.equalTo;
+
+        assertTrue(criteria.isValid());
+    }
+
+    @Test
+    public void toString_AllDataPresent() throws Exception {
+        criteria1.frontParenthesis = Parenthesis.FrontParenthesis;
+        criteria1.endParenthesis.add(Parenthesis.EndParenthesis);
+        criteria1.endParenthesis.add(Parenthesis.EndParenthesis);
+        String expected = " And (column1 = filter1)) ";
+
+        String actual = criteria1.toString();
+
+        System.out.println(expected);
+        System.out.println(actual);
+        assertTrue(charsMatch(expected, actual));
     }
 
     @Test
@@ -80,9 +117,14 @@ public class CriteriaTest {
         criteriaSet.add(criteria3);
         criteriaSet.add(criteria2);
         criteriaSet.add(criteria1);
+        Criteria[] criteriaArray = new Criteria[criteriaSet.size()];
+        criteriaSet.toArray(criteriaArray);
 
-        System.out.println(criteriaSet);
-        assertTrue(true);
+        assertTrue(criteriaSet.size() == 4);
+        assertTrue(criteriaArray[0].equals(criteria1));
+        assertTrue(criteriaArray[1].equals(criteria2));
+        assertTrue(criteriaArray[2].equals(criteria3));
+        assertTrue(criteriaArray[3].equals(criteria4));
     }
 
 }
