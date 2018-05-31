@@ -1,5 +1,11 @@
 package com.querybuilder4j;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.*;
+import java.util.Properties;
+
 public class TestUtils {
 
     public static boolean charsMatch(String s1, String s2) {
@@ -13,6 +19,16 @@ public class TestUtils {
         }
 
         return true;
+    }
+
+    public static ResultSet multiColumnResultSetBuilder(Properties properties) throws Exception {
+        Connection connection = DriverManager.getConnection(
+                    properties.getProperty("url"),
+                    properties.getProperty("username"),
+                    properties.getProperty("password"));
+
+            DatabaseMetaData metaData = connection.getMetaData();
+            return metaData.getColumns(null, "public", "county_spending_detail", null);
     }
 
 }

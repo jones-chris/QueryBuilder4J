@@ -9,6 +9,7 @@ import com.querybuilder4j.exceptions.DataTypeNotFoundException;
 import com.querybuilder4j.exceptions.EmptyCollectionException;
 import com.querybuilder4j.sqlbuilders.statements.*;
 
+import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -23,15 +24,23 @@ public abstract class SqlBuilder {
     protected char beginningDelimiter;
     protected char endingDelimter;
     protected ResultSetMetaData tableSchema;
-    public static Map<DatabaseType, String> availableTables = new HashMap<>();
+    public static Map<DatabaseType, String> readTablesSql = new HashMap<>();
+    public static Map<DatabaseType, String> writeTablesSql = new HashMap<>();
 
     static {
-        availableTables.put(DatabaseType.MySql,      "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type = 'SELECT';");
-        availableTables.put(DatabaseType.Oracle,     "SELECT table_name FROM dba_tab_privs WHERE grantee ='{0}' AND privilege = 'SELECT';");
-        availableTables.put(DatabaseType.PostgreSQL, "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type = 'SELECT';");
-        availableTables.put(DatabaseType.Redshift,   "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type = 'SELECT';");
-        availableTables.put(DatabaseType.Sqlite,     "SELECT tbl_name FROM sqlite_master where type ='table' OR type ='view';");
-        availableTables.put(DatabaseType.SqlServer,  "SELECT table_name FROM sp_table_privileges WHERE grantee = '{0}' AND privilege = 'SELECT';");
+        readTablesSql.put(DatabaseType.MySql,      "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type = 'SELECT';");
+        readTablesSql.put(DatabaseType.Oracle,     "SELECT table_name FROM dba_tab_privs WHERE grantee ='{0}' AND privilege = 'SELECT';");
+        readTablesSql.put(DatabaseType.PostgreSQL, "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type = 'SELECT';");
+        readTablesSql.put(DatabaseType.Redshift,   "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type = 'SELECT';");
+        readTablesSql.put(DatabaseType.Sqlite,     "SELECT tbl_name FROM sqlite_master where type ='table' OR type ='view';");
+        readTablesSql.put(DatabaseType.SqlServer,  "SELECT table_name FROM sp_table_privileges WHERE grantee = '{0}' AND privilege = 'SELECT';");
+
+        writeTablesSql.put(DatabaseType.MySql,      "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type IN ('INSERT', 'UPDATE', 'DELETE');");
+        writeTablesSql.put(DatabaseType.Oracle,     "SELECT table_name FROM dba_tab_privs WHERE grantee ='{0}' AND privilege IN ('INSERT', 'UPDATE', 'DELETE');");
+        writeTablesSql.put(DatabaseType.PostgreSQL, "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type IN ('INSERT', 'UPDATE', 'DELETE');");
+        writeTablesSql.put(DatabaseType.Redshift,   "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type IN ('INSERT', 'UPDATE', 'DELETE')';");
+        writeTablesSql.put(DatabaseType.Sqlite,     "SELECT tbl_name FROM sqlite_master where type ='table' OR type ='view';");
+        writeTablesSql.put(DatabaseType.SqlServer,  "SELECT table_name FROM sp_table_privileges WHERE grantee = '{0}' AND privilege IN ('INSERT', 'UPDATE', 'DELETE');");
     }
 
 
@@ -51,7 +60,7 @@ public abstract class SqlBuilder {
         {
             sql.append(String.format("%s%s%s, ", beginningDelimiter, escapeAndRemove(column), beginningDelimiter));
         }
-        sql = sql.delete(sql.length() - 2, 2).append(" ");
+        sql = sql.delete(sql.length() - 2, sql.length()).append(" ");
         //return sql.replace("  ", " ");
         return sql;
     }
@@ -68,11 +77,11 @@ public abstract class SqlBuilder {
     }
 
     protected StringBuilder createWhereClause(SortedSet<Criteria> criteria) throws Exception {
-        if (criteria == null) throw new IllegalArgumentException("The criteria parameter is null");
+//        if (criteria == null) throw new IllegalArgumentException("The criteria parameter is null");
 
-        if (criteria.size() == 0) {
-            throw new EmptyCollectionException("The criteria parameter is empty");
-        } else {
+//        if (criteria.size() == 0) {
+//            return null;
+//        } else {
             StringBuilder sql = new StringBuilder(" WHERE ");
 
             for (Criteria crit : criteria) {
@@ -120,7 +129,7 @@ public abstract class SqlBuilder {
                 }
             }
             return sql;
-        }
+        //}
     }
 
     protected StringBuilder createGroupByClause(List<String> columns) throws IllegalArgumentException, EmptyCollectionException{
@@ -135,7 +144,7 @@ public abstract class SqlBuilder {
                 sql.append(String.format("%s%s%s, ", beginningDelimiter, escapeAndRemove(column), endingDelimter));
             }
 
-            sql.delete(sql.length() - 2, 2).append(" ");
+            sql.delete(sql.length() - 2, sql.length()).append(" ");
             //return sql.Replace("  ", " ");
             return sql;
         }
@@ -154,7 +163,7 @@ public abstract class SqlBuilder {
                 sql.append(String.format("%s%s%s, ", beginningDelimiter, escapeAndRemove(column), endingDelimter));
             }
 
-            sql.delete(sql.length() - 2, 2).append(" ");
+            sql.delete(sql.length() - 2, sql.length()).append(" ");
             //return (ascending) ? sql.append(" ASC ").Replace("  ", " ") : sql.Append(" DESC ").Replace("  ", " ");
             return (ascending) ? sql.append(" ASC ") : sql.append(" DESC ");
         }
@@ -266,9 +275,11 @@ public abstract class SqlBuilder {
     }
 
     private String getColumnDataType(String columnName) throws SQLException, ColumnNameNotFoundException {
-        for (int i=0; i<tableSchema.getColumnCount(); i++) {
-            if (tableSchema.getColumnName(i).equals(columnName)) {
-                return tableSchema.getColumnTypeName(i);
+        ResultSetMetaData metaData = tableSchema;
+
+        for (int i=0; i<metaData.getColumnCount(); i++) {
+            if (metaData.getColumnName(i).equals(columnName)) {
+                return metaData.getColumnTypeName(i);
             }
         }
 

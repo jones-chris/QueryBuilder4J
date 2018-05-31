@@ -7,7 +7,6 @@ import static com.querybuilder4j.config.Parenthesis.*;
 
 public abstract class Statement {
     protected String name;
-    protected Properties properties;
     protected ResultSetMetaData tableSchema;
     protected List<String> columns = new ArrayList<>();
     protected String table;
@@ -34,14 +33,14 @@ public abstract class Statement {
         return this;
     }
 
-    public Properties getProperties() {
-        return properties;
-    }
-
-    public Statement setProperties(Properties properties) {
-        this.properties = properties;
-        return this;
-    }
+//    public Properties getProperties() {
+//        return properties;
+//    }
+//
+//    public Statement setProperties(Properties properties) {
+//        this.properties = properties;
+//        return this;
+//    }
 
     public ResultSetMetaData getTableSchema() {
         return tableSchema;
@@ -121,7 +120,7 @@ public abstract class Statement {
         List<Criteria> criteriaList = new ArrayList<>(criteria);
         for (int i=criteriaList.size()-1; i>=0; i--) {
             if (criteriaList.get(i).parentId == null) continue;
-            if (criteriaList.get(i).parentId == parentId) return i;
+            if (criteriaList.get(i).parentId.equals(parentId)) return i;
         }
         return -1;
     }

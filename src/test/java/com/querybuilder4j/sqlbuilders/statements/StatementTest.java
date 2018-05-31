@@ -16,6 +16,7 @@ public class StatementTest {
     private Criteria criteria2 = new Criteria(1);
     private Criteria criteria3 = new Criteria(2);
     private Criteria criteria4 = new Criteria(3);
+    private Criteria criteria5 = new Criteria(4);
     private Statement statement = new SelectStatement();
 
 
@@ -43,6 +44,11 @@ public class StatementTest {
         criteria4.column = "column4";
         criteria4.operator = equalTo;
         criteria4.filter = "filter4";
+
+        criteria5.conjunction = And;
+        criteria5.column = "column5";
+        criteria5.operator = equalTo;
+        criteria5.filter = "filter5";
     }
 
     @After
@@ -50,7 +56,7 @@ public class StatementTest {
     }
 
     @Test
-    public void addParenthesisToCriteriaTest() {
+    public void addParenthesisToCriteria_EndsWithChildTwoEndingParenthesis() {
         // id = 0, parent id = null    (column1 = filter1
             // id = 1, parent id = 0       AND (column2 = filter2
                 // id = 2, parent id = 1           AND column3 = filter3
@@ -71,18 +77,12 @@ public class StatementTest {
     }
 
     @Test
-    public void addParenthesisToCriteriaTest2() {
+    public void addParenthesisToCriteriaTest_EndsWithOneEndingParenthesis() {
         // id = 0, parent id = null    (column1 = filter1
         // id = 1, parent id = 0       AND (column2 = filter2
         // id = 2, parent id = 1           AND column3 = filter3
         // id = 3, parent id = 1           AND column4 = filter4)
         // id = 4, parent id = 0       AND column5 = filter5)
-
-        Criteria criteria5 = new Criteria(4);
-        criteria5.conjunction = And;
-        criteria5.column = "column5";
-        criteria5.operator = equalTo;
-        criteria5.filter = "filter5";
 
         SortedSet<Criteria> criteria = new TreeSet<>();
         criteria.add(criteria1);
@@ -97,4 +97,45 @@ public class StatementTest {
         System.out.println(criteria);
         assertTrue(true);
     }
+
+    @Test
+    public void addParenthesisToCriteriaTest_EndsWithZeroEndingParenthesis() {
+        // id = 0, parent id = null    column1 = filter1
+        // id = 4, parent id = null    AND column5 = filter5
+
+        SortedSet<Criteria> criteria = new TreeSet<>();
+        criteria.add(criteria1);
+        criteria.add(criteria5);
+        statement.setCriteria(criteria);
+
+        statement.addParenthesisToCriteria();
+
+        System.out.println(criteria);
+        assertTrue(true);
+    }
+
+    @Test
+    public void addParenthesisToCriteriaTest_EndsWithZeroEndingParenthesisButChildCriteria() {
+        // id = 0, parent id = null    column1 = filter1
+        // id = 1, parent id = null    AND (column 2 = filter2
+        // id = 2, parent id = 1       AND column3 = filter3)
+        // id = 3, parent id = null    AND column5 = filter5
+
+        criteria2.parentId = null;
+        criteria3.parentId = 1;
+        criteria4.parentId = null;
+
+        SortedSet<Criteria> criteria = new TreeSet<>();
+        criteria.add(criteria1);
+        criteria.add(criteria2);
+        criteria.add(criteria3);
+        criteria.add(criteria4);
+        statement.setCriteria(criteria);
+
+        statement.addParenthesisToCriteria();
+
+        System.out.println(criteria);
+        assertTrue(true);
+    }
+
 }

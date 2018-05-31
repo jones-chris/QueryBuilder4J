@@ -37,7 +37,12 @@ public class PostgresSqlBuilder extends SqlBuilder {
             StringBuilder sql = new StringBuilder("");
             sql.append(createSelectClause(query.isDistinct(), query.getColumns()));
             sql.append(createFromClause(query.getTable()));
-            sql.append(createWhereClause(query.getCriteria()));
+
+            if (query.getCriteria() != null) {
+                if (query.getCriteria().size() > 0) {
+                    sql.append(createWhereClause(query.getCriteria()));
+                }
+            }
 
             if (query.isSuppressNulls()) {
                 if (sql.toString().contains(" WHERE ")) {
@@ -47,8 +52,10 @@ public class PostgresSqlBuilder extends SqlBuilder {
                 }
             }
 
-            sql.append(createGroupByClause(query.getColumns()));
-            sql.append(createOrderByClause(query.getColumns(), query.isAscending()));
+            if (query.isGroupBy()) sql.append(createGroupByClause(query.getColumns()));
+
+            if (query.isOrderBy()) sql.append(createOrderByClause(query.getColumns(), query.isAscending()));
+
             sql.append(createLimitClause(query.getLimit()));
             sql.append(createOffsetClause(query.getOffset()));
 
