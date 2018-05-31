@@ -20,9 +20,8 @@ public class SelectStatement extends Statement {
 
     public SelectStatement() {}
 
-    public SelectStatement(String name, Properties properties) {
+    public SelectStatement(String name) {
         this.name = name;
-        this.properties = properties;
         tableSchema = null;
         distinct = false;
         table = null;
@@ -155,16 +154,16 @@ public class SelectStatement extends Statement {
         }
     }
 
-    @Override
-    public String toString() {
-        try {
-            String databaseTypeProp = properties.getProperty("databaseType");
-            DatabaseType databaseType = Enum.valueOf(DatabaseType.class, databaseTypeProp) ;
-            SqlBuilder sqlBuilder = buildSqlBuilder(databaseType);
-            return sqlBuilder.buildSql(this);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
+//    @Override
+//    public String toString() {
+//        try {
+//            String databaseTypeProp = properties.getProperty("databaseType");
+//            DatabaseType databaseType = Enum.valueOf(DatabaseType.class, databaseTypeProp) ;
+//            SqlBuilder sqlBuilder = buildSqlBuilder(databaseType);
+//            return sqlBuilder.buildSql(this);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e.getMessage());
+//        }
+//    }
 
 }

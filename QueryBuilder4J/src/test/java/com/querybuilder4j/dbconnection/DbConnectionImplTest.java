@@ -31,7 +31,7 @@ public class DbConnectionImplTest {
 
     @Test
     public void readQuery() throws Exception {
-        String sql = "select * from county_spending_detail limit 50;";
+        String sql = "select * from public.county_spending_detail limit 50;";
 
         ResultSet rs = dbConnection.execute(sql);
 
