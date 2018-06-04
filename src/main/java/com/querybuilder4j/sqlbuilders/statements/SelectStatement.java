@@ -96,28 +96,6 @@ public class SelectStatement extends Statement {
         return this;
     }
 
-    public boolean addCriteria(Criteria criteria) {
-        try {
-            this.criteria.add(criteria);
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-
-    public boolean addCriteria(List<Criteria> criteria) {
-            return this.criteria.addAll(criteria);
-    }
-
-    public boolean removeCriteria(int index) {
-        try {
-            this.criteria.remove(index);
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-
     /**
      *
      * @param column

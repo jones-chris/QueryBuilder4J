@@ -8,30 +8,30 @@ public class SqliteSqlBuilder extends SqlBuilder {
         beginningDelimiter = '"';
         endingDelimter = '"';
 
-        typeMappings.put("boolean", false);
-        typeMappings.put("smallint", false);
-        typeMappings.put("int16", false);
-        typeMappings.put("int", false);
-        typeMappings.put("int32", false);
-        typeMappings.put("integer", false);
-        typeMappings.put("int64", false);
-        typeMappings.put("real", false);
-        typeMappings.put("numeric", false);
-        typeMappings.put("decimal", false);
-        typeMappings.put("money", false);
-        typeMappings.put("currency", false);
-        typeMappings.put("date", true);
-        typeMappings.put("time", true);
-        typeMappings.put("datetime", true);
-        typeMappings.put("smalldate", true);
-        typeMappings.put("datetimeoffset", true);
-        typeMappings.put("text", true);
-        typeMappings.put("ntext", true);
-        typeMappings.put("char", true);
-        typeMappings.put("nchar", true);
-        typeMappings.put("varchar", true);
-        typeMappings.put("nvarchar", true);
-        typeMappings.put("string", true);
+//        typeMappings.put("boolean", false);
+//        typeMappings.put("smallint", false);
+//        typeMappings.put("int16", false);
+//        typeMappings.put("int", false);
+//        typeMappings.put("int32", false);
+//        typeMappings.put("integer", false);
+//        typeMappings.put("int64", false);
+//        typeMappings.put("real", false);
+//        typeMappings.put("numeric", false);
+//        typeMappings.put("decimal", false);
+//        typeMappings.put("money", false);
+//        typeMappings.put("currency", false);
+//        typeMappings.put("date", true);
+//        typeMappings.put("time", true);
+//        typeMappings.put("datetime", true);
+//        typeMappings.put("smalldate", true);
+//        typeMappings.put("datetimeoffset", true);
+//        typeMappings.put("text", true);
+//        typeMappings.put("ntext", true);
+//        typeMappings.put("char", true);
+//        typeMappings.put("nchar", true);
+//        typeMappings.put("varchar", true);
+//        typeMappings.put("nvarchar", true);
+//        typeMappings.put("string", true);
     }
 
     @Override

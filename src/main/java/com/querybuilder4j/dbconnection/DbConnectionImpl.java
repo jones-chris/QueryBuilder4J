@@ -28,16 +28,8 @@ public class DbConnectionImpl implements DbConnection {
 
     @Override
     public ResultSet execute(String sql) throws Exception {
-        try {
-//            Class.forName(driverClassName);
-//            connection = DriverManager.getConnection(properties.getProperty("url"),
-//                    properties.getProperty("username"),
-//                    properties.getProperty("password"));
             Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             return statement.executeQuery(sql);
-        } finally {
-            connection.close();
-        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.querybuilder4j.sqlbuilders;
 
 
+import com.mysql.cj.api.xdevapi.Result;
 import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.config.Operator;
 import com.querybuilder4j.exceptions.BadSqlException;
@@ -12,6 +13,7 @@ import com.querybuilder4j.sqlbuilders.statements.*;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +22,10 @@ import java.util.SortedSet;
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.escapeAndRemove;
 
 public abstract class SqlBuilder {
-    protected Map<String, Boolean> typeMappings = new HashMap<>();
+    protected static Map<Integer, Boolean> typeMappings = new HashMap<>();
     protected char beginningDelimiter;
     protected char endingDelimter;
-    protected ResultSetMetaData tableSchema;
+    protected ResultSet tableSchema;
     public static Map<DatabaseType, String> readTablesSql = new HashMap<>();
     public static Map<DatabaseType, String> writeTablesSql = new HashMap<>();
 
@@ -41,6 +43,46 @@ public abstract class SqlBuilder {
         writeTablesSql.put(DatabaseType.Redshift,   "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type IN ('INSERT', 'UPDATE', 'DELETE')';");
         writeTablesSql.put(DatabaseType.Sqlite,     "SELECT tbl_name FROM sqlite_master where type ='table' OR type ='view';");
         writeTablesSql.put(DatabaseType.SqlServer,  "SELECT table_name FROM sp_table_privileges WHERE grantee = '{0}' AND privilege IN ('INSERT', 'UPDATE', 'DELETE');");
+
+        typeMappings.put(Types.ARRAY, true);                     //ARRAY
+        typeMappings.put(Types.BIGINT, false);                   //BIGINT
+        typeMappings.put(Types.BINARY, true);                    //BINARY
+        typeMappings.put(Types.BIT, false);                      //BIT
+        typeMappings.put(Types.BLOB, true);                      //BLOB
+        typeMappings.put(Types.BOOLEAN, false);                  //BOOLEAN
+        typeMappings.put(Types.CHAR, true);                      //CHAR
+        typeMappings.put(Types.CLOB, true);                      //CLOB
+        typeMappings.put(Types.DATALINK, false);                 //DATALINK
+        typeMappings.put(Types.DATE, true);                      //DATE
+        typeMappings.put(Types.DECIMAL, true);                   //DECIMAL
+        typeMappings.put(Types.DISTINCT, true);                  //DISTINCT
+        typeMappings.put(Types.DOUBLE, false);                   //DOUBLE
+        typeMappings.put(Types.FLOAT, false);                    //FLOAT
+        typeMappings.put(Types.INTEGER, false);                  //INTEGER
+        typeMappings.put(Types.JAVA_OBJECT, true);               //JAVA_OBJECT
+        typeMappings.put(Types.LONGNVARCHAR, true);              //LONGNVARCHAR
+        typeMappings.put(Types.LONGVARBINARY, true);             //LONGVARBINARY
+        typeMappings.put(Types.LONGVARCHAR, true);               //LONGVARCHAR
+        typeMappings.put(Types.NCHAR, true);                     //NCHAR
+        typeMappings.put(Types.NCLOB, true);                     //NCLOB
+        typeMappings.put(Types.NULL, true);                      //NULL
+        typeMappings.put(Types.NUMERIC, false);                  //NUMERIC
+        typeMappings.put(Types.NVARCHAR, true);                  //NVARCHAR
+        typeMappings.put(Types.OTHER, true);                     //OTHER
+        typeMappings.put(Types.REAL, false);                     //REAL
+        typeMappings.put(Types.REF, true);                       //REF
+        typeMappings.put(Types.REF_CURSOR, true);                //REF_CURSOR
+        typeMappings.put(Types.ROWID, false);                    //ROWID
+        typeMappings.put(Types.SMALLINT, false);                 //SMALLINT
+        typeMappings.put(Types.SQLXML, true);                    //SQLXML
+        typeMappings.put(Types.STRUCT, true);                    //STRUCT
+        typeMappings.put(Types.TIME, true);                      //TIME
+        typeMappings.put(Types.TIME_WITH_TIMEZONE, true);        //TIME_WITH_TIMEZONE
+        typeMappings.put(Types.TIMESTAMP, true);                 //TIMESTAMP
+        typeMappings.put(Types.TIMESTAMP_WITH_TIMEZONE, true);   //TIMESTAMP_WITH_TIMEZONE
+        typeMappings.put(Types.TINYINT, false);                  //TINYINT
+        typeMappings.put(Types.VARBINARY, true);                 //VARBINARY
+        typeMappings.put(Types.VARCHAR, true);                   //VARCHAR
     }
 
 
@@ -118,7 +160,7 @@ public abstract class SqlBuilder {
                             sql.append(criteriaClone.toString()).append(" ");
                         } else {
                             criteriaClone.filter = (shouldHaveQuotes) ? "'" + escapeAndRemove(criteriaClone.filter) + "'" : escapeAndRemove(criteriaClone.filter);
-                            sql.append(criteria.toString()).append(" ");
+                            sql.append(criteriaClone.toString()).append(" ");
                         }
 
                     } else {
@@ -224,7 +266,7 @@ public abstract class SqlBuilder {
 
         for (String value : values) {
 
-            String dataType = getColumnDataType(value);
+            int dataType = getColumnDataType(value);
 
             if (isColumnQuoted(dataType)) {
                 s.append('\'').append(value).append('\'').append(',');
@@ -253,7 +295,7 @@ public abstract class SqlBuilder {
             String value = values.get(i);
             s.append(beginningDelimiter).append(column).append(endingDelimter).append(" = ");
 
-            String dataType = getColumnDataType(value);
+            int dataType = getColumnDataType(value);
 
             if (isColumnQuoted(dataType)) {
                 s.append('\'').append(value).append('\'').append(',');
@@ -274,20 +316,25 @@ public abstract class SqlBuilder {
         return new StringBuilder("DELETE FROM ").append(tableWithDelims).append(" ");
     }
 
-    private String getColumnDataType(String columnName) throws SQLException, ColumnNameNotFoundException {
-        ResultSetMetaData metaData = tableSchema;
-
-        for (int i=0; i<metaData.getColumnCount(); i++) {
-            if (metaData.getColumnName(i).equals(columnName)) {
-                return metaData.getColumnTypeName(i);
+    private int getColumnDataType(String columnName) throws SQLException, ColumnNameNotFoundException {
+        int dataType = -1000; //default value, does not match any java.sql.Types.
+        while (tableSchema.next()) {
+            if (tableSchema.getString("COLUMN_NAME").equals(columnName)) {
+                dataType = tableSchema.getInt("DATA_TYPE");
+                tableSchema.beforeFirst(); // reset cursor to before first record.
+                break;
             }
         }
 
-        throw new ColumnNameNotFoundException(String.format("Could not find column, %s", columnName));
+        if (dataType == -1000) {
+            throw new ColumnNameNotFoundException(String.format("Could not find column, %s", columnName));
+        } else {
+            return dataType;
+        }
     }
 
-    private boolean isColumnQuoted(String columnDataType) throws DataTypeNotFoundException {
-        Boolean isQuoted = typeMappings.get(columnDataType.toLowerCase());
+    private boolean isColumnQuoted(int columnDataType) throws DataTypeNotFoundException {
+        Boolean isQuoted = typeMappings.get(columnDataType);
         if (isQuoted == null) {
             throw new DataTypeNotFoundException(String.format("Data type, %s, not recognized", columnDataType));
         } else {

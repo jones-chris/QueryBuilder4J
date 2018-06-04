@@ -68,9 +68,8 @@ public class StatementTest {
         criteria.add(criteria2);
         criteria.add(criteria3);
         criteria.add(criteria4);
+        statement.getCriteria().addAll(criteria);
         statement.setCriteria(criteria);
-
-        statement.addParenthesisToCriteria();
 
         System.out.println(criteria);
         assertTrue(true);
@@ -92,8 +91,6 @@ public class StatementTest {
         criteria.add(criteria5);
         statement.setCriteria(criteria);
 
-        statement.addParenthesisToCriteria();
-
         System.out.println(criteria);
         assertTrue(true);
     }
@@ -106,9 +103,8 @@ public class StatementTest {
         SortedSet<Criteria> criteria = new TreeSet<>();
         criteria.add(criteria1);
         criteria.add(criteria5);
-        statement.setCriteria(criteria);
 
-        statement.addParenthesisToCriteria();
+        statement.setCriteria(criteria);
 
         System.out.println(criteria);
         assertTrue(true);
@@ -131,8 +127,6 @@ public class StatementTest {
         criteria.add(criteria3);
         criteria.add(criteria4);
         statement.setCriteria(criteria);
-
-        statement.addParenthesisToCriteria();
 
         System.out.println(criteria);
         assertTrue(true);

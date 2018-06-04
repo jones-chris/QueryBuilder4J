@@ -8,21 +8,21 @@ public class RedshiftSqlBuilder extends SqlBuilder {
         beginningDelimiter = '"';
         endingDelimter = '"';
 
-        typeMappings.put("sql_bit", false);
-        typeMappings.put("sql_bigint", false);
-        typeMappings.put("sql_integer", false);
-        typeMappings.put("sql_decimal", false);
-        typeMappings.put("sql_double", false);
-        typeMappings.put("sql_numeric", false);
-        typeMappings.put("sql_real", false);
-        typeMappings.put("sql_smallint", false);
-        typeMappings.put("sql_char", true);
-        typeMappings.put("sql_long_varchar", true);
-        typeMappings.put("sql_wchar", true);
-        typeMappings.put("sql_wlongvarchar", true);
-        typeMappings.put("sql_wvarchar", true);
-        typeMappings.put("sql_type_times", true);
-        typeMappings.put("sql_type_timestamp", true);
+//        typeMappings.put("sql_bit", false);
+//        typeMappings.put("sql_bigint", false);
+//        typeMappings.put("sql_integer", false);
+//        typeMappings.put("sql_decimal", false);
+//        typeMappings.put("sql_double", false);
+//        typeMappings.put("sql_numeric", false);
+//        typeMappings.put("sql_real", false);
+//        typeMappings.put("sql_smallint", false);
+//        typeMappings.put("sql_char", true);
+//        typeMappings.put("sql_long_varchar", true);
+//        typeMappings.put("sql_wchar", true);
+//        typeMappings.put("sql_wlongvarchar", true);
+//        typeMappings.put("sql_wvarchar", true);
+//        typeMappings.put("sql_type_times", true);
+//        typeMappings.put("sql_type_timestamp", true);
     }
 
     @Override
