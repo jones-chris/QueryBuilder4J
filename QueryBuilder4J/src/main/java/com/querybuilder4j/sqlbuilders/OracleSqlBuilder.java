@@ -8,21 +8,21 @@ public class OracleSqlBuilder extends SqlBuilder {
         beginningDelimiter = '"';
         endingDelimter = '"';
 
-        typeMappings.put("integer", false);
-        typeMappings.put("float", false);
-        typeMappings.put("unsigned integer", false);
-        typeMappings.put("number", false);
-        typeMappings.put("char", true);
-        typeMappings.put("long", false);
-        typeMappings.put("nchar", true);
-        typeMappings.put("nvarchar2", true);
-        typeMappings.put("varchar2", true);
-        typeMappings.put("date", true);
-        typeMappings.put("timestamp", true);
-        typeMappings.put("timestamp with local time zone", true);
-        typeMappings.put("timestamp with time zone", true);
-        typeMappings.put("interval year to month", true);
-        typeMappings.put("interval day to second", true);
+//        typeMappings.put("integer", false);
+//        typeMappings.put("float", false);
+//        typeMappings.put("unsigned integer", false);
+//        typeMappings.put("number", false);
+//        typeMappings.put("char", true);
+//        typeMappings.put("long", false);
+//        typeMappings.put("nchar", true);
+//        typeMappings.put("nvarchar2", true);
+//        typeMappings.put("varchar2", true);
+//        typeMappings.put("date", true);
+//        typeMappings.put("timestamp", true);
+//        typeMappings.put("timestamp with local time zone", true);
+//        typeMappings.put("timestamp with time zone", true);
+//        typeMappings.put("interval year to month", true);
+//        typeMappings.put("interval day to second", true);
     }
 
     @Override

@@ -55,18 +55,6 @@ public class SqlBuilderTest {
 //        propsMySql.setProperty("driverClass", "com.mysql.cj.jdbc.Driver");
 //        propsMySql.setProperty("databaseType", "MySql");
 //        properties.add(propsMySql);
-
-        // Get properties files
-//        try {
-//            for (String fileName : propertiesFileNames) {
-//                FileReader reader = new FileReader(fileName);
-//                Properties props = new Properties();
-//                props.load(reader);
-//                properties.add(props);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 
     @Before
@@ -81,7 +69,6 @@ public class SqlBuilderTest {
 
     @Test
     public void runTests() throws Exception {
-        // Loop thru each properties files
         for (int i=0; i<properties.size(); i++) {
 
             Properties props = properties.get(i);
@@ -89,9 +76,7 @@ public class SqlBuilderTest {
 
             DatabaseType dbType = DatabaseType.valueOf(props.getProperty("databaseType"));
             sqlBuilder = buildSqlBuilder(dbType);
-            sqlBuilder.tableSchema = TestUtils.multiColumnResultSetBuilder(properties.get(i)).getMetaData();
-//            sqlBuilder.typeMappings.put("text", true);
-//            sqlBuilder.typeMappings.put("int2", false);
+            sqlBuilder.tableSchema = TestUtils.multiColumnResultSetBuilder(properties.get(i));
 
             // run each public method that returns a ResultSet and test results.
             Method[] methods = QueryTests.class.getMethods();
@@ -105,7 +90,8 @@ public class SqlBuilderTest {
                     // move cursor to last record in ResultSet so that getRow() returns total number or records.
                     rs.last();
 
-                    assertTrue(rs.getRow() > 1);
+                    assertTrue(String.format("%s failed.  Check the console for the stack trace.", method.getName()),
+                            rs.getRow() > 1);
                 }
             }
         }

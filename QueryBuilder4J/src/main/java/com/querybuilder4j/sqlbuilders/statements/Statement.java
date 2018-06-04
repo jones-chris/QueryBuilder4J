@@ -1,5 +1,8 @@
 package com.querybuilder4j.sqlbuilders.statements;
 
+import com.querybuilder4j.config.Parenthesis;
+
+import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.*;
 
@@ -7,7 +10,7 @@ import static com.querybuilder4j.config.Parenthesis.*;
 
 public abstract class Statement {
     protected String name;
-    protected ResultSetMetaData tableSchema;
+    protected ResultSet tableSchema;
     protected List<String> columns = new ArrayList<>();
     protected String table;
     protected SortedSet<Criteria> criteria = new TreeSet<>();
@@ -21,6 +24,7 @@ public abstract class Statement {
 
     public Statement setCriteria(SortedSet<Criteria> criteria) {
         this.criteria = criteria;
+        addParenthesisToCriteria();
         return this;
     }
 
@@ -33,20 +37,12 @@ public abstract class Statement {
         return this;
     }
 
-//    public Properties getProperties() {
-//        return properties;
-//    }
-//
-//    public Statement setProperties(Properties properties) {
-//        this.properties = properties;
-//        return this;
-//    }
 
-    public ResultSetMetaData getTableSchema() {
+    public ResultSet getTableSchema() {
         return tableSchema;
     }
 
-    public Statement setTableSchema(ResultSetMetaData tableSchema) {
+    public Statement setTableSchema(ResultSet tableSchema) {
         this.tableSchema = tableSchema;
         return this;
     }
@@ -69,7 +65,50 @@ public abstract class Statement {
         return this;
     }
 
-    public void addParenthesisToCriteria() {
+    public boolean addCriteria(Criteria criteria) {
+        boolean success = this.criteria.add(criteria);
+        if (success) {
+            clearParenthesisFromCriteria();
+            addParenthesisToCriteria();
+            return true;
+        }
+
+        return false;
+
+    }
+
+    public boolean addCriteria(List<Criteria> criteria) {
+        boolean success = this.criteria.addAll(criteria);
+        if (success) {
+            clearParenthesisFromCriteria();
+            addParenthesisToCriteria();
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean removeCriteria(Criteria criteria) {
+        boolean success = this.criteria.remove(criteria);
+        if (success) {
+            clearParenthesisFromCriteria();
+            addParenthesisToCriteria();
+            return true;
+        }
+
+        return false;
+    }
+
+    private void clearParenthesisFromCriteria() {
+        if (criteria.size() > 0) {
+            criteria.forEach( (x) -> {
+                x.frontParenthesis = Parenthesis.Empty;
+                x.endParenthesis.clear();
+            });
+        }
+    }
+
+    private void addParenthesisToCriteria() {
         List<Criteria> criteriaList = new ArrayList<>(criteria);
         if (criteria.size() > 0) {
             for (int i=0; i<criteria.size(); i++) {

@@ -8,25 +8,25 @@ public class PostgresSqlBuilder extends SqlBuilder {
         beginningDelimiter = '"';
         endingDelimter = '"';
 
-        typeMappings.put("bool", false);
-        typeMappings.put("int2", false);
-        typeMappings.put("int4", false);
-        typeMappings.put("int8", false);
-        typeMappings.put("float4", false);
-        typeMappings.put("float8", false);
-        typeMappings.put("numeric", false);
-        typeMappings.put("money", false);
-        typeMappings.put("text", true);
-        typeMappings.put("varchar", true);
-        typeMappings.put("bpchar", true);
-        typeMappings.put("citext", true);
-        typeMappings.put("json", true);
-        typeMappings.put("jsonb", true);
-        typeMappings.put("date", true);
-        typeMappings.put("interval", true);
-        typeMappings.put("timestamptz", true);
-        typeMappings.put("time", true);
-        typeMappings.put("timetz", true);
+//        typeMappings.put("bool", false);
+//        typeMappings.put("int2", false);
+//        typeMappings.put("int4", false);
+//        typeMappings.put("int8", false);
+//        typeMappings.put("float4", false);
+//        typeMappings.put("float8", false);
+//        typeMappings.put("numeric", false);
+//        typeMappings.put("money", false);
+//        typeMappings.put("text", true);
+//        typeMappings.put("varchar", true);
+//        typeMappings.put("bpchar", true);
+//        typeMappings.put("citext", true);
+//        typeMappings.put("json", true);
+//        typeMappings.put("jsonb", true);
+//        typeMappings.put("date", true);
+//        typeMappings.put("interval", true);
+//        typeMappings.put("timestamptz", true);
+//        typeMappings.put("time", true);
+//        typeMappings.put("timetz", true);
     }
 
     @Override

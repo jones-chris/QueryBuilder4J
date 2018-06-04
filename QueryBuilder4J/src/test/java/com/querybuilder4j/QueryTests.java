@@ -11,9 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static com.querybuilder4j.config.Conjunction.*;
 import static com.querybuilder4j.config.Operator.*;
@@ -23,8 +21,8 @@ public class QueryTests {
     private Properties properties;
     private String table = "county_spending_detail";
     private List<String> columns = new ArrayList<>();
+    private Criteria criteria0;
     private Criteria criteria1;
-    private Criteria criteria2;
     private List<Criteria> multipleCriteria = new ArrayList<>();
     private Criteria criteriaWithIsNotNull;
     private long limit = 100;
@@ -44,36 +42,40 @@ public class QueryTests {
 //        props.load(reader);
 
         SelectStatement stmt = new SelectStatement("main");
-        stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(properties).getMetaData());
+        stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(properties));
         stmt.setDistinct(false);
         stmt.setColumns(columns);
         stmt.setTable(table);
         stmt.setLimit(this.limit);
         stmt.setOffset(this.offset);
 
-        //set up criteria1
-        criteria1 = new Criteria();
-        criteria1.conjunction = And;
-        criteria1.column = "fund";
-        criteria1.operator = equalTo;
-        criteria1.filter = "Permitting";
+        //set up criteria0
+        criteria0 = new Criteria(0);
+        criteria0.parentId = null;
+        criteria0.conjunction = And;
+        criteria0.column = "fund";
+        criteria0.operator = equalTo;
+        criteria0.filter = "Permitting";
 
-        // set up criteria2
-        criteria2 = new Criteria();
-        criteria2.conjunction = And;
-        criteria2.column = "service";
-        criteria2.operator = in;
-        criteria2.filter = "Housing and Community Development";
+        // set up criteria1
+        criteria1 = new Criteria(1);
+        criteria1.parentId = null;
+        criteria1.conjunction = And;
+        criteria1.column = "service";
+        criteria1.operator = in;
+        criteria1.filter = "Housing and Community Development";
 
         // set up criteriaWithIsNotNull
-        criteriaWithIsNotNull = new Criteria();
+        criteriaWithIsNotNull = new Criteria(2);
+        criteriaWithIsNotNull.parentId = null;
         criteriaWithIsNotNull.conjunction = And;
         criteriaWithIsNotNull.column = "fund";
         criteriaWithIsNotNull.operator = isNotNull;
 
         //setup multiple criteria
+        multipleCriteria.add(criteria0);
         multipleCriteria.add(criteria1);
-        multipleCriteria.add(criteria2);
+        stmt.addCriteria(multipleCriteria);
 
         return stmt;
     }
@@ -84,4 +86,17 @@ public class QueryTests {
         return sqlBuilder.buildSql(stmt);
     }
 
+    public String buildSql_OneChild() throws Exception{
+        Criteria childCriteria1 = new Criteria(2);
+        childCriteria1.parentId = 1;
+        childCriteria1.conjunction = Or;
+        childCriteria1.column = "service";
+        childCriteria1.operator = equalTo;
+        childCriteria1.filter = "Mass Transit";
+        SelectStatement stmt = createNewMainSelectStmt();
+        stmt.addCriteria(childCriteria1);
+
+        return sqlBuilder.buildSql(stmt);
+
+    }
 }
