@@ -1,7 +1,6 @@
 package com.querybuilder4j.sqlbuilders;
 
 
-import com.mysql.cj.api.xdevapi.Result;
 import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.config.Operator;
 import com.querybuilder4j.exceptions.BadSqlException;
@@ -11,7 +10,6 @@ import com.querybuilder4j.exceptions.EmptyCollectionException;
 import com.querybuilder4j.sqlbuilders.statements.*;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
@@ -119,11 +117,11 @@ public abstract class SqlBuilder {
     }
 
     protected StringBuilder createWhereClause(SortedSet<Criteria> criteria) throws Exception {
-//        if (criteria == null) throw new IllegalArgumentException("The criteria parameter is null");
+        if (criteria == null) throw new IllegalArgumentException("The criteria parameter is null");
 
-//        if (criteria.size() == 0) {
-//            return null;
-//        } else {
+        if (criteria.size() == 0) {
+            return null;
+        } else {
             StringBuilder sql = new StringBuilder(" WHERE ");
 
             for (Criteria crit : criteria) {
@@ -171,10 +169,10 @@ public abstract class SqlBuilder {
                 }
             }
             return sql;
-        //}
+        }
     }
 
-    protected StringBuilder createGroupByClause(List<String> columns) throws IllegalArgumentException, EmptyCollectionException{
+    protected StringBuilder createGroupByClause(List<String> columns) throws IllegalArgumentException, EmptyCollectionException {
         if (columns == null) throw new IllegalArgumentException("The columns parameter is null");
 
         if (columns.size() == 0) {
@@ -192,8 +190,7 @@ public abstract class SqlBuilder {
         }
     }
 
-    protected StringBuilder createOrderByClause(List<String> columns, boolean ascending)
-            throws IllegalArgumentException, EmptyCollectionException{
+    protected StringBuilder createOrderByClause(List<String> columns, boolean ascending) throws IllegalArgumentException, EmptyCollectionException {
         if (columns == null) throw new IllegalArgumentException("The columns parameter is null");
 
         if (columns.size() == 0) {
@@ -228,7 +225,7 @@ public abstract class SqlBuilder {
     }
 
     protected StringBuilder createSuppressNullsClause(List<String> columns)
-            throws IllegalArgumentException, EmptyCollectionException{
+            throws IllegalArgumentException, EmptyCollectionException {
         if (columns == null) throw new IllegalArgumentException("The columns parameter is null");
 
         if (columns.size() == 0) {

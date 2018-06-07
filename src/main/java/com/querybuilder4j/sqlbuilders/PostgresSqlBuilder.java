@@ -35,14 +35,19 @@ public class PostgresSqlBuilder extends SqlBuilder {
 
         try {
             StringBuilder sql = new StringBuilder("");
-            sql.append(createSelectClause(query.isDistinct(), query.getColumns()));
-            sql.append(createFromClause(query.getTable()));
 
-            if (query.getCriteria() != null) {
-                if (query.getCriteria().size() > 0) {
-                    sql.append(createWhereClause(query.getCriteria()));
-                }
-            }
+            StringBuilder select = createSelectClause(query.isDistinct(), query.getColumns());
+            if (select != null)
+                sql.append(select);
+
+            StringBuilder from = createFromClause(query.getTable());
+            if (from != null)
+                sql.append(from);
+
+            StringBuilder where = createWhereClause(query.getCriteria());
+            if (where != null)
+                sql.append(where);
+
 
             if (query.isSuppressNulls()) {
                 if (sql.toString().contains(" WHERE ")) {

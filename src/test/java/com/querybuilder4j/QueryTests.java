@@ -1,16 +1,9 @@
 package com.querybuilder4j;
 
-import com.querybuilder4j.config.Conjunction;
-import com.querybuilder4j.config.Operator;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
-import com.querybuilder4j.sqlbuilders.statements.Statement;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.sql.ResultSet;
 import java.util.*;
 
 import static com.querybuilder4j.config.Conjunction.*;
@@ -97,6 +90,46 @@ public class QueryTests {
         stmt.addCriteria(childCriteria1);
 
         return sqlBuilder.buildSql(stmt);
-
     }
+
+    public String buildSql_WithDistinct() throws Exception {
+        SelectStatement stmt = createNewMainSelectStmt();
+        stmt.setDistinct(true);
+
+        return sqlBuilder.buildSql(stmt);
+    }
+
+    public String buildSql_GroupBy() throws Exception {
+        SelectStatement stmt = createNewMainSelectStmt();
+        stmt.setGroupBy(true);
+
+        return sqlBuilder.buildSql(stmt);
+    }
+
+    public String buildSql_OrderBy() throws Exception {
+        SelectStatement stmt = createNewMainSelectStmt();
+        stmt.setOrderBy(true);
+
+        return sqlBuilder.buildSql(stmt);
+    }
+
+    public String buildSql_GroupByOrderBy() throws Exception {
+        SelectStatement stmt = createNewMainSelectStmt();
+        stmt.setOffset(0);
+        stmt.setGroupBy(true);
+        stmt.setOrderBy(true);
+
+        return sqlBuilder.buildSql(stmt);
+    }
+
+    public String buildSql_SuppressNulls() throws Exception {
+        SelectStatement stmt = createNewMainSelectStmt();
+        stmt.setSuppressNulls(true);
+
+        return sqlBuilder.buildSql(stmt);
+    }
+
+//    public String buildSql_randomizer() throws Exception {
+//
+//    }
 }
