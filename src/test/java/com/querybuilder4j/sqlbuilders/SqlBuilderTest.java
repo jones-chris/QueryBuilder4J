@@ -100,4 +100,28 @@ public class SqlBuilderTest {
 
     }
 
+    @Test
+    public void runRandomizedTests() throws Exception {
+        for (int i=0; i<properties.size(); i++) {
+            Properties props = properties.get(i);
+            conn = new DbConnectionImpl(props);
+
+            DatabaseType dbType = DatabaseType.valueOf(props.getProperty("databaseType"));
+            sqlBuilder = buildSqlBuilder(dbType);
+            sqlBuilder.tableSchema = TestUtils.multiColumnResultSetBuilder(properties.get(i));
+
+            // run SQL statement randomizer.
+            QueryTests queryTests = new QueryTests(sqlBuilder, props);
+            List<String> sqlList = queryTests.buildSql_randomizer();
+            for (String sql : sqlList) {
+                try {
+                    conn.execute(sql);
+                    assertTrue(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+    }
+
 }
