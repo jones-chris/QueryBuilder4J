@@ -7,10 +7,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="818fc6ba-91d2-4f55-95a0-c5a8c17c3776" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.class" afterPath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/QueryTests.java" afterPath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/QueryTests.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/SqlBuilderTest.java" afterPath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/SqlBuilderTest.java" />
     </list>
     <ignored path="com.querybuilder4j.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -47,38 +45,25 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="QueryTests.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="QueryTests.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/QueryTests.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="341">
-              <caret line="307" column="0" selection-start-line="307" selection-start-column="0" selection-end-line="307" selection-end-column="0" />
+            <state relative-caret-position="335">
+              <caret line="322" column="0" selection-start-line="322" selection-start-column="0" selection-end-line="322" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <marker date="1528660012516" expanded="true" signature="5490:5638" ph="..." />
+                <marker date="1528676868200" expanded="true" signature="5400:5548" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SqlBuilderTest.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SqlBuilderTest.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/SqlBuilderTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="251">
-              <caret line="117" column="0" selection-start-line="117" selection-start-column="0" selection-end-line="117" selection-end-column="0" />
+            <state relative-caret-position="206">
+              <caret line="114" column="0" selection-start-line="114" selection-start-column="0" selection-end-line="114" selection-end-column="0" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DbConnectionImpl.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/dbconnection/DbConnectionImpl.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="25" column="53" selection-start-line="25" selection-start-column="53" selection-end-line="25" selection-end-column="53" />
-              <folding>
-                <marker date="1528083665302" expanded="true" signature="2139:2264" ph="..." />
-                <marker date="1528083665302" expanded="true" signature="2490:2618" ph="..." />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -86,7 +71,7 @@
       <file leaf-file-name="PostgresSqlBuilder.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
+            <state relative-caret-position="15">
               <caret line="29" column="5" selection-start-line="29" selection-start-column="5" selection-end-line="29" selection-end-column="5" />
               <folding />
             </state>
@@ -96,8 +81,8 @@
       <file leaf-file-name="SqlBuilder.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlBuilder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1575">
-              <caret line="121" column="0" selection-start-line="121" selection-start-column="0" selection-end-line="121" selection-end-column="0" />
+            <state relative-caret-position="156">
+              <caret line="170" column="0" selection-start-line="170" selection-start-column="0" selection-end-line="170" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -505,8 +490,8 @@
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/dbconnection/DbConnectionImpl.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlBuilder.java" />
-        <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/QueryTests.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/SqlBuilderTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/QueryTests.java" />
       </list>
     </option>
   </component>
@@ -1119,33 +1104,40 @@
       <option name="project" value="LOCAL" />
       <updated>1528415882582</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Added first draft of SQL Statement randomization tests.">
+      <created>1528674662461</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1528674662461</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TestHistory">
     <history-entry file="SqlBuilderTest_runRandomizedTests - 2018.06.10 at 19h 50m 09s.xml">
       <configuration name="SqlBuilderTest.runRandomizedTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runTests - 2018.06.10 at 15h 04m 04s.xml">
-      <configuration name="SqlBuilderTest.runTests" configurationId="JUnit" />
+    <history-entry file="SqlBuilderTest_runRandomizedTests - 2018.06.10 at 19h 59m 48s.xml">
+      <configuration name="SqlBuilderTest.runRandomizedTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runTests - 2018.06.10 at 15h 05m 45s.xml">
-      <configuration name="SqlBuilderTest.runTests" configurationId="JUnit" />
+    <history-entry file="SqlBuilderTest_runRandomizedTests - 2018.06.10 at 20h 06m 49s.xml">
+      <configuration name="SqlBuilderTest.runRandomizedTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runTests - 2018.06.10 at 15h 06m 31s.xml">
-      <configuration name="SqlBuilderTest.runTests" configurationId="JUnit" />
+    <history-entry file="SqlBuilderTest_runRandomizedTests - 2018.06.10 at 20h 08m 10s.xml">
+      <configuration name="SqlBuilderTest.runRandomizedTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runTests - 2018.06.10 at 15h 08m 39s.xml">
-      <configuration name="SqlBuilderTest.runTests" configurationId="JUnit" />
+    <history-entry file="SqlBuilderTest_runRandomizedTests - 2018.06.10 at 20h 13m 40s.xml">
+      <configuration name="SqlBuilderTest.runRandomizedTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runTests - 2018.06.10 at 15h 15m 33s.xml">
-      <configuration name="SqlBuilderTest.runTests" configurationId="JUnit" />
+    <history-entry file="SqlBuilderTest_runRandomizedTests - 2018.06.10 at 20h 22m 07s.xml">
+      <configuration name="SqlBuilderTest.runRandomizedTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runTests - 2018.06.10 at 15h 30m 49s.xml">
-      <configuration name="SqlBuilderTest.runTests" configurationId="JUnit" />
+    <history-entry file="SqlBuilderTest_runRandomizedTests - 2018.06.10 at 20h 26m 43s.xml">
+      <configuration name="SqlBuilderTest.runRandomizedTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runTests - 2018.06.10 at 15h 42m 07s.xml">
-      <configuration name="SqlBuilderTest.runTests" configurationId="JUnit" />
+    <history-entry file="SqlBuilderTest_runRandomizedTests - 2018.06.10 at 20h 28m 41s.xml">
+      <configuration name="SqlBuilderTest.runRandomizedTests" configurationId="JUnit" />
     </history-entry>
     <history-entry file="SqlBuilderTest_runTests - 2018.06.10 at 15h 46m 47s.xml">
       <configuration name="SqlBuilderTest.runTests" configurationId="JUnit" />
@@ -1167,6 +1159,7 @@
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.79317695" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" x="92" y="92" width="1736" height="826" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3281075" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32922733" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -1178,7 +1171,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20522387" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4087346" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.41545352" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -1187,7 +1180,6 @@
       <window_info id="Build" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.79317695" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" x="92" y="92" width="1736" height="826" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32922733" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
@@ -1248,7 +1240,8 @@
     <MESSAGE value="Started testing SqlBuilder classes." />
     <MESSAGE value="SqlBuilderTest and StatementTest tests pass successfully." />
     <MESSAGE value="Added more tests to QueryTests" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added more tests to QueryTests" />
+    <MESSAGE value="Added first draft of SQL Statement randomization tests." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added first draft of SQL Statement randomization tests." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1291,7 +1284,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/QueryTests.java</url>
-          <line>307</line>
+          <line>322</line>
           <properties />
           <option name="timeStamp" value="120" />
         </line-breakpoint>
@@ -1302,7 +1295,7 @@
           <option name="timeStamp" value="125" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="127" />
+      <option name="time" value="134" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="JUnit">
@@ -1625,6 +1618,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
           <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1638,7 +1632,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
+        <state relative-caret-position="15">
           <caret line="29" column="5" selection-start-line="29" selection-start-column="5" selection-end-line="29" selection-end-column="5" />
           <folding />
         </state>
@@ -1646,30 +1640,30 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlBuilder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1575">
-          <caret line="121" column="0" selection-start-line="121" selection-start-column="0" selection-end-line="121" selection-end-column="0" />
+        <state relative-caret-position="156">
+          <caret line="170" column="0" selection-start-line="170" selection-start-column="0" selection-end-line="170" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/QueryTests.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="307" column="0" selection-start-line="307" selection-start-column="0" selection-end-line="307" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <marker date="1528660012516" expanded="true" signature="5490:5638" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/SqlBuilderTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="251">
-          <caret line="117" column="0" selection-start-line="117" selection-start-column="0" selection-end-line="117" selection-end-column="0" />
+        <state relative-caret-position="206">
+          <caret line="114" column="0" selection-start-line="114" selection-start-column="0" selection-end-line="114" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/QueryTests.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="335">
+          <caret line="322" column="0" selection-start-line="322" selection-start-column="0" selection-end-line="322" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <marker date="1528676868200" expanded="true" signature="5400:5548" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>

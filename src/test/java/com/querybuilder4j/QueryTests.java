@@ -24,7 +24,7 @@ public class QueryTests {
     private List<String> randomColumns = new ArrayList<>();
     private List<String> randomTables = new ArrayList<>();
     private List<Criteria> randomCriteria = new ArrayList<>();
-    //private Map<String, Map<Integer, List<Object>>> randomizerChoices = new HashMap<>();
+
 
     public QueryTests(SqlBuilder sqlBuilder, Properties properties) {
         this.sqlBuilder = sqlBuilder;
@@ -251,10 +251,14 @@ public class QueryTests {
             boolean getSingleColumn = RandomUtils.nextBoolean();
             List<String> columnsList = new ArrayList<>();
             if (getSingleColumn) {
-                columnsList.add(randomColumns.get(0));
+                int randomIndex = RandomUtils.nextInt(randomColumns.size());
+                columnsList.add(randomColumns.get(randomIndex));
             } else {
-                columnsList.add(randomColumns.get(0));
-                columnsList.add(randomColumns.get(2));
+                int numOfColumns = org.apache.commons.lang3.RandomUtils.nextInt(1, randomColumns.size());
+                for (int j=0; j<numOfColumns; j++) {
+                    int randomIndex = RandomUtils.nextInt(randomColumns.size());
+                    columnsList.add(randomColumns.get(randomIndex));
+                }
             }
 
             //get table
@@ -266,10 +270,21 @@ public class QueryTests {
             SortedSet<Criteria> criteriaSet = new TreeSet<>();
             if (getSingleCriteria) {
                 int criteriaIndex = RandomUtils.nextInt(randomCriteria.size());
-                criteriaSet.add(randomCriteria.get(0));
+                Criteria criteriaClone = (Criteria) randomCriteria.get(criteriaIndex).clone();
+                criteriaClone.setId(0);
+                criteriaSet.add(criteriaClone);
             } else {
-                criteriaSet.add(randomCriteria.get(0));
-                criteriaSet.add(randomCriteria.get(3));
+                criteriaSet.add(randomCriteria.get(0)); //TODO:  Remove this later.  This is just to clear the first criteria's conjunction.
+                int numOfCriteria = org.apache.commons.lang3.RandomUtils.nextInt(1, randomCriteria.size());
+                for (int j=0; j<numOfCriteria; j++) {
+                    int randomIndex = RandomUtils.nextInt(randomCriteria.size());
+                    Criteria criteriaClone = (Criteria) randomCriteria.get(randomIndex).clone();
+                    criteriaClone.setId(j); // set criteria's id sequentially so that sqlBuilder logic works.  The object is a clone, so it will not overwrite the object it's cloned from.
+                    criteriaSet.add(criteriaClone);
+                }
+
+                //criteriaSet.add(randomCriteria.get(0));
+                //criteriaSet.add(randomCriteria.get(3));
             }
 
             //get suppressNulls
