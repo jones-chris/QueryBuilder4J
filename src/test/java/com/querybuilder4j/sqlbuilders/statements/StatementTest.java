@@ -114,7 +114,7 @@ public class StatementTest {
     public void addParenthesisToCriteriaTest_EndsWithZeroEndingParenthesisButChildCriteria() {
         // id = 0, parent id = null    column1 = filter1
         // id = 1, parent id = null    AND (column 2 = filter2
-        // id = 2, parent id = 1       AND column3 = filter3)
+        // id = 2, parent id = 1            AND column3 = filter3)
         // id = 3, parent id = null    AND column5 = filter5
 
         criteria2.parentId = null;

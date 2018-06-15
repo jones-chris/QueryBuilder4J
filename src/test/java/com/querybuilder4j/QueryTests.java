@@ -3,6 +3,7 @@ package com.querybuilder4j;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
+import com.sun.org.apache.bcel.internal.generic.Select;
 import org.apache.commons.lang.math.RandomUtils;
 
 import java.util.*;
@@ -24,6 +25,7 @@ public class QueryTests {
     private List<String> randomColumns = new ArrayList<>();
     private List<String> randomTables = new ArrayList<>();
     private List<Criteria> randomCriteria = new ArrayList<>();
+    private static final int NUMBER_OF_SQL_STATEMENTS = 5;
 
 
     public QueryTests(SqlBuilder sqlBuilder, Properties properties) {
@@ -39,105 +41,6 @@ public class QueryTests {
 
         //tables
         randomTables.add("county_spending_detail");
-
-        //criteria
-        //equal to
-        Criteria criteriaEqualTo = new Criteria(0);
-        criteriaEqualTo.parentId = null;
-        criteriaEqualTo.conjunction = And;
-        criteriaEqualTo.column = "fund";
-        criteriaEqualTo.operator = equalTo;
-        criteriaEqualTo.filter = "Permitting";
-
-        //not equal to
-        Criteria criteriaNotEqualTo = new Criteria(1);
-        criteriaNotEqualTo.parentId = null;
-        criteriaNotEqualTo.conjunction = And;
-        criteriaNotEqualTo.column = "fund";
-        criteriaNotEqualTo.operator = notEqualTo;
-        criteriaNotEqualTo.filter = "Permitting";
-
-        //greater than or equals
-        Criteria criteriaGreaterThanOrEquals = new Criteria(2);
-        criteriaGreaterThanOrEquals.parentId = null;
-        criteriaGreaterThanOrEquals.conjunction = And;
-        criteriaGreaterThanOrEquals.column = "fund";
-        criteriaGreaterThanOrEquals.operator = greaterThanOrEquals;
-        criteriaGreaterThanOrEquals.filter = "Permitting";
-
-        //less than or equals
-        Criteria criteriaLessThanOrEquals = new Criteria(3);
-        criteriaLessThanOrEquals.parentId = null;
-        criteriaLessThanOrEquals.conjunction = And;
-        criteriaLessThanOrEquals.column = "fund";
-        criteriaLessThanOrEquals.operator = lessThanOrEquals;
-        criteriaLessThanOrEquals.filter = "Permitting";
-
-        //greater than
-        Criteria criteriaGreaterThan = new Criteria(4);
-        criteriaGreaterThan.parentId = null;
-        criteriaGreaterThan.conjunction = And;
-        criteriaGreaterThan.column = "fund";
-        criteriaGreaterThan.operator = greaterThan;
-        criteriaGreaterThan.filter = "Permitting";
-
-        //less than
-        Criteria criteriaLessThan = new Criteria(5);
-        criteriaLessThan.parentId = null;
-        criteriaLessThan.conjunction = And;
-        criteriaLessThan.column = "fund";
-        criteriaLessThan.operator = lessThan;
-        criteriaLessThan.filter = "Permitting";
-
-        //like
-        Criteria criteriaLike = new Criteria(6);
-        criteriaLike.parentId = null;
-        criteriaLike.conjunction = And;
-        criteriaLike.column = "fund";
-        criteriaLike.operator = like;
-        criteriaLike.filter = "Permitting";
-
-        //not like
-        Criteria criteriaNotLike = new Criteria(7);
-        criteriaNotLike.parentId = null;
-        criteriaNotLike.conjunction = And;
-        criteriaNotLike.column = "fund";
-        criteriaNotLike.operator = notLike;
-        criteriaNotLike.filter = "Permitting";
-
-        //in
-        Criteria criteriaIn = new Criteria(8);
-        criteriaIn.parentId = null;
-        criteriaIn.conjunction = And;
-        criteriaIn.column = "service";
-        criteriaIn.operator = in;
-        criteriaIn.filter = "Housing and Community Development";
-
-        //not in
-        Criteria criteriaNotIn = new Criteria(9);
-        criteriaNotIn.parentId = null;
-        criteriaNotIn.conjunction = And;
-        criteriaNotIn.column = "service";
-        criteriaNotIn.operator = notIn;
-        criteriaNotIn.filter = "Housing and Community Development";
-
-        //is null
-        Criteria criteriaIsNull = new Criteria(10);
-        criteriaIsNull.parentId = null;
-        criteriaIsNull.conjunction = And;
-        criteriaIsNull.column = "service";
-        criteriaIsNull.operator = isNull;
-
-        //is not null
-        Criteria criteriaIsNotNull = new Criteria(11);
-        criteriaIsNotNull.parentId = null;
-        criteriaIsNotNull.conjunction = And;
-        criteriaIsNotNull.column = "fund";
-        criteriaIsNotNull.operator = isNotNull;
-
-        randomCriteria = Arrays.asList(criteriaEqualTo, criteriaNotEqualTo, criteriaGreaterThanOrEquals, criteriaLessThanOrEquals,
-                criteriaGreaterThan, criteriaLessThan, criteriaLike, criteriaNotLike, criteriaIn, criteriaNotIn, criteriaIsNull,
-                criteriaIsNotNull);
     }
 
     public SelectStatement createNewMainSelectStmt() throws Exception {
@@ -241,11 +144,106 @@ public class QueryTests {
         return sqlBuilder.buildSql(stmt);
     }
 
-    public List<String> buildSql_randomizer() throws Exception {
-        List<String> results = new ArrayList<>();
+    public String buildSql_FailedTest1() throws Exception {
+        /*Id:0
+        parentId:null
+        frontParen:(
+                conjunction:And
+        column:fund
+        operator:=
+        filter:Permitting
+                endParen[]
+        Id:1
+        parentId:0
+        frontParen:(
+                conjunction:And
+        column:fund
+        operator:>
+        filter:Permitting
+                endParen[]
+        Id:2
+        parentId:1
+        frontParen:null
+        conjunction:And
+        column:fund
+        operator:is not null
+        filter:null
+        endParen[]
+        Id:3
+        parentId:1
+        frontParen:null
+        conjunction:And
+        column:fund
+        operator:<
+        filter:Permitting
+        endParen[)]
+        Id:4
+        parentId:0
+        frontParen:null
+        conjunction:And
+        column:fund
+        operator:<=
+        filter:Permitting
+        endParen[), ), )]
+        */
+
+        SelectStatement stmt = new SelectStatement();
+        stmt.setTable("county_spending_detail");
+
+        List<String> columns = new ArrayList<>();
+        columns.add("fiscal_year_period");
+
+        SortedSet<Criteria> criteria = new TreeSet<>();
+        Criteria c0 = new Criteria(0);
+        c0.parentId = null;
+        c0.column = "fund";
+        c0.operator = equalTo;
+        c0.filter = "Permitting";
+        criteria.add(c0);
+
+        Criteria c1 = new Criteria(1);
+        c1.parentId = 0;
+        c1.conjunction = And;
+        c1.column = "fund";
+        c1.operator = greaterThan;
+        c1.filter = "Permitting";
+        criteria.add(c1);
+
+        Criteria c2 = new Criteria(2);
+        c2.parentId = 1;
+        c2.conjunction = And;
+        c2.column = "fund";
+        c2.operator = isNotNull;
+        c2.filter = null;
+        criteria.add(c2);
+
+        Criteria c3 = new Criteria(3);
+        c3.parentId = 1;
+        c3.column = "fund";
+        c3.operator = lessThan;
+        c3.filter = "Permitting";
+        criteria.add(c3);
+
+        Criteria c4 = new Criteria(4);
+        c4.parentId = 0;
+        c4.column = "fund";
+        c4.operator = lessThanOrEquals;
+        c4.filter = "Permitting";
+        criteria.add(c4);
+
+        stmt.setColumns(columns);
+        stmt.setCriteria(criteria);
+
+        return sqlBuilder.buildSql(stmt);
+    }
+
+    public Map<SelectStatement, String> buildSql_randomizer() throws Exception {
+        Map<SelectStatement, String> results = new HashMap<>();
+        randomCriteria = getCriteriaSet();
 
         //i is the number of sql statements to output.
-        for (int i=0; i<10; i++) {
+        for (int i=0; i<NUMBER_OF_SQL_STATEMENTS; i++) {
+            randomCriteria = getCriteriaSet();
 
             //get columns
             boolean getSingleColumn = RandomUtils.nextBoolean();
@@ -276,15 +274,52 @@ public class QueryTests {
             } else {
                 criteriaSet.add(randomCriteria.get(0)); //TODO:  Remove this later.  This is just to clear the first criteria's conjunction.
                 int numOfCriteria = org.apache.commons.lang3.RandomUtils.nextInt(1, randomCriteria.size());
+
+                List<Integer> eligibleParentIds = new ArrayList<>();
+                eligibleParentIds.add(0);
+
                 for (int j=0; j<numOfCriteria; j++) {
+                    randomCriteria = getCriteriaSet();
                     int randomIndex = RandomUtils.nextInt(randomCriteria.size());
                     Criteria criteriaClone = (Criteria) randomCriteria.get(randomIndex).clone();
                     criteriaClone.setId(j); // set criteria's id sequentially so that sqlBuilder logic works.  The object is a clone, so it will not overwrite the object it's cloned from.
+
+                    if (j > 0) {
+                        //keep track of last assigned parentId
+                        //if randomParentIndex is greater than last assigned parentId, generate randomParentIndex again.
+
+                        //TODO:  add support for parentId of null.
+
+                        int randomParentIndex = getRandomInt(0, j); //will be 0 for criteria #1.
+
+                        //remove all elements that are less than randomParentIndex
+                        while (! eligibleParentIds.contains(randomParentIndex)) {
+                            randomParentIndex = getRandomInt(0, j);
+                        }
+
+                        List<Integer> newEligibleParentIds = new ArrayList<>();
+                        for (int parentId : eligibleParentIds) {
+                            if (parentId <= randomParentIndex)
+                                newEligibleParentIds.add(parentId);
+                        }
+                        eligibleParentIds = newEligibleParentIds;
+                        eligibleParentIds.add(j);
+
+                        //eligibleParentIds.removeIf(x -> (x > randomParentIndex));
+
+//                        while (! eligibleParentIds.contains(randomParentIndex)) {
+//                            int nextInt = getRandomInt(0, j);
+//                            if (nextInt == 0) {
+//                                eligibleParentIds.removeIf(x -> x.equals(0));
+//                            }
+//                            randomParentIndex = nextInt;
+//                        }
+
+                        criteriaClone.parentId = randomParentIndex;
+                    }
+
                     criteriaSet.add(criteriaClone);
                 }
-
-                //criteriaSet.add(randomCriteria.get(0));
-                //criteriaSet.add(randomCriteria.get(3));
             }
 
             //get suppressNulls
@@ -317,9 +352,116 @@ public class QueryTests {
             stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(properties));
 
             //generate SQL statement and add to result list
-            results.add(sqlBuilder.buildSql(stmt));
+            results.put(stmt, sqlBuilder.buildSql(stmt));
         }
 
         return results;
+    }
+
+    private int getRandomInt(int minInclusive, int maxExclusive) {
+        return org.apache.commons.lang3.RandomUtils.nextInt(minInclusive, maxExclusive);
+    }
+
+    private List<Criteria> getCriteriaSet() {
+        //criteria
+        //equal to
+        Criteria criteriaEqualTo = new Criteria(0);
+        criteriaEqualTo.parentId = null;
+        criteriaEqualTo.conjunction = And;
+        criteriaEqualTo.column = "fund";
+        criteriaEqualTo.operator = equalTo;
+        criteriaEqualTo.filter = "Permitting";
+
+        //not equal to
+        Criteria criteriaNotEqualTo = new Criteria(1);
+        criteriaNotEqualTo.parentId = null;
+        criteriaNotEqualTo.conjunction = And;
+        criteriaNotEqualTo.column = "fund";
+        criteriaNotEqualTo.operator = notEqualTo;
+        criteriaNotEqualTo.filter = "Permitting";
+
+        //greater than or equals
+        Criteria criteriaGreaterThanOrEquals = new Criteria(2);
+        criteriaGreaterThanOrEquals.parentId = null;
+        criteriaGreaterThanOrEquals.conjunction = And;
+        criteriaGreaterThanOrEquals.column = "fund";
+        criteriaGreaterThanOrEquals.operator = greaterThanOrEquals;
+        criteriaGreaterThanOrEquals.filter = "Permitting";
+
+        //less than or equals
+        Criteria criteriaLessThanOrEquals = new Criteria(3);
+        criteriaLessThanOrEquals.parentId = null;
+        criteriaLessThanOrEquals.conjunction = And;
+        criteriaLessThanOrEquals.column = "fund";
+        criteriaLessThanOrEquals.operator = lessThanOrEquals;
+        criteriaLessThanOrEquals.filter = "Permitting";
+
+        //greater than
+        Criteria criteriaGreaterThan = new Criteria(4);
+        criteriaGreaterThan.parentId = null;
+        criteriaGreaterThan.conjunction = And;
+        criteriaGreaterThan.column = "fund";
+        criteriaGreaterThan.operator = greaterThan;
+        criteriaGreaterThan.filter = "Permitting";
+
+        //less than
+        Criteria criteriaLessThan = new Criteria(5);
+        criteriaLessThan.parentId = null;
+        criteriaLessThan.conjunction = And;
+        criteriaLessThan.column = "fund";
+        criteriaLessThan.operator = lessThan;
+        criteriaLessThan.filter = "Permitting";
+
+        //like
+        Criteria criteriaLike = new Criteria(6);
+        criteriaLike.parentId = null;
+        criteriaLike.conjunction = And;
+        criteriaLike.column = "fund";
+        criteriaLike.operator = like;
+        criteriaLike.filter = "Permitting";
+
+        //not like
+        Criteria criteriaNotLike = new Criteria(7);
+        criteriaNotLike.parentId = null;
+        criteriaNotLike.conjunction = And;
+        criteriaNotLike.column = "fund";
+        criteriaNotLike.operator = notLike;
+        criteriaNotLike.filter = "Permitting";
+
+        //in
+        Criteria criteriaIn = new Criteria(8);
+        criteriaIn.parentId = null;
+        criteriaIn.conjunction = And;
+        criteriaIn.column = "service";
+        criteriaIn.operator = in;
+        criteriaIn.filter = "Housing and Community Development";
+
+        //not in
+        Criteria criteriaNotIn = new Criteria(9);
+        criteriaNotIn.parentId = null;
+        criteriaNotIn.conjunction = And;
+        criteriaNotIn.column = "service";
+        criteriaNotIn.operator = notIn;
+        criteriaNotIn.filter = "Housing and Community Development";
+
+        //is null
+        Criteria criteriaIsNull = new Criteria(10);
+        criteriaIsNull.parentId = null;
+        criteriaIsNull.conjunction = And;
+        criteriaIsNull.column = "service";
+        criteriaIsNull.operator = isNull;
+
+        //is not null
+        Criteria criteriaIsNotNull = new Criteria(11);
+        criteriaIsNotNull.parentId = null;
+        criteriaIsNotNull.conjunction = And;
+        criteriaIsNotNull.column = "fund";
+        criteriaIsNotNull.operator = isNotNull;
+
+        randomCriteria = Arrays.asList(criteriaEqualTo, criteriaNotEqualTo, criteriaGreaterThanOrEquals, criteriaLessThanOrEquals,
+                criteriaGreaterThan, criteriaLessThan, criteriaLike, criteriaNotLike, criteriaIn, criteriaNotIn, criteriaIsNull,
+                criteriaIsNotNull);
+
+        return randomCriteria;
     }
 }
