@@ -28,7 +28,8 @@ public class TestUtils {
                     properties.getProperty("password"));
 
             DatabaseMetaData metaData = connection.getMetaData();
-            return metaData.getColumns(null, "public", "county_spending_detail", null);
+            //return metaData.getColumns(null, "public", "county_spending_detail", null);
+            return metaData.getColumns(null, null, "county_spending_detail", "%");
     }
 
 }

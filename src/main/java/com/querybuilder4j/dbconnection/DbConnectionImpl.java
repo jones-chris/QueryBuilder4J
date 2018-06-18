@@ -10,7 +10,7 @@ import java.util.Properties;
 
 public class DbConnectionImpl implements DbConnection {
     private Properties properties;
-    private Connection connection;
+    private final Connection connection;
     private String driverClassName;
 
 
@@ -24,6 +24,10 @@ public class DbConnectionImpl implements DbConnection {
         this.connection = DriverManager.getConnection(properties.getProperty("url"),
                 (username != null) ? username : null,
                 (password != null) ? password : null);
+    }
+
+    public Connection getConnection() {
+        return connection;
     }
 
     @Override
@@ -58,21 +62,11 @@ public class DbConnectionImpl implements DbConnection {
         return metaData.getTables(null, schemaName, null, null);
     }
 
-//    @Override
-//    public ResultSet getSchemaViews(String schemaName) {
-//        return null;
-//    }
-
     @Override
     public ResultSet getUserReadTables(String username, DatabaseType databaseType) throws Exception {
         String sql = SqlBuilder.readTablesSql.get(databaseType);
         return execute(sql);
     }
-
-//    @Override
-//    public ResultSet getUserReadViews(String username, DatabaseType databaseType) {
-//        return null;
-//    }
 
     @Override
     public ResultSet getUserWriteTables(String username, DatabaseType databaseType) throws Exception {
@@ -80,14 +74,9 @@ public class DbConnectionImpl implements DbConnection {
         return execute(sql);
     }
 
-//    @Override
-//    public ResultSet getUserWriteViews(String username, DatabaseType databaseType) {
-//        return null;
-//    }
-
     @Override
     public ResultSet getColumns(String schemaName, String tableName) throws SQLException {
         DatabaseMetaData metaData = connection.getMetaData();
-        return metaData.getColumns(null, schemaName, tableName, null);
+        return metaData.getColumns(null, schemaName, tableName, null); //TODO:  change columnPattern param to "%" otherwise MySQL will throw exception with null argument.
     }
 }

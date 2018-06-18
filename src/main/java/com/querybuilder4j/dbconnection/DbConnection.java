@@ -3,10 +3,12 @@ package com.querybuilder4j.dbconnection;
 
 import com.querybuilder4j.config.DatabaseType;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public interface DbConnection {
+    Connection getConnection();
     ResultSet execute(String sql) throws Exception;
     String[] getDbSchemas() throws SQLException;
     ResultSet getSchemaTables(String schemaName) throws SQLException;

@@ -1,15 +1,20 @@
 package com.querybuilder4j;
 
+import com.querybuilder4j.config.DatabaseType;
+import com.querybuilder4j.dbconnection.DbConnectionImpl;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 import com.sun.org.apache.bcel.internal.generic.Select;
 import org.apache.commons.lang.math.RandomUtils;
 
+import java.sql.ResultSet;
 import java.util.*;
 
 import static com.querybuilder4j.config.Conjunction.*;
 import static com.querybuilder4j.config.Operator.*;
+import static com.querybuilder4j.config.SqlBuilderFactory.buildSqlBuilder;
+import static org.junit.Assert.assertTrue;
 
 public class QueryTests {
     private SqlBuilder sqlBuilder;
@@ -25,7 +30,7 @@ public class QueryTests {
     private List<String> randomColumns = new ArrayList<>();
     private List<String> randomTables = new ArrayList<>();
     private List<Criteria> randomCriteria = new ArrayList<>();
-    private static final int NUMBER_OF_SQL_STATEMENTS = 5;
+    private static final int NUMBER_OF_SQL_STATEMENTS = 50;
 
 
     public QueryTests(SqlBuilder sqlBuilder, Properties properties) {
@@ -44,10 +49,6 @@ public class QueryTests {
     }
 
     public SelectStatement createNewMainSelectStmt() throws Exception {
-//        FileReader reader = new FileReader("postgresql.properties");
-//
-//        Properties props = new Properties();
-//        props.load(reader);
 
         SelectStatement stmt = new SelectStatement("main");
         stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(properties));
@@ -144,7 +145,7 @@ public class QueryTests {
         return sqlBuilder.buildSql(stmt);
     }
 
-    public String buildSql_FailedTest1() throws Exception {
+    public String buildSql_FailedTest_PostgreSQL1() throws Exception {
         /*Id:0
         parentId:null
         frontParen:(
@@ -188,7 +189,6 @@ public class QueryTests {
         */
 
         SelectStatement stmt = new SelectStatement();
-        stmt.setTable("county_spending_detail");
 
         List<String> columns = new ArrayList<>();
         columns.add("fiscal_year_period");
@@ -219,6 +219,7 @@ public class QueryTests {
 
         Criteria c3 = new Criteria(3);
         c3.parentId = 1;
+        c3.conjunction = And;
         c3.column = "fund";
         c3.operator = lessThan;
         c3.filter = "Permitting";
@@ -226,14 +227,24 @@ public class QueryTests {
 
         Criteria c4 = new Criteria(4);
         c4.parentId = 0;
+        c4.conjunction = And;
         c4.column = "fund";
         c4.operator = lessThanOrEquals;
         c4.filter = "Permitting";
         criteria.add(c4);
 
         stmt.setColumns(columns);
+        stmt.setTable("county_spending_detail");
         stmt.setCriteria(criteria);
+        stmt.setSuppressNulls(false);
+        stmt.setGroupBy(false);
+        stmt.setOrderBy(false);
+        stmt.setAscending(false);
+        stmt.setLimit(10);
+        stmt.setOffset(1);
+        stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(Constants.dbProperties.get(DatabaseType.PostgreSQL)));
 
+        sqlBuilder = buildSqlBuilder(DatabaseType.PostgreSQL);
         return sqlBuilder.buildSql(stmt);
     }
 
@@ -305,16 +316,6 @@ public class QueryTests {
                         eligibleParentIds = newEligibleParentIds;
                         eligibleParentIds.add(j);
 
-                        //eligibleParentIds.removeIf(x -> (x > randomParentIndex));
-
-//                        while (! eligibleParentIds.contains(randomParentIndex)) {
-//                            int nextInt = getRandomInt(0, j);
-//                            if (nextInt == 0) {
-//                                eligibleParentIds.removeIf(x -> x.equals(0));
-//                            }
-//                            randomParentIndex = nextInt;
-//                        }
-
                         criteriaClone.parentId = randomParentIndex;
                     }
 
@@ -349,7 +350,9 @@ public class QueryTests {
             stmt.setAscending(isAscending);
             stmt.setLimit(limit);
             stmt.setOffset(offset);
-            stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(properties));
+            ResultSet columnMetaData = new DbConnectionImpl(properties).getConnection().getMetaData().getColumns(null, null, "county_spending_detail", "%");
+            stmt.setTableSchema(columnMetaData);
+            //stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(properties));
 
             //generate SQL statement and add to result list
             results.put(stmt, sqlBuilder.buildSql(stmt));

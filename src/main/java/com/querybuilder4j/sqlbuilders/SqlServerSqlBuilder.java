@@ -7,31 +7,6 @@ public class SqlServerSqlBuilder extends SqlBuilder {
     public SqlServerSqlBuilder() {
         beginningDelimiter = '[';
         endingDelimter = ']';
-
-//        typeMappings.put("bit", false);
-//        typeMappings.put("bigint", false);
-//        typeMappings.put("decimal", false);
-//        typeMappings.put("float", false);
-//        typeMappings.put("int", false);
-//        typeMappings.put("money", false);
-//        typeMappings.put("real", false);
-//        typeMappings.put("smallint", false);
-//        typeMappings.put("smallmoney", false);
-//        typeMappings.put("numeric", false);
-//        typeMappings.put("char", true);
-//        typeMappings.put("text", true);
-//        typeMappings.put("varchar", true);
-//        typeMappings.put("ntext", true);
-//        typeMappings.put("nchar", true);
-//        typeMappings.put("nvarchar", true);
-//        typeMappings.put("VARCHAR2", true);
-//        typeMappings.put("date", true);
-//        typeMappings.put("datetime", true);
-//        typeMappings.put("datetime2", true);
-//        typeMappings.put("datetimeoffset", true);
-//        typeMappings.put("smalldatetime", true);
-//        typeMappings.put("time", true);
-//        typeMappings.put("timestamp", true);
     }
 
     @Override
