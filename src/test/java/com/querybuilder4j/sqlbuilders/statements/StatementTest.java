@@ -17,7 +17,7 @@ public class StatementTest {
     private Criteria criteria3 = new Criteria(2);
     private Criteria criteria4 = new Criteria(3);
     private Criteria criteria5 = new Criteria(4);
-    private Statement statement = new SelectStatement();
+    private SelectStatement statement = new SelectStatement();
 
 
     @Before

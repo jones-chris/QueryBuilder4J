@@ -1,13 +1,13 @@
 package com.querybuilder4j;
 
 import com.querybuilder4j.config.DatabaseType;
-import com.querybuilder4j.dbconnection.DbConnectionImpl;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 import com.sun.org.apache.bcel.internal.generic.Select;
 import org.apache.commons.lang.math.RandomUtils;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.*;
 
@@ -18,7 +18,9 @@ import static org.junit.Assert.assertTrue;
 
 public class QueryTests {
     private SqlBuilder sqlBuilder;
+    private Connection connection;
     private Properties properties;
+    private DatabaseType databaseType;
     private String table = "county_spending_detail";
     private List<String> columns = new ArrayList<>();
     private Criteria criteria0;
@@ -33,8 +35,8 @@ public class QueryTests {
     private static final int NUMBER_OF_SQL_STATEMENTS = 50;
 
 
-    public QueryTests(SqlBuilder sqlBuilder, Properties properties) {
-        this.sqlBuilder = sqlBuilder;
+    public QueryTests(DatabaseType databaseType, Properties properties) {
+        this.databaseType = databaseType;
         this.properties = properties;
         columns.add("fund");
         columns.add("service");
@@ -50,7 +52,8 @@ public class QueryTests {
 
     public SelectStatement createNewMainSelectStmt() throws Exception {
 
-        SelectStatement stmt = new SelectStatement("main");
+        SelectStatement stmt = new SelectStatement();
+        stmt.setDatabaseType(databaseType);
         stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(properties));
         stmt.setDistinct(false);
         stmt.setColumns(columns);
@@ -92,7 +95,7 @@ public class QueryTests {
     public String buildSql_LimitSuppressNulls() throws Exception {
         SelectStatement stmt = createNewMainSelectStmt();
 
-        return sqlBuilder.buildSql(stmt);
+        return stmt.toString();
     }
 
     public String buildSql_OneChild() throws Exception{
@@ -105,28 +108,28 @@ public class QueryTests {
         SelectStatement stmt = createNewMainSelectStmt();
         stmt.addCriteria(childCriteria1);
 
-        return sqlBuilder.buildSql(stmt);
+        return stmt.toString();
     }
 
     public String buildSql_WithDistinct() throws Exception {
         SelectStatement stmt = createNewMainSelectStmt();
         stmt.setDistinct(true);
 
-        return sqlBuilder.buildSql(stmt);
+        return stmt.toString();
     }
 
     public String buildSql_GroupBy() throws Exception {
         SelectStatement stmt = createNewMainSelectStmt();
         stmt.setGroupBy(true);
 
-        return sqlBuilder.buildSql(stmt);
+        return stmt.toString();
     }
 
     public String buildSql_OrderBy() throws Exception {
         SelectStatement stmt = createNewMainSelectStmt();
         stmt.setOrderBy(true);
 
-        return sqlBuilder.buildSql(stmt);
+        return stmt.toString();
     }
 
     public String buildSql_GroupByOrderBy() throws Exception {
@@ -135,14 +138,14 @@ public class QueryTests {
         stmt.setGroupBy(true);
         stmt.setOrderBy(true);
 
-        return sqlBuilder.buildSql(stmt);
+        return stmt.toString();
     }
 
     public String buildSql_SuppressNulls() throws Exception {
         SelectStatement stmt = createNewMainSelectStmt();
         stmt.setSuppressNulls(true);
 
-        return sqlBuilder.buildSql(stmt);
+        return stmt.toString();
     }
 
     public String buildSql_FailedTest_PostgreSQL1() throws Exception {
@@ -188,7 +191,7 @@ public class QueryTests {
         endParen[), ), )]
         */
 
-        SelectStatement stmt = new SelectStatement();
+        SelectStatement stmt = new SelectStatement(DatabaseType.PostgreSQL);
 
         List<String> columns = new ArrayList<>();
         columns.add("fiscal_year_period");
@@ -242,10 +245,9 @@ public class QueryTests {
         stmt.setAscending(false);
         stmt.setLimit(10);
         stmt.setOffset(1);
-        stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(Constants.dbProperties.get(DatabaseType.PostgreSQL)));
+        stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(Constants.dbProperties.get(stmt.getDatabaseType())));
 
-        sqlBuilder = buildSqlBuilder(DatabaseType.PostgreSQL);
-        return sqlBuilder.buildSql(stmt);
+        return stmt.toString();
     }
 
     public Map<SelectStatement, String> buildSql_randomizer() throws Exception {
@@ -301,11 +303,11 @@ public class QueryTests {
 
                         //TODO:  add support for parentId of null.
 
-                        int randomParentIndex = getRandomInt(0, j); //will be 0 for criteria #1.
+                        int randomParentIndex = TestUtils.getRandomInt(0, j); //will be 0 for criteria #1.
 
                         //remove all elements that are less than randomParentIndex
                         while (! eligibleParentIds.contains(randomParentIndex)) {
-                            randomParentIndex = getRandomInt(0, j);
+                            randomParentIndex = TestUtils.getRandomInt(0, j);
                         }
 
                         List<Integer> newEligibleParentIds = new ArrayList<>();
@@ -340,7 +342,7 @@ public class QueryTests {
             long offset = (long) RandomUtils.nextInt(100);
 
             //create select statement with randomized properties
-            SelectStatement stmt = new SelectStatement();
+            SelectStatement stmt = new SelectStatement(databaseType);
             stmt.setColumns(columnsList);
             stmt.setTable(table);
             stmt.setCriteria(criteriaSet);
@@ -350,19 +352,20 @@ public class QueryTests {
             stmt.setAscending(isAscending);
             stmt.setLimit(limit);
             stmt.setOffset(offset);
-            ResultSet columnMetaData = new DbConnectionImpl(properties).getConnection().getMetaData().getColumns(null, null, "county_spending_detail", "%");
+
+            connection = TestUtils.getConnection(properties);
+            ResultSet columnMetaData = connection.getMetaData().getColumns(null, null, "county_spending_detail", "%");
+
+            //ResultSet columnMetaData = new DbConnectionImpl(properties).getConnection().getMetaData().getColumns(null, null, "county_spending_detail", "%");
             stmt.setTableSchema(columnMetaData);
             //stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(properties));
 
             //generate SQL statement and add to result list
-            results.put(stmt, sqlBuilder.buildSql(stmt));
+            //results.put(stmt, sqlBuilder.buildSql(stmt));
+            results.put(stmt, stmt.toString());
         }
 
         return results;
-    }
-
-    private int getRandomInt(int minInclusive, int maxExclusive) {
-        return org.apache.commons.lang3.RandomUtils.nextInt(minInclusive, maxExclusive);
     }
 
     private List<Criteria> getCriteriaSet() {

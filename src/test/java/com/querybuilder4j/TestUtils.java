@@ -32,4 +32,20 @@ public class TestUtils {
             return metaData.getColumns(null, null, "county_spending_detail", "%");
     }
 
+    public static Connection getConnection(Properties properties) throws Exception {
+        String url = properties.getProperty("url");
+        String username = properties.getProperty("username");
+        String password = properties.getProperty("password");
+
+        return DriverManager.getConnection(
+                url,
+                (username != null) ? username : null,
+                (password != null) ? password : null
+        );
+    }
+
+    public static int getRandomInt(int minInclusive, int maxExclusive) {
+        return org.apache.commons.lang3.RandomUtils.nextInt(minInclusive, maxExclusive);
+    }
+
 }

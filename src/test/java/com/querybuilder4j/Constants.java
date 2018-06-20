@@ -33,6 +33,10 @@ public class Constants {
 //            sqlserverProps.setProperty("driverClass", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
 //            sqlserverProps.setProperty("databaseType", "SqlServer");
 //            put(DatabaseType.SqlServer, sqlserverProps);
+
+            // add oracle properties.
+
+            // add sqlite properties.
         }
     };
 

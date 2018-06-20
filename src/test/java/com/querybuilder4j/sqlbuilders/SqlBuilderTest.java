@@ -4,63 +4,26 @@ import com.querybuilder4j.Constants;
 import com.querybuilder4j.QueryTests;
 import com.querybuilder4j.TestUtils;
 import com.querybuilder4j.config.DatabaseType;
-import com.querybuilder4j.config.SqlBuilderFactory;
-import com.querybuilder4j.dbconnection.DbConnection;
-import com.querybuilder4j.dbconnection.DbConnectionImpl;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import sun.reflect.generics.tree.ReturnType;
 
-import java.io.FileReader;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.*;
 
-import static com.querybuilder4j.config.Conjunction.And;
-import static com.querybuilder4j.config.Operator.*;
-import static com.querybuilder4j.config.Operator.lessThanOrEquals;
-import static com.querybuilder4j.config.SqlBuilderFactory.buildSqlBuilder;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 
 public class SqlBuilderTest {
-    public static List<String> columns = new ArrayList<>();
-    public static String table = "county_spending_detail";
-    public static Criteria criteria1 = new Criteria();
-    public static Criteria criteria2 = new Criteria();
-    public static List<Criteria> multipleCriteria = new ArrayList<>();
-    public static SqlBuilder sqlBuilder;
-    public static DbConnection conn;
-    public List<String> propertiesFileNames = new ArrayList<>();
-    public List<Properties> properties = new ArrayList<>();
+    private static SqlBuilder sqlBuilder;
+    private static Connection conn;
 
-    static {
-        columns.add("fund");
-        columns.add("service");
-    }
 
-    public SqlBuilderTest() {
-        Properties propsPg = new Properties();
-        propsPg.setProperty("url", "jdbc:postgresql://localhost:5432/postgres");
-        propsPg.setProperty("username", "postgres");
-        propsPg.setProperty("password", "budgeto");
-        propsPg.setProperty("driverClass", "org.postgresql.Driver");
-        propsPg.setProperty("databaseType", "PostgreSQL");
-        properties.add(propsPg);
-
-//        Properties propsMySql = new Properties();
-//        propsMySql.setProperty("url", "jdbc:mysql://localhost:3306/sys");
-//        propsMySql.setProperty("username", "root");
-//        propsMySql.setProperty("password", "budgeto");
-//        propsMySql.setProperty("driverClass", "com.mysql.cj.jdbc.Driver");
-//        propsMySql.setProperty("databaseType", "MySql");
-//        properties.add(propsMySql);
-    }
+    public SqlBuilderTest() { }
 
     @Before
     public void setUp() throws Exception {
@@ -74,14 +37,11 @@ public class SqlBuilderTest {
 
     @Test
     public void runTests() throws Exception {
-        for (int i=0; i<properties.size(); i++) {
+        Set<DatabaseType> keys = Constants.dbProperties.keySet();
+        for (DatabaseType dbType : keys) {
 
-            Properties props = properties.get(i);
-            conn = new DbConnectionImpl(props);
-
-            DatabaseType dbType = DatabaseType.valueOf(props.getProperty("databaseType"));
-            sqlBuilder = buildSqlBuilder(dbType);
-            sqlBuilder.tableSchema = TestUtils.multiColumnResultSetBuilder(properties.get(i));
+            Properties props = Constants.dbProperties.get(dbType);
+            conn = TestUtils.getConnection(props);
 
             // run each public method that returns a ResultSet and test results.
             Method[] methods = QueryTests.class.getMethods();
@@ -90,14 +50,15 @@ public class SqlBuilderTest {
                         Modifier.isPublic(method.getModifiers()) &&
                         method.getDeclaringClass().equals(QueryTests.class)) {
                     try {
-                        String sql = (String) method.invoke(new QueryTests(sqlBuilder, props), null);
-                        ResultSet rs = conn.execute(sql);
+                        String sql = (String) method.invoke(new QueryTests(dbType, props), null);
+                        ResultSet rs = conn.createStatement().executeQuery(sql);
 
                         //If this line is reached, then we know the SQL statement was accepted by the database, which is what
                         //we are testing.
                         assertTrue(true);
                     } catch (Exception ex) {
                         ex.printStackTrace();
+                        assertTrue(false);
                     }
                 }
             }
@@ -110,19 +71,15 @@ public class SqlBuilderTest {
         Set<DatabaseType> keys = Constants.dbProperties.keySet();
         for (DatabaseType dbType : keys) {
             Properties props = Constants.dbProperties.get(dbType);
-            conn = new DbConnectionImpl(props);
-
-            DatabaseType dbTypeProp = DatabaseType.valueOf(props.getProperty("databaseType")); //Although redundant, the database type will no necessarily be known at runtime, so it's good to assume it's not given.
-            sqlBuilder = buildSqlBuilder(dbType);
-            sqlBuilder.tableSchema = TestUtils.multiColumnResultSetBuilder(props);
+            conn = TestUtils.getConnection(props);
 
             // run SQL statement randomizer.
-            QueryTests queryTests = new QueryTests(sqlBuilder, props);
+            QueryTests queryTests = new QueryTests(dbType, props);
             Map<SelectStatement, String> sqlMap = queryTests.buildSql_randomizer();
 
             for (SelectStatement stmt : sqlMap.keySet()) {
                 try {
-                    conn.execute(sqlMap.get(stmt));
+                    conn.createStatement().executeQuery(sqlMap.get(stmt));
                     assertTrue(true);
                 } catch (Exception ex) {
                     System.out.println("STATEMENT COLUMNS:  " + stmt.getColumns());

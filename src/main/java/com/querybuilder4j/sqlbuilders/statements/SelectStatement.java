@@ -2,35 +2,100 @@ package com.querybuilder4j.sqlbuilders.statements;
 
 
 import com.querybuilder4j.config.DatabaseType;
+import com.querybuilder4j.config.Parenthesis;
+import com.querybuilder4j.config.SqlBuilderFactory;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
+import com.sun.org.apache.bcel.internal.generic.Select;
 
+import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.*;
 
+import static com.querybuilder4j.config.Parenthesis.EndParenthesis;
+import static com.querybuilder4j.config.Parenthesis.FrontParenthesis;
 import static com.querybuilder4j.config.SqlBuilderFactory.buildSqlBuilder;
 
-public class SelectStatement extends Statement {
+public class SelectStatement {
+    private String name = "";
+    private DatabaseType databaseType;
+    private ResultSet tableSchema;
+    private List<String> columns = new ArrayList<>();
+    private String table = "";
+    private SortedSet<Criteria> criteria = new TreeSet<>();
     private boolean distinct;
     private boolean groupBy;
     private boolean orderBy;
-    private Long limit;
+    private Long limit = 10L;
     private boolean ascending;
-    private Long offset;
+    private Long offset = 0L;
     private boolean suppressNulls;
+
 
     public SelectStatement() {}
 
-    public SelectStatement(String name) {
+    public SelectStatement(DatabaseType databaseType) {
+        this.databaseType = databaseType;
+    }
+
+    public SelectStatement(DatabaseType databaseType, String name) {
+        this.databaseType = databaseType;
         this.name = name;
-        tableSchema = null;
-        distinct = false;
-        table = null;
-        groupBy = false;
-        orderBy = false;
-        limit = null;
-        ascending = false;
-        offset = null;
-        suppressNulls = false;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public DatabaseType getDatabaseType() {
+        return databaseType;
+    }
+
+    public void setDatabaseType(DatabaseType databaseType) {
+        this.databaseType = databaseType;
+    }
+
+    public ResultSet getTableSchema() {
+        return tableSchema;
+    }
+
+    public void setTableSchema(ResultSet tableSchema) {
+        this.tableSchema = tableSchema;
+    }
+
+    public List<String> getColumns() {
+        return columns;
+    }
+
+    public void setColumns(List<String> columns) {
+        this.columns = columns;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
+    public SortedSet<Criteria> getCriteria() {
+        return criteria;
+    }
+
+    public void setCriteria(SortedSet<Criteria> criteria) {
+        this.criteria = criteria;
+    }
+
+    public void setLimit(Long limit) {
+        this.limit = limit;
+    }
+
+    public void setOffset(Long offset) {
+        this.offset = offset;
     }
 
     public boolean isDistinct() {
@@ -132,16 +197,122 @@ public class SelectStatement extends Statement {
         }
     }
 
-//    @Override
-//    public String toString() {
-//        try {
-//            String databaseTypeProp = properties.getProperty("databaseType");
-//            DatabaseType databaseType = Enum.valueOf(DatabaseType.class, databaseTypeProp) ;
-//            SqlBuilder sqlBuilder = buildSqlBuilder(databaseType);
-//            return sqlBuilder.buildSql(this);
-//        } catch (Exception e) {
-//            throw new RuntimeException(e.getMessage());
-//        }
-//    }
+    public boolean addCriteria(Criteria criteria) {
+        boolean success = this.criteria.add(criteria);
+        if (success) {
+            clearParenthesisFromCriteria();
+            addParenthesisToCriteria();
+            return true;
+        }
+
+        return false;
+
+    }
+
+    public boolean addCriteria(List<Criteria> criteria) {
+        boolean success = this.criteria.addAll(criteria);
+        if (success) {
+            clearParenthesisFromCriteria();
+            addParenthesisToCriteria();
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean removeCriteria(Criteria criteria) {
+        boolean success = this.criteria.remove(criteria);
+        if (success) {
+            clearParenthesisFromCriteria();
+            addParenthesisToCriteria();
+            return true;
+        }
+
+        return false;
+    }
+
+    private void clearParenthesisFromCriteria() {
+        if (criteria.size() > 0) {
+            criteria.forEach( (x) -> {
+                x.frontParenthesis = Parenthesis.Empty;
+                x.endParenthesis.clear();
+            });
+        }
+    }
+
+    private void addParenthesisToCriteria() {
+        List<Criteria> criteriaList = new ArrayList<>(criteria);
+        if (criteria.size() > 0) {
+            for (int i=0; i<criteria.size(); i++) {
+
+                Criteria theCriteria = criteriaList.get(i);
+
+                if (isCriteriaAParent(theCriteria.getId())) {
+                    theCriteria.frontParenthesis = FrontParenthesis;
+                }
+                // if this is the last index of the criteria with this parent id, then add end parenthesis.
+                else if (getLastIndexOfCriteriaAsParent(theCriteria.parentId) == i) {
+                    theCriteria.endParenthesis.add(EndParenthesis);
+                }
+
+            }
+
+            // Determine if any remaining closing parenthesis are needed at end of criteria.  This only applies to criteria
+            // sets that end on a child criteria.
+            StringBuilder s = new StringBuilder();
+            for (Criteria crit : criteria) {
+                s.append(crit.toString());
+            }
+
+            char[] chars = s.toString().toCharArray();
+            int numOfBegParen = 0;
+            int numOfEndParen = 0;
+
+            for (Character c : chars) {
+                if (c.equals('(')) {
+                    numOfBegParen++;
+                } else if (c.equals(')')) {
+                    numOfEndParen++;
+                }
+            }
+
+            int parenDiff = numOfBegParen - numOfEndParen;
+            if (parenDiff > 0) {
+                for (int i=0; i<parenDiff; i++) {
+                    criteria.last().endParenthesis.add(EndParenthesis);
+                }
+            }
+        }
+
+    }
+
+    private int getLastIndexOfCriteriaAsParent(Integer parentId) {
+        if (parentId == null) return -1;
+        List<Criteria> criteriaList = new ArrayList<>(criteria);
+        for (int i=criteriaList.size()-1; i>=0; i--) {
+            if (criteriaList.get(i).parentId == null) continue;
+            if (criteriaList.get(i).parentId.equals(parentId)) return i;
+        }
+        return -1;
+    }
+
+    private boolean isCriteriaAParent(int id) {
+        List<Criteria> criteriaList = new ArrayList<>(criteria);
+        for (Criteria crit : criteriaList) {
+            if (crit.parentId == null) continue;
+            if (crit.parentId == id) return true;
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            SqlBuilder sqlBuilder = buildSqlBuilder(databaseType);
+            return sqlBuilder.buildSql(this);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 
 }
