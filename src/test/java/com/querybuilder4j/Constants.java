@@ -27,9 +27,9 @@ public class Constants {
             put(DatabaseType.MySql, mysqlProps);
 
 //            Properties sqlserverProps = new Properties();
-//            sqlserverProps.setProperty("url", "jdbc:sqlserver://localhost:1433/sys");
-//            sqlserverProps.setProperty("username", "root"); //TODO:  may not need this.  check local db.
-//            sqlserverProps.setProperty("password", "budgeto");
+//            sqlserverProps.setProperty("url", "jdbc:sqlserver://localhost;databaseName=master;integratedSecurity=true;");
+//            //sqlserverProps.setProperty("username", "root"); //TODO:  may not need this.  check local db.
+//            //sqlserverProps.setProperty("password", "budgeto");
 //            sqlserverProps.setProperty("driverClass", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
 //            sqlserverProps.setProperty("databaseType", "SqlServer");
 //            put(DatabaseType.SqlServer, sqlserverProps);

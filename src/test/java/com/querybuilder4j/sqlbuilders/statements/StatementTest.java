@@ -4,6 +4,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -63,13 +65,12 @@ public class StatementTest {
                 // id = 3, parent id = 1           AND column4 = filter4)
         //                                  )
 
-        SortedSet<Criteria> criteria = new TreeSet<>();
+        List<Criteria> criteria = new ArrayList<>();
         criteria.add(criteria1);
         criteria.add(criteria2);
         criteria.add(criteria3);
         criteria.add(criteria4);
-        statement.getCriteria().addAll(criteria);
-        statement.setCriteria(criteria);
+        statement.addCriteria(criteria);
 
         System.out.println(criteria);
         assertTrue(true);
@@ -83,7 +84,7 @@ public class StatementTest {
         // id = 3, parent id = 1           AND column4 = filter4)
         // id = 4, parent id = 0       AND column5 = filter5)
 
-        SortedSet<Criteria> criteria = new TreeSet<>();
+        List<Criteria> criteria = new ArrayList<>();
         criteria.add(criteria1);
         criteria.add(criteria2);
         criteria.add(criteria3);
@@ -100,7 +101,7 @@ public class StatementTest {
         // id = 0, parent id = null    column1 = filter1
         // id = 4, parent id = null    AND column5 = filter5
 
-        SortedSet<Criteria> criteria = new TreeSet<>();
+        List<Criteria> criteria = new ArrayList<>();
         criteria.add(criteria1);
         criteria.add(criteria5);
 
@@ -121,7 +122,7 @@ public class StatementTest {
         criteria3.parentId = 1;
         criteria4.parentId = null;
 
-        SortedSet<Criteria> criteria = new TreeSet<>();
+        List<Criteria> criteria = new ArrayList<>();
         criteria.add(criteria1);
         criteria.add(criteria2);
         criteria.add(criteria3);

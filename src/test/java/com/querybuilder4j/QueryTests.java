@@ -196,7 +196,7 @@ public class QueryTests {
         List<String> columns = new ArrayList<>();
         columns.add("fiscal_year_period");
 
-        SortedSet<Criteria> criteria = new TreeSet<>();
+        List<Criteria> criteria = new ArrayList<>();
         Criteria c0 = new Criteria(0);
         c0.parentId = null;
         c0.column = "fund";
@@ -278,20 +278,20 @@ public class QueryTests {
 
             //get criteria
             boolean getSingleCriteria = RandomUtils.nextBoolean();
-            SortedSet<Criteria> criteriaSet = new TreeSet<>();
+            List<Criteria> criteriaSet = new ArrayList<>();
             if (getSingleCriteria) {
                 int criteriaIndex = RandomUtils.nextInt(randomCriteria.size());
                 Criteria criteriaClone = (Criteria) randomCriteria.get(criteriaIndex).clone();
                 criteriaClone.setId(0);
                 criteriaSet.add(criteriaClone);
             } else {
-                criteriaSet.add(randomCriteria.get(0)); //TODO:  Remove this later.  This is just to clear the first criteria's conjunction.
+                criteriaSet.add(randomCriteria.remove(0)); //TODO:  Remove this later.  This is just to clear the first criteria's conjunction.
                 int numOfCriteria = org.apache.commons.lang3.RandomUtils.nextInt(1, randomCriteria.size());
 
                 List<Integer> eligibleParentIds = new ArrayList<>();
                 eligibleParentIds.add(0);
 
-                for (int j=0; j<numOfCriteria; j++) {
+                for (int j=1; j<numOfCriteria; j++) {
                     randomCriteria = getCriteriaSet();
                     int randomIndex = RandomUtils.nextInt(randomCriteria.size());
                     Criteria criteriaClone = (Criteria) randomCriteria.get(randomIndex).clone();
@@ -369,6 +369,9 @@ public class QueryTests {
     }
 
     private List<Criteria> getCriteriaSet() {
+        //wipe old items in randomCriteria
+        randomCriteria = new ArrayList<>();
+
         //criteria
         //equal to
         Criteria criteriaEqualTo = new Criteria(0);
@@ -464,9 +467,22 @@ public class QueryTests {
         criteriaIsNotNull.column = "fund";
         criteriaIsNotNull.operator = isNotNull;
 
-        randomCriteria = Arrays.asList(criteriaEqualTo, criteriaNotEqualTo, criteriaGreaterThanOrEquals, criteriaLessThanOrEquals,
-                criteriaGreaterThan, criteriaLessThan, criteriaLike, criteriaNotLike, criteriaIn, criteriaNotIn, criteriaIsNull,
-                criteriaIsNotNull);
+        randomCriteria.add(criteriaEqualTo);
+        randomCriteria.add(criteriaNotEqualTo);
+        randomCriteria.add(criteriaGreaterThanOrEquals);
+        randomCriteria.add(criteriaLessThanOrEquals);
+        randomCriteria.add(criteriaGreaterThan);
+        randomCriteria.add(criteriaLessThan);
+        randomCriteria.add(criteriaLike);
+        randomCriteria.add(criteriaNotLike);
+        randomCriteria.add(criteriaIn);
+        randomCriteria.add(criteriaNotIn);
+        randomCriteria.add(criteriaIsNull);
+        randomCriteria.add(criteriaIsNotNull);
+
+//        randomCriteria = Arrays.asList(criteriaEqualTo, criteriaNotEqualTo, criteriaGreaterThanOrEquals, criteriaLessThanOrEquals,
+//                criteriaGreaterThan, criteriaLessThan, criteriaLike, criteriaNotLike, criteriaIn, criteriaNotIn, criteriaIsNull,
+//                criteriaIsNotNull);
 
         return randomCriteria;
     }

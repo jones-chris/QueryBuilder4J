@@ -3,12 +3,9 @@ package com.querybuilder4j.sqlbuilders.statements;
 
 import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.config.Parenthesis;
-import com.querybuilder4j.config.SqlBuilderFactory;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
-import com.sun.org.apache.bcel.internal.generic.Select;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.util.*;
 
 import static com.querybuilder4j.config.Parenthesis.EndParenthesis;
@@ -21,7 +18,7 @@ public class SelectStatement {
     private ResultSet tableSchema;
     private List<String> columns = new ArrayList<>();
     private String table = "";
-    private SortedSet<Criteria> criteria = new TreeSet<>();
+    private List<Criteria> criteria = new ArrayList<>();
     private boolean distinct;
     private boolean groupBy;
     private boolean orderBy;
@@ -82,12 +79,15 @@ public class SelectStatement {
         this.table = table;
     }
 
-    public SortedSet<Criteria> getCriteria() {
+    public List<Criteria> getCriteria() {
         return criteria;
     }
 
-    public void setCriteria(SortedSet<Criteria> criteria) {
+    public void setCriteria(List<Criteria> criteria) {
         this.criteria = criteria;
+        Collections.sort(this.criteria);
+        clearParenthesisFromCriteria();
+        addParenthesisToCriteria();
     }
 
     public void setLimit(Long limit) {
@@ -200,6 +200,7 @@ public class SelectStatement {
     public boolean addCriteria(Criteria criteria) {
         boolean success = this.criteria.add(criteria);
         if (success) {
+            Collections.sort(this.criteria);
             clearParenthesisFromCriteria();
             addParenthesisToCriteria();
             return true;
@@ -212,6 +213,7 @@ public class SelectStatement {
     public boolean addCriteria(List<Criteria> criteria) {
         boolean success = this.criteria.addAll(criteria);
         if (success) {
+            Collections.sort(this.criteria);
             clearParenthesisFromCriteria();
             addParenthesisToCriteria();
             return true;
@@ -223,6 +225,7 @@ public class SelectStatement {
     public boolean removeCriteria(Criteria criteria) {
         boolean success = this.criteria.remove(criteria);
         if (success) {
+            Collections.sort(this.criteria);
             clearParenthesisFromCriteria();
             addParenthesisToCriteria();
             return true;
@@ -279,7 +282,8 @@ public class SelectStatement {
             int parenDiff = numOfBegParen - numOfEndParen;
             if (parenDiff > 0) {
                 for (int i=0; i<parenDiff; i++) {
-                    criteria.last().endParenthesis.add(EndParenthesis);
+                    criteria.get(criteria.size() - 1).endParenthesis.add(EndParenthesis);
+                    //criteria.last().endParenthesis.add(EndParenthesis);
                 }
             }
         }

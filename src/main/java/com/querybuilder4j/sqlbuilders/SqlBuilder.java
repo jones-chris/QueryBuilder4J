@@ -116,7 +116,7 @@ public abstract class SqlBuilder {
         return sql;
     }
 
-    protected StringBuilder createWhereClause(SortedSet<Criteria> criteria) throws Exception {
+    protected StringBuilder createWhereClause(List<Criteria> criteria) throws Exception {
         if (criteria == null) throw new IllegalArgumentException("The criteria parameter is null");
 
         if (criteria.size() == 0) {
