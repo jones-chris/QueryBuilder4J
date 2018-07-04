@@ -68,6 +68,62 @@ public class Criteria implements Cloneable, Comparable {
 
     public void setId(Integer id) { this.id = id; }
 
+    public Integer getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
+    }
+
+    public Conjunction getConjunction() {
+        return conjunction;
+    }
+
+    public void setConjunction(Conjunction conjunction) {
+        this.conjunction = conjunction;
+    }
+
+    public Parenthesis getFrontParenthesis() {
+        return frontParenthesis;
+    }
+
+    public void setFrontParenthesis(Parenthesis frontParenthesis) {
+        this.frontParenthesis = frontParenthesis;
+    }
+
+    public String getColumn() {
+        return column;
+    }
+
+    public void setColumn(String column) {
+        this.column = column;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public void setOperator(Operator operator) {
+        this.operator = operator;
+    }
+
+    public String getFilter() {
+        return filter;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
+
+    public List<Parenthesis> getEndParenthesis() {
+        return endParenthesis;
+    }
+
+    public void setEndParenthesis(List<Parenthesis> endParenthesis) {
+        this.endParenthesis = endParenthesis;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
