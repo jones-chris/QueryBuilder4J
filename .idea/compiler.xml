@@ -21,6 +21,8 @@
     <bytecodeTargetLevel>
       <module name="com.querybuilder4j_main" target="1.8" />
       <module name="com.querybuilder4j_test" target="1.8" />
+      <module name="querybuilder4j_main" target="1.8" />
+      <module name="querybuilder4j_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -23,12 +23,11 @@ public class TestUtils {
 
     public static ResultSet multiColumnResultSetBuilder(Properties properties) throws Exception {
         Connection connection = DriverManager.getConnection(
-                    properties.getProperty("url"),
-                    properties.getProperty("username"),
-                    properties.getProperty("password"));
+                properties.getProperty("url"),
+                properties.getProperty("username"),
+                properties.getProperty("password"));
 
             DatabaseMetaData metaData = connection.getMetaData();
-            //return metaData.getColumns(null, "public", "county_spending_detail", null);
             return metaData.getColumns(null, null, "county_spending_detail", "%");
     }
 

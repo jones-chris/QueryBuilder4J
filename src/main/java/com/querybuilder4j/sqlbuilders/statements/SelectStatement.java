@@ -85,9 +85,6 @@ public class SelectStatement {
 
     public void setCriteria(List<Criteria> criteria) {
         this.criteria = criteria;
-        Collections.sort(this.criteria);
-        clearParenthesisFromCriteria();
-        addParenthesisToCriteria();
     }
 
     public void setLimit(Long limit) {
@@ -312,6 +309,9 @@ public class SelectStatement {
     @Override
     public String toString() {
         try {
+            Collections.sort(this.criteria);
+            clearParenthesisFromCriteria();
+            addParenthesisToCriteria();
             SqlBuilder sqlBuilder = buildSqlBuilder(databaseType);
             return sqlBuilder.buildSql(this);
         } catch (Exception e) {

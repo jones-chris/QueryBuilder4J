@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -77,12 +78,14 @@ public class SqlBuilderTest {
             QueryTests queryTests = new QueryTests(dbType, props);
             Map<SelectStatement, String> sqlMap = queryTests.buildSql_randomizer();
 
-            for (SelectStatement stmt : sqlMap.keySet()) {
+            for (SelectStatement selectStatement : sqlMap.keySet()) {
                 try {
-                    conn.createStatement().executeQuery(sqlMap.get(stmt));
+                    Statement stmt = conn.createStatement();
+                    stmt.executeQuery(selectStatement.toString());
+                    stmt.close();
                     assertTrue(true);
                 } catch (Exception ex) {
-                    System.out.println("STATEMENT COLUMNS:  " + stmt.getColumns());
+                    System.out.println("STATEMENT COLUMNS:  " + selectStatement.getColumns());
                     System.out.println();
                     System.out.println();
 
@@ -90,7 +93,7 @@ public class SqlBuilderTest {
 
                     System.out.println("STATEMENT CRITERIA:  ");
                     System.out.println();
-                    for (Criteria criteria : stmt.getCriteria()) {
+                    for (Criteria criteria : selectStatement.getCriteria()) {
                         System.out.println("Id:" + criteria.getId());
                         System.out.println("parentId:" + criteria.parentId);
                         System.out.println("frontParen:" + criteria.frontParenthesis);
@@ -103,7 +106,7 @@ public class SqlBuilderTest {
                     System.out.println();
                     System.out.println();
 
-                    System.out.println("SQL String:  " + sqlMap.get(stmt));
+                    System.out.println("SQL String:  " + sqlMap.get(selectStatement));
                     ex.printStackTrace();
                     assertTrue(false);
                 }
