@@ -459,6 +459,7 @@ public class QueryTests {
         criteriaIsNull.conjunction = And;
         criteriaIsNull.column = "service";
         criteriaIsNull.operator = isNull;
+        criteriaIsNull.filter = "Housing and Community Development";
 
         //is not null
         Criteria criteriaIsNotNull = new Criteria(11);
@@ -466,6 +467,7 @@ public class QueryTests {
         criteriaIsNotNull.conjunction = And;
         criteriaIsNotNull.column = "fund";
         criteriaIsNotNull.operator = isNotNull;
+        criteriaIsNotNull.filter = "Housing and Community Development";
 
         randomCriteria.add(criteriaEqualTo);
         randomCriteria.add(criteriaNotEqualTo);

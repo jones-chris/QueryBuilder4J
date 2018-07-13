@@ -133,6 +133,7 @@ public abstract class SqlBuilder {
 
                     if (criteriaClone.isValid()) {
                         if (criteriaClone.operator.equals(Operator.isNull) || criteriaClone.operator.equals(Operator.isNotNull)) {
+                            criteriaClone.filter = null;
                             sql.append(String.format(" %s ", criteriaClone.toString()));
                             continue;
                         }
