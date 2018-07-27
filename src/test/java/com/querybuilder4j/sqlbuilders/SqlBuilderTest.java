@@ -81,7 +81,7 @@ public class SqlBuilderTest {
             for (SelectStatement selectStatement : sqlMap.keySet()) {
                 try {
                     Statement stmt = conn.createStatement();
-                    stmt.executeQuery(selectStatement.toString());
+                    stmt.executeQuery(selectStatement.toSql());
                     stmt.close();
                     assertTrue(true);
                 } catch (Exception ex) {

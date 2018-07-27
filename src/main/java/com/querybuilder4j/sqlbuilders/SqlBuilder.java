@@ -23,7 +23,7 @@ public abstract class SqlBuilder {
     protected static Map<Integer, Boolean> typeMappings = new HashMap<>();
     protected char beginningDelimiter;
     protected char endingDelimter;
-    protected ResultSet tableSchema;
+    protected Map<String, Integer> tableSchema;
     public static Map<DatabaseType, String> readTablesSql = new HashMap<>();
     public static Map<DatabaseType, String> writeTablesSql = new HashMap<>();
 
@@ -315,16 +315,9 @@ public abstract class SqlBuilder {
     }
 
     private int getColumnDataType(String columnName) throws SQLException, ColumnNameNotFoundException {
-        int dataType = -1000; //default value, does not match any java.sql.Types.
-        while (tableSchema.next()) {
-            if (tableSchema.getString("COLUMN_NAME").equals(columnName)) {
-                dataType = tableSchema.getInt("DATA_TYPE");
-                tableSchema.beforeFirst(); // reset cursor to before first record.
-                break;
-            }
-        }
+        Integer dataType = tableSchema.get(columnName);
 
-        if (dataType == -1000) {
+        if (dataType == null) {
             throw new ColumnNameNotFoundException(String.format("Could not find column, %s", columnName));
         } else {
             return dataType;

@@ -13,6 +13,7 @@
     <orderEntry type="library" name="Gradle: mysql:mysql-connector-java:6.0.6" level="project" />
     <orderEntry type="library" name="Gradle: org.xerial:sqlite-jdbc:3.21.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.microsoft.sqlserver:mssql-jdbc:6.1.0.jre8" level="project" />
+    <orderEntry type="library" name="Gradle: com.h2database:h2:1.4.197" level="project" />
     <orderEntry type="library" name="Gradle: com.microsoft.azure:azure-keyvault:0.9.3" level="project" />
     <orderEntry type="library" name="Gradle: com.microsoft.azure:azure-core:0.9.3" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpclient:4.3.6" level="project" />

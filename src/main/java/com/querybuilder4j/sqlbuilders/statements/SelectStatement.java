@@ -15,7 +15,7 @@ import static com.querybuilder4j.config.SqlBuilderFactory.buildSqlBuilder;
 public class SelectStatement {
     private String name = "";
     private DatabaseType databaseType;
-    private ResultSet tableSchema;
+    private Map<String, Integer> tableSchema;
     private List<String> columns = new ArrayList<>();
     private String table = "";
     private List<Criteria> criteria = new ArrayList<>();
@@ -55,11 +55,11 @@ public class SelectStatement {
         this.databaseType = databaseType;
     }
 
-    public ResultSet getTableSchema() {
+    public Map<String, Integer> getTableSchema() {
         return tableSchema;
     }
 
-    public void setTableSchema(ResultSet tableSchema) {
+    public void setTableSchema(Map<String, Integer> tableSchema) {
         this.tableSchema = tableSchema;
     }
 
@@ -306,8 +306,7 @@ public class SelectStatement {
         return false;
     }
 
-    @Override
-    public String toString() {
+    public String toSql() {
         try {
             Collections.sort(this.criteria);
             clearParenthesisFromCriteria();
@@ -317,6 +316,49 @@ public class SelectStatement {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("");
+
+        sb.append(String.format("Name:  %s\n", name));
+
+        sb.append(String.format("Database Type:  %s\n", databaseType));
+
+        columns.forEach(col -> sb.append(String.format("Column:  %s\n", col)));
+
+        sb.append(String.format("Table:  %s\n", table));
+
+        sb.append("Criteria:  \n");
+        criteria.forEach(crit -> {
+            sb.append(String.format("Id:  %d\n", crit.getId()));
+            sb.append(String.format("ParentId:  %d\n", crit.getParentId()));
+            sb.append(String.format("Conjunction:  %s\n", crit.getConjunction()));
+            sb.append(String.format("Front Parenthesis:  %s\n", crit.getFrontParenthesis()));
+            sb.append(String.format("Column:  %s\n", crit.getColumn()));
+            sb.append(String.format("Operator:  %s\n", crit.getOperator()));
+            sb.append(String.format("Filter:  %s\n", crit.getFilter()));
+            sb.append("End Parenthesis:  ");
+            crit.endParenthesis.forEach(paren -> sb.append(paren));
+            sb.append("\n");
+        });
+
+        sb.append(String.format("Distinct:  %s\n", distinct));
+
+        sb.append(String.format("Group By:  %s\n", groupBy));
+
+        sb.append(String.format("Order By:  %s\n", orderBy));
+
+        sb.append(String.format("Limit:  %d\n", limit));
+
+        sb.append(String.format("Ascending:  %s\n", ascending));
+
+        sb.append(String.format("Offset:  %d\n", offset));
+
+        sb.append(String.format("Suppress Nulls:  %s\n", suppressNulls));
+
+        return sb.toString();
     }
 
 }

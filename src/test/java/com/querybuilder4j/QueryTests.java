@@ -4,6 +4,7 @@ import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
+import com.querybuilder4j.utils.ResultSetToHashMapConverter;
 import com.sun.org.apache.bcel.internal.generic.Select;
 import org.apache.commons.lang.math.RandomUtils;
 
@@ -54,7 +55,7 @@ public class QueryTests {
 
         SelectStatement stmt = new SelectStatement();
         stmt.setDatabaseType(databaseType);
-        stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(properties));
+        stmt.setTableSchema(ResultSetToHashMapConverter.toHashMap(TestUtils.multiColumnResultSetBuilder(properties)));
         stmt.setDistinct(false);
         stmt.setColumns(columns);
         stmt.setTable(table);
@@ -95,7 +96,7 @@ public class QueryTests {
     public String buildSql_LimitSuppressNulls() throws Exception {
         SelectStatement stmt = createNewMainSelectStmt();
 
-        return stmt.toString();
+        return stmt.toSql();
     }
 
     public String buildSql_OneChild() throws Exception{
@@ -108,28 +109,28 @@ public class QueryTests {
         SelectStatement stmt = createNewMainSelectStmt();
         stmt.addCriteria(childCriteria1);
 
-        return stmt.toString();
+        return stmt.toSql();
     }
 
     public String buildSql_WithDistinct() throws Exception {
         SelectStatement stmt = createNewMainSelectStmt();
         stmt.setDistinct(true);
 
-        return stmt.toString();
+        return stmt.toSql();
     }
 
     public String buildSql_GroupBy() throws Exception {
         SelectStatement stmt = createNewMainSelectStmt();
         stmt.setGroupBy(true);
 
-        return stmt.toString();
+        return stmt.toSql();
     }
 
     public String buildSql_OrderBy() throws Exception {
         SelectStatement stmt = createNewMainSelectStmt();
         stmt.setOrderBy(true);
 
-        return stmt.toString();
+        return stmt.toSql();
     }
 
     public String buildSql_GroupByOrderBy() throws Exception {
@@ -138,14 +139,14 @@ public class QueryTests {
         stmt.setGroupBy(true);
         stmt.setOrderBy(true);
 
-        return stmt.toString();
+        return stmt.toSql();
     }
 
     public String buildSql_SuppressNulls() throws Exception {
         SelectStatement stmt = createNewMainSelectStmt();
         stmt.setSuppressNulls(true);
 
-        return stmt.toString();
+        return stmt.toSql();
     }
 
     public String buildSql_FailedTest_PostgreSQL1() throws Exception {
@@ -245,9 +246,9 @@ public class QueryTests {
         stmt.setAscending(false);
         stmt.setLimit(10);
         stmt.setOffset(1);
-        stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(Constants.dbProperties.get(stmt.getDatabaseType())));
+        stmt.setTableSchema(ResultSetToHashMapConverter.toHashMap(TestUtils.multiColumnResultSetBuilder(Constants.dbProperties.get(stmt.getDatabaseType()))));
 
-        return stmt.toString();
+        return stmt.toSql();
     }
 
     public Map<SelectStatement, String> buildSql_randomizer() throws Exception {
@@ -357,12 +358,12 @@ public class QueryTests {
             ResultSet columnMetaData = connection.getMetaData().getColumns(null, null, "county_spending_detail", "%");
 
             //ResultSet columnMetaData = new DbConnectionImpl(properties).getConnection().getMetaData().getColumns(null, null, "county_spending_detail", "%");
-            stmt.setTableSchema(columnMetaData);
+            stmt.setTableSchema(ResultSetToHashMapConverter.toHashMap(columnMetaData));
             //stmt.setTableSchema(TestUtils.multiColumnResultSetBuilder(properties));
 
             //generate SQL statement and add to result list
             //results.put(stmt, sqlBuilder.buildSql(stmt));
-            results.put(stmt, stmt.toString());
+            results.put(stmt, stmt.toSql());
         }
 
         return results;
