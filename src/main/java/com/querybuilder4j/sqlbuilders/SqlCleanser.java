@@ -1,10 +1,38 @@
 package com.querybuilder4j.sqlbuilders;
 
 
+import com.querybuilder4j.config.Operator;
+import com.querybuilder4j.config.Parenthesis;
+import com.querybuilder4j.sqlbuilders.statements.Criteria;
+
+
 public class SqlCleanser {
-    private static final Character[] charsNeedingEscaping = new Character[] {'\'', '"'};
-    private static final String[] stringsNeedingRemoval = new String[] {"-", "=", ">", "<", "!=", "<>", ">=", "<=", ";",
-            " DROP ", " CREATE ", " DELETE ", " INSERT ", " UPDATE ", " SELECT ",  " FROM ","`"};
+    // These characters are the only characters that should be escaped because they can be expected to be in query criteria.
+    //  Ex:  SELECT * FROM restaurants WHERE name = 'Tiffany''s';
+    private static final Character[] charsNeedingEscaping = new Character[] {'\''};
+
+    // SQL arithmetic, bitwise, comparison, and compund operators per https://www.w3schools.com/sql/sql_operators.asp
+    // If any of these strings are contained in SelectStatement, then return false.
+    private static final String[] reservedOperators = new String[] {"+", "-", "*", "/", "%", "&", "|", "^", "=", ">", "<", "!=",
+            "<>", ">=", "<=", "+=", "-=", "*=", "/=", "%=", "&=", "^-=", "|*="
+    };
+
+    // If any of these characters are contained in SelectStatement, then return false.
+    private static final String[] forbiddenMarks = new String[] {";", "`", "\""};
+
+    // Ansi keywords per https://docs.snowflake.net/manuals/sql-reference/reserved-keywords.html
+    // If any of these strings are contained in SelectStatement, then return false.
+    private static final String[] ansiKeywords = new String[] {" ALL ", " ALTER ", " AND ", " ANY ", " AS ", " ASC ", " BETWEEN ",
+            " BY ", " CASE ", " CAST ", " CHECK ", " CLUSTER ", " COLUMN ", " CONNECT ", " CREATE ", " CROSS ", " CURRENT_DATE ",
+            " CURRENT_ROLE ", " CURRENT_USER ", " CURRENT_TIME ", " CURRENT_TIMESTAMP ", " DELETE ", " DESC ", " DISTINCT ",
+            " DROP ", " ELSE ", " EXCLUSIVE ", " EXISTS ", " FALSE ", " FOR ", " FROM ", " FULL ", " GRANT ", " GROUP ",
+            " HAVING ", " IDENTIFIED ", " ILIKE ", " IMMEDIATE ", " IN ", " INCREMENT ", " INNER ", " INSERT ", " INTERSECT ",
+            " INTO ", " IS ", " JOIN ", " LATERAL ", " LEFT ", " LIKE ", " LOCK ", " LONG ", " MAXEXTENTS ", " MINUS ", " MODIFY ",
+            " NATURAL ", " NOT ", " NULL ", " OF ", " ON ", " OPTION ", " OR ", " REGEXP ", " RENAME ", " REVOKE ", " RIGHT ",
+            " RLIKE ", " ROW ", " ROWS ", " SAMPLE ", " SELECT ", " SET ", " SOME ", " START ", " TABLE ", " TABLESAMPLE ",
+            " THEN ", " TO ", " TRIGGER ", " TRUE ", " UNION ", " UNIQUE ", " UPDATE ", " USING ", " VALUES ", " VIEW ", " WHEN ",
+            " WHENEVER ", " WHERE ", " WITH "
+    };
 
     public static String escape(String sql) {
         for (Character c : charsNeedingEscaping) {
@@ -14,17 +42,58 @@ public class SqlCleanser {
         return sql;
     }
 
-    public static String remove(String sql) {
-        for (String s : stringsNeedingRemoval) {
-            sql = sql.replaceAll(s, "");
+    public static boolean sqlIsClean(String str) {
+        for (String opr : reservedOperators) {
+            if (str.contains(opr)) {
+                return false;
+            }
         }
 
-        return sql;
+        for (String mark : forbiddenMarks) {
+            if (str.contains(mark)) {
+                return false;
+            }
+        }
+
+        for (String keyword : ansiKeywords) {
+            if (str.contains(keyword)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    public static String escapeAndRemove(String sql) {
-        sql = escape(sql);
-        sql = remove(sql);
-        return sql;
+    public static boolean sqlIsClean(Operator operator) {
+        for (String mark : forbiddenMarks) {
+            if (operator.toString().contains(mark)) {
+                return false;
+            }
+        }
+
+        for (String keyword : ansiKeywords) {
+            if (operator.toString().contains(keyword)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean sqlIsClean(Criteria criteria) {
+        boolean conjunctionIsClean = sqlIsClean(criteria.getConjunction().toString());
+        boolean frontParenIsClean = sqlIsClean(criteria.getFrontParenthesis().toString());
+        boolean columnIsClean = sqlIsClean(criteria.getColumn());
+        boolean operatorIsClean = sqlIsClean(criteria.getOperator());
+        boolean filterIsClean = sqlIsClean(criteria.getFilter());
+        boolean endParenIsClean = true;
+        for (Parenthesis paren : criteria.getEndParenthesis()) {
+            endParenIsClean = sqlIsClean(paren.toString());
+            if (! endParenIsClean) {
+                break;
+            }
+        }
+
+        return conjunctionIsClean && frontParenIsClean && columnIsClean && operatorIsClean && filterIsClean && endParenIsClean;
     }
 }

@@ -1,7 +1,6 @@
 package com.querybuilder4j.sqlbuilders;
 
 
-import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.config.Operator;
 import com.querybuilder4j.exceptions.BadSqlException;
 import com.querybuilder4j.exceptions.ColumnNameNotFoundException;
@@ -9,39 +8,22 @@ import com.querybuilder4j.exceptions.DataTypeNotFoundException;
 import com.querybuilder4j.exceptions.EmptyCollectionException;
 import com.querybuilder4j.sqlbuilders.statements.*;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 
-import static com.querybuilder4j.sqlbuilders.SqlCleanser.escapeAndRemove;
+import static com.querybuilder4j.sqlbuilders.SqlCleanser.escape;
+import static com.querybuilder4j.sqlbuilders.SqlCleanser.sqlIsClean;
 
 public abstract class SqlBuilder {
     protected static Map<Integer, Boolean> typeMappings = new HashMap<>();
     protected char beginningDelimiter;
     protected char endingDelimter;
     protected Map<String, Integer> tableSchema;
-    public static Map<DatabaseType, String> readTablesSql = new HashMap<>();
-    public static Map<DatabaseType, String> writeTablesSql = new HashMap<>();
 
     static {
-        readTablesSql.put(DatabaseType.MySql,      "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type = 'SELECT';");
-        readTablesSql.put(DatabaseType.Oracle,     "SELECT table_name FROM dba_tab_privs WHERE grantee ='{0}' AND privilege = 'SELECT';");
-        readTablesSql.put(DatabaseType.PostgreSQL, "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type = 'SELECT';");
-        readTablesSql.put(DatabaseType.Redshift,   "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type = 'SELECT';");
-        readTablesSql.put(DatabaseType.Sqlite,     "SELECT tbl_name FROM sqlite_master where type ='table' OR type ='view';");
-        readTablesSql.put(DatabaseType.SqlServer,  "SELECT table_name FROM sp_table_privileges WHERE grantee = '{0}' AND privilege = 'SELECT';");
-
-        writeTablesSql.put(DatabaseType.MySql,      "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type IN ('INSERT', 'UPDATE', 'DELETE');");
-        writeTablesSql.put(DatabaseType.Oracle,     "SELECT table_name FROM dba_tab_privs WHERE grantee ='{0}' AND privilege IN ('INSERT', 'UPDATE', 'DELETE');");
-        writeTablesSql.put(DatabaseType.PostgreSQL, "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type IN ('INSERT', 'UPDATE', 'DELETE');");
-        writeTablesSql.put(DatabaseType.Redshift,   "SELECT table_name FROM information_schema.table_privileges WHERE grantee = '{0}' AND privilege_type IN ('INSERT', 'UPDATE', 'DELETE')';");
-        writeTablesSql.put(DatabaseType.Sqlite,     "SELECT tbl_name FROM sqlite_master where type ='table' OR type ='view';");
-        writeTablesSql.put(DatabaseType.SqlServer,  "SELECT table_name FROM sp_table_privileges WHERE grantee = '{0}' AND privilege IN ('INSERT', 'UPDATE', 'DELETE');");
-
         typeMappings.put(Types.ARRAY, true);                     //ARRAY
         typeMappings.put(Types.BIGINT, false);                   //BIGINT
         typeMappings.put(Types.BINARY, true);                    //BINARY
@@ -89,35 +71,45 @@ public abstract class SqlBuilder {
     public abstract String buildSql(SelectStatement query) throws Exception;
 
     protected StringBuilder createSelectClause(boolean distinct, List<String> columns)
-            throws IllegalArgumentException, EmptyCollectionException {
+            throws IllegalArgumentException, EmptyCollectionException, BadSqlException {
         if (columns == null) throw new IllegalArgumentException("Columns parameter is null");
 
         if (columns.size() == 0) throw new EmptyCollectionException("Columns parameter is empty");
 
+        boolean columnsAreClean = true;
+        for (String column : columns) {
+            columnsAreClean = sqlIsClean(column);
+            if (! columnsAreClean) throw new BadSqlException(column + " failed to be clean SQL");
+        }
+
         String startSql = (distinct) ? "SELECT DISTINCT " : "SELECT ";
         StringBuilder sql = new StringBuilder(startSql);
-        for (String column : columns)
-        {
-            sql.append(String.format("%s%s%s, ", beginningDelimiter, escapeAndRemove(column), beginningDelimiter));
+        for (String column : columns) {
+            sql.append(String.format("%s%s%s, ", beginningDelimiter, escape(column), beginningDelimiter));
         }
         sql = sql.delete(sql.length() - 2, sql.length()).append(" ");
-        //return sql.replace("  ", " ");
         return sql;
     }
 
-    protected StringBuilder createFromClause(String table) throws IllegalArgumentException {
+    protected StringBuilder createFromClause(String table) throws IllegalArgumentException, BadSqlException {
         if (table == null) throw new IllegalArgumentException("table parameter is null");
 
         if (table.equals("")) throw new IllegalArgumentException("The table argument is an empty string");
 
-        String s = String.format(" FROM %s%s%s ", beginningDelimiter, escapeAndRemove(table), endingDelimter);
-        StringBuilder sql = new StringBuilder(s);
-        //return sql.Replace("  ", " ");
-        return sql;
+        if (! sqlIsClean(table)) throw new BadSqlException(table + " failed to be clean SQL");
+
+        String s = String.format(" FROM %s%s%s ", beginningDelimiter, escape(table), endingDelimter);
+        return new StringBuilder(s);
     }
 
     protected StringBuilder createWhereClause(List<Criteria> criteria) throws Exception {
         if (criteria == null) throw new IllegalArgumentException("The criteria parameter is null");
+
+        boolean criteriaAreClean = true;
+        for (Criteria crit : criteria) {
+            criteriaAreClean = sqlIsClean(crit);
+            if (! criteriaAreClean) throw new BadSqlException(crit + " failed to be clean SQL");
+        }
 
         if (criteria.size() == 0) {
             return null;
@@ -153,12 +145,12 @@ public abstract class SqlBuilder {
                             if (shouldHaveQuotes) {
                                 wrapFilterInQuotes(criteriaClone);
                             } else {
-                                criteriaClone.filter = "(" + escapeAndRemove(criteriaClone.filter) + ")";
+                                criteriaClone.filter = "(" + escape(criteriaClone.filter) + ")";
                             }
 
                             sql.append(criteriaClone.toString()).append(" ");
                         } else {
-                            criteriaClone.filter = (shouldHaveQuotes) ? "'" + escapeAndRemove(criteriaClone.filter) + "'" : escapeAndRemove(criteriaClone.filter);
+                            criteriaClone.filter = (shouldHaveQuotes) ? "'" + escape(criteriaClone.filter) + "'" : escape(criteriaClone.filter);
                             sql.append(criteriaClone.toString()).append(" ");
                         }
 
@@ -173,8 +165,14 @@ public abstract class SqlBuilder {
         }
     }
 
-    protected StringBuilder createGroupByClause(List<String> columns) throws IllegalArgumentException, EmptyCollectionException {
+    protected StringBuilder createGroupByClause(List<String> columns) throws IllegalArgumentException, EmptyCollectionException, BadSqlException {
         if (columns == null) throw new IllegalArgumentException("The columns parameter is null");
+
+        boolean columnsAreClean = true;
+        for (String column : columns) {
+            columnsAreClean = sqlIsClean(column);
+            if (! columnsAreClean) throw new BadSqlException(column + " failed to be clean SQL");
+        }
 
         if (columns.size() == 0) {
             throw new EmptyCollectionException("The columns parameter is empty");
@@ -182,17 +180,22 @@ public abstract class SqlBuilder {
             StringBuilder sql = new StringBuilder(" GROUP BY ");
 
             for (String column : columns) {
-                sql.append(String.format("%s%s%s, ", beginningDelimiter, escapeAndRemove(column), endingDelimter));
+                sql.append(String.format("%s%s%s, ", beginningDelimiter, escape(column), endingDelimter));
             }
 
             sql.delete(sql.length() - 2, sql.length()).append(" ");
-            //return sql.Replace("  ", " ");
             return sql;
         }
     }
 
-    protected StringBuilder createOrderByClause(List<String> columns, boolean ascending) throws IllegalArgumentException, EmptyCollectionException {
+    protected StringBuilder createOrderByClause(List<String> columns, boolean ascending) throws IllegalArgumentException, EmptyCollectionException, BadSqlException {
         if (columns == null) throw new IllegalArgumentException("The columns parameter is null");
+
+        boolean columnsAreClean = true;
+        for (String column : columns) {
+            columnsAreClean = sqlIsClean(column);
+            if (! columnsAreClean) throw new BadSqlException(column + " failed to be clean SQL");
+        }
 
         if (columns.size() == 0) {
             throw new EmptyCollectionException("The columns paramter is empty");
@@ -200,7 +203,7 @@ public abstract class SqlBuilder {
             StringBuilder sql = new StringBuilder(" ORDER BY ");
 
             for (String column : columns) {
-                sql.append(String.format("%s%s%s, ", beginningDelimiter, escapeAndRemove(column), endingDelimter));
+                sql.append(String.format("%s%s%s, ", beginningDelimiter, escape(column), endingDelimter));
             }
 
             sql.delete(sql.length() - 2, sql.length()).append(" ");
@@ -209,7 +212,9 @@ public abstract class SqlBuilder {
         }
     }
 
-    protected StringBuilder createLimitClause(Long limit) throws IllegalArgumentException {
+    protected StringBuilder createLimitClause(Long limit) throws IllegalArgumentException, BadSqlException {
+        if (! sqlIsClean(limit.toString())) throw new BadSqlException(limit.toString() + " failed to be clean SQL");
+
         if (limit == null) {
             throw new IllegalArgumentException("The limit parameter is null");
         } else {
@@ -217,7 +222,9 @@ public abstract class SqlBuilder {
         }
     }
 
-    protected StringBuilder createOffsetClause(Long offset) throws IllegalArgumentException {
+    protected StringBuilder createOffsetClause(Long offset) throws IllegalArgumentException, BadSqlException {
+        if (! sqlIsClean(offset.toString())) throw new BadSqlException(offset.toString() + " failed to be clean SQL");
+
         if (offset == null) {
             throw new IllegalArgumentException("The offset parameter was null");
         } else {
@@ -226,8 +233,14 @@ public abstract class SqlBuilder {
     }
 
     protected StringBuilder createSuppressNullsClause(List<String> columns)
-            throws IllegalArgumentException, EmptyCollectionException {
+            throws IllegalArgumentException, EmptyCollectionException, BadSqlException {
         if (columns == null) throw new IllegalArgumentException("The columns parameter is null");
+
+        boolean columnsAreClean = true;
+        for (String column : columns) {
+            columnsAreClean = sqlIsClean(column);
+            if (! columnsAreClean) throw new BadSqlException(column + " failed to be clean SQL");
+        }
 
         if (columns.size() == 0) {
             throw new EmptyCollectionException("The columns paramter is empty");
@@ -244,74 +257,6 @@ public abstract class SqlBuilder {
 
             return sql.append(") ");
         }
-    }
-
-    protected StringBuilder createInsertTableClause(String table) {
-        String tableWithDelims = String.format("%s%s%s", beginningDelimiter, table, endingDelimter);
-        return new StringBuilder("INSERT INTO ").append(tableWithDelims).append(" ");
-    }
-
-    protected StringBuilder createInsertColumnsClause(List<String> columns) throws SQLException, ColumnNameNotFoundException, DataTypeNotFoundException {
-        StringBuilder s = new StringBuilder(" (");
-
-        columns.forEach(column -> s.append(beginningDelimiter).append(columns).append(endingDelimter).append(','));
-
-        return s.append(") ");
-    }
-
-    protected StringBuilder createInsertValuesClause(List<String> values) throws SQLException, ColumnNameNotFoundException, DataTypeNotFoundException {
-        StringBuilder s = new StringBuilder("VALUES (");
-
-        for (String value : values) {
-
-            int dataType = getColumnDataType(value);
-
-            if (isColumnQuoted(dataType)) {
-                s.append('\'').append(value).append('\'').append(',');
-            } else {
-                s.append(value).append(',');
-            }
-        }
-
-        return s.append(") ");
-
-    }
-
-    protected StringBuilder createUpdateTableClause(String table) {
-        String tableWithDelims = String.format("%s%s%s", beginningDelimiter, table, endingDelimter);
-        return new StringBuilder("UPDATE ").append(tableWithDelims).append(" ");
-    }
-
-    protected StringBuilder createUpdateSetClause(List<String> columns, List<String> values) throws SQLException, ColumnNameNotFoundException, DataTypeNotFoundException {
-        // check that both lists have same number of elements
-        if (columns.size() != values.size()) throw new RuntimeException("The Columns and Values collections have different sizes.");
-
-        // loop thru each item (using index)
-        StringBuilder s = new StringBuilder(" SET ");
-        for (int i=0; i<columns.size(); i++) {
-            String column = columns.get(i);
-            String value = values.get(i);
-            s.append(beginningDelimiter).append(column).append(endingDelimter).append(" = ");
-
-            int dataType = getColumnDataType(value);
-
-            if (isColumnQuoted(dataType)) {
-                s.append('\'').append(value).append('\'').append(',');
-            } else {
-                s.append(value).append(',');
-            }
-        }
-
-        // remove trialing comma
-        s.deleteCharAt(s.length() - 1);
-
-        // return stringbuilder
-        return s;
-    }
-
-    protected StringBuilder createDeleteTableClause(String table) {
-        String tableWithDelims = String.format("%s%s%s", beginningDelimiter, table, endingDelimter);
-        return new StringBuilder("DELETE FROM ").append(tableWithDelims).append(" ");
     }
 
     private int getColumnDataType(String columnName) throws SQLException, ColumnNameNotFoundException {
@@ -338,7 +283,7 @@ public abstract class SqlBuilder {
         String[] newFilters = new String[originalFilters.length];
 
         for (int i=0; i<originalFilters.length; i++) {
-            newFilters[i] = String.format("'%s'", escapeAndRemove(originalFilters[i]));
+            newFilters[i] = String.format("'%s'", escape(originalFilters[i]));
         }
 
         criteria.filter = "(" + String.join("", newFilters) + ")";

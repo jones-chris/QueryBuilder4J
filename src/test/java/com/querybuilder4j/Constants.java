@@ -26,11 +26,11 @@ public class Constants {
             mysqlProps.setProperty("databaseType", "MySql");
             put(DatabaseType.MySql, mysqlProps);
 
-//            Properties sqliteProps = new Properties();
-//            sqliteProps.setProperty("url", "jdbc:sqlite:C:/novena/db_setup/novena-dev.db");
-//            sqliteProps.setProperty("driverClass", "org.sqlite.JDBC");
-//            sqliteProps.setProperty("databaseType", "Sqlite");
-//            put(DatabaseType.Sqlite, sqliteProps);
+            Properties sqliteProps = new Properties();
+            sqliteProps.setProperty("url", "jdbc:sqlite:C:/novena/db_setup/novena-dev.db");
+            sqliteProps.setProperty("driverClass", "org.sqlite.JDBC");
+            sqliteProps.setProperty("databaseType", "Sqlite");
+            put(DatabaseType.Sqlite, sqliteProps);
 
 //            Properties sqlserverProps = new Properties();
 //            sqlserverProps.setProperty("url", "jdbc:sqlserver://localhost;databaseName=master;integratedSecurity=true;");

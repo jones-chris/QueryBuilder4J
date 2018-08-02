@@ -322,41 +322,41 @@ public class SelectStatement {
     public String toString() {
         StringBuilder sb = new StringBuilder("");
 
-        sb.append(String.format("Name:  %s\n", name));
+        sb.append(String.format("Name:  %s | ", name));
 
-        sb.append(String.format("Database Type:  %s\n", databaseType));
+        sb.append(String.format("Database Type:  %s | ", databaseType));
 
-        columns.forEach(col -> sb.append(String.format("Column:  %s\n", col)));
+        columns.forEach(col -> sb.append(String.format("Column:  %s | ", col)));
 
-        sb.append(String.format("Table:  %s\n", table));
+        sb.append(String.format("Table:  %s | ", table));
 
-        sb.append("Criteria:  \n");
+        sb.append("Criteria:  ");
         criteria.forEach(crit -> {
-            sb.append(String.format("Id:  %d\n", crit.getId()));
-            sb.append(String.format("ParentId:  %d\n", crit.getParentId()));
-            sb.append(String.format("Conjunction:  %s\n", crit.getConjunction()));
-            sb.append(String.format("Front Parenthesis:  %s\n", crit.getFrontParenthesis()));
-            sb.append(String.format("Column:  %s\n", crit.getColumn()));
-            sb.append(String.format("Operator:  %s\n", crit.getOperator()));
-            sb.append(String.format("Filter:  %s\n", crit.getFilter()));
+            sb.append(String.format("Id:  %d ", crit.getId()));
+            sb.append(String.format("ParentId:  %d ", crit.getParentId()));
+            sb.append(String.format("Conjunction:  %s ", crit.getConjunction()));
+            sb.append(String.format("Front Parenthesis:  %s ", crit.getFrontParenthesis()));
+            sb.append(String.format("Column:  %s ", crit.getColumn()));
+            sb.append(String.format("Operator:  %s ", crit.getOperator()));
+            sb.append(String.format("Filter:  %s ", crit.getFilter()));
             sb.append("End Parenthesis:  ");
             crit.endParenthesis.forEach(paren -> sb.append(paren));
-            sb.append("\n");
+            sb.append(" | ");
         });
 
-        sb.append(String.format("Distinct:  %s\n", distinct));
+        sb.append(String.format("Distinct:  %s | ", distinct));
 
-        sb.append(String.format("Group By:  %s\n", groupBy));
+        sb.append(String.format("Group By:  %s | ", groupBy));
 
-        sb.append(String.format("Order By:  %s\n", orderBy));
+        sb.append(String.format("Order By:  %s | ", orderBy));
 
-        sb.append(String.format("Limit:  %d\n", limit));
+        sb.append(String.format("Limit:  %d | ", limit));
 
-        sb.append(String.format("Ascending:  %s\n", ascending));
+        sb.append(String.format("Ascending:  %s | ", ascending));
 
-        sb.append(String.format("Offset:  %d\n", offset));
+        sb.append(String.format("Offset:  %d | ", offset));
 
-        sb.append(String.format("Suppress Nulls:  %s\n", suppressNulls));
+        sb.append(String.format("Suppress Nulls:  %s | ", suppressNulls));
 
         return sb.toString();
     }
