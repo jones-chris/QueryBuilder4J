@@ -5,6 +5,9 @@ import com.querybuilder4j.config.Operator;
 import com.querybuilder4j.config.Parenthesis;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class SqlCleanser {
     // These characters are the only characters that should be escaped because they can be expected to be in query criteria.
@@ -20,71 +23,83 @@ public class SqlCleanser {
     // If any of these characters are contained in SelectStatement, then return false.
     private static final String[] forbiddenMarks = new String[] {";", "`", "\""};
 
-    // Ansi keywords per https://docs.snowflake.net/manuals/sql-reference/reserved-keywords.html
+    // Ansi keywords per https://docs.snowflake.net/manuals/sql-reference/reserved-keywords.html.  I did not include 'TRUE' and
+    //   'FALSE' from the link's list because those are valid SelectStatement filters.
     // If any of these strings are contained in SelectStatement, then return false.
-    private static final String[] ansiKeywords = new String[] {" ALL ", " ALTER ", " AND ", " ANY ", " AS ", " ASC ", " BETWEEN ",
-            " BY ", " CASE ", " CAST ", " CHECK ", " CLUSTER ", " COLUMN ", " CONNECT ", " CREATE ", " CROSS ", " CURRENT_DATE ",
-            " CURRENT_ROLE ", " CURRENT_USER ", " CURRENT_TIME ", " CURRENT_TIMESTAMP ", " DELETE ", " DESC ", " DISTINCT ",
-            " DROP ", " ELSE ", " EXCLUSIVE ", " EXISTS ", " FALSE ", " FOR ", " FROM ", " FULL ", " GRANT ", " GROUP ",
-            " HAVING ", " IDENTIFIED ", " ILIKE ", " IMMEDIATE ", " IN ", " INCREMENT ", " INNER ", " INSERT ", " INTERSECT ",
-            " INTO ", " IS ", " JOIN ", " LATERAL ", " LEFT ", " LIKE ", " LOCK ", " LONG ", " MAXEXTENTS ", " MINUS ", " MODIFY ",
-            " NATURAL ", " NOT ", " NULL ", " OF ", " ON ", " OPTION ", " OR ", " REGEXP ", " RENAME ", " REVOKE ", " RIGHT ",
-            " RLIKE ", " ROW ", " ROWS ", " SAMPLE ", " SELECT ", " SET ", " SOME ", " START ", " TABLE ", " TABLESAMPLE ",
-            " THEN ", " TO ", " TRIGGER ", " TRUE ", " UNION ", " UNIQUE ", " UPDATE ", " USING ", " VALUES ", " VIEW ", " WHEN ",
-            " WHENEVER ", " WHERE ", " WITH "
+    private static final String[] ansiKeywords = new String[] {"ALL", "ALTER", "AND", "ANY", "AS", "ASC", "BETWEEN",
+            "BY", "CASE", "CAST", "CHECK", "CLUSTER", "COLUMN", "CONNECT", "CREATE", "CROSS", "CURRENT_DATE",
+            "CURRENT_ROLE", "CURRENT_USER", "CURRENT_TIME", "CURRENT_TIMESTAMP", "DELETE", "DESC", "DISTINCT",
+            "DROP", "ELSE", "EXCLUSIVE", "EXISTS", "FOR", "FROM", "FULL", "GRANT", "GROUP",
+            "HAVING", "IDENTIFIED", "ILIKE", "IMMEDIATE", "IN", "INCREMENT", "INNER", "INSERT", "INTERSECT",
+            "INTO", "IS", "JOIN", "LATERAL", "LEFT", "LIKE", "LOCK", "LONG", "MAXEXTENTS", "MINUS", "MODIFY",
+            "NATURAL", "NOT", "NULL", "OF", "ON", "OPTION", "OR", "REGEXP", "RENAME", "REVOKE", "RIGHT",
+            "RLIKE", "ROW", "ROWS", "SAMPLE", "SELECT", "SET", "SOME", "START", "TABLE", "TABLESAMPLE",
+            "THEN", "TO", "TRIGGER", "UNION", "UNIQUE", "UPDATE", "USING", "VALUES", "VIEW", "WHEN",
+            "WHENEVER", "WHERE", "WITH"
     };
 
     public static String escape(String sql) {
+
         for (Character c : charsNeedingEscaping) {
             sql = sql.replaceAll(c.toString(), c.toString() + c.toString());
         }
 
         return sql;
+
     }
 
     public static boolean sqlIsClean(String str) {
+
+        String upperCaseStr = str.toUpperCase();
         for (String opr : reservedOperators) {
-            if (str.contains(opr)) {
+            if (upperCaseStr.contains(opr)) {
                 return false;
             }
         }
 
         for (String mark : forbiddenMarks) {
-            if (str.contains(mark)) {
+            if (upperCaseStr.contains(mark)) {
                 return false;
             }
         }
 
+        // "\\b%s\\b" worked
         for (String keyword : ansiKeywords) {
-            if (str.contains(keyword)) {
+            Pattern pattern = Pattern.compile(String.format("(^|\\W)\\Q%s\\E\\W", keyword), Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(upperCaseStr);
+            if (matcher.find()) {
                 return false;
             }
         }
 
         return true;
+
     }
 
-    public static boolean sqlIsClean(Operator operator) {
-        for (String mark : forbiddenMarks) {
-            if (operator.toString().contains(mark)) {
-                return false;
-            }
-        }
-
-        for (String keyword : ansiKeywords) {
-            if (operator.toString().contains(keyword)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
+    //TODO:  is this necessary?  The parameter is an enum, Operator.  We know all Operator enum values are safe, so why are testing them here?
+//    public static boolean sqlIsClean(Operator operator) {
+//
+//        String operatorUpperCaseString = operator.toString().toUpperCase();
+//        for (String mark : forbiddenMarks) {
+//            if (operatorUpperCaseString.contains(mark)) {
+//                return false;
+//            }
+//        }
+//
+//        for (String keyword : ansiKeywords) {
+//            if (operatorUpperCaseString.contains(keyword)) {
+//                return false;
+//            }
+//        }
+//
+//        return true;
+//    }
 
     public static boolean sqlIsClean(Criteria criteria) {
         boolean conjunctionIsClean = sqlIsClean(criteria.getConjunction().toString());
         boolean frontParenIsClean = sqlIsClean(criteria.getFrontParenthesis().toString());
         boolean columnIsClean = sqlIsClean(criteria.getColumn());
-        boolean operatorIsClean = sqlIsClean(criteria.getOperator());
+        //boolean operatorIsClean = sqlIsClean(criteria.getOperator());
         boolean filterIsClean = sqlIsClean(criteria.getFilter());
         boolean endParenIsClean = true;
         for (Parenthesis paren : criteria.getEndParenthesis()) {
@@ -94,6 +109,6 @@ public class SqlCleanser {
             }
         }
 
-        return conjunctionIsClean && frontParenIsClean && columnIsClean && operatorIsClean && filterIsClean && endParenIsClean;
+        return conjunctionIsClean && frontParenIsClean && columnIsClean  && filterIsClean && endParenIsClean;
     }
 }
