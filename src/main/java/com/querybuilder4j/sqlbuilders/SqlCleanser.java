@@ -1,7 +1,6 @@
 package com.querybuilder4j.sqlbuilders;
 
 
-import com.querybuilder4j.config.Operator;
 import com.querybuilder4j.config.Parenthesis;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 
@@ -16,7 +15,7 @@ public class SqlCleanser {
 
     // SQL arithmetic, bitwise, comparison, and compund operators per https://www.w3schools.com/sql/sql_operators.asp
     // If any of these strings are contained in SelectStatement, then return false.
-    private static final String[] reservedOperators = new String[] {"+", "-", "*", "/", "%", "&", "|", "^", "=", ">", "<", "!=",
+    private static final String[] reservedOperators = new String[] {"+", "-", "*", "/", "&", "|", "^", "=", ">", "<", "!=",
             "<>", ">=", "<=", "+=", "-=", "*=", "/=", "%=", "&=", "^-=", "|*="
     };
 
@@ -26,7 +25,8 @@ public class SqlCleanser {
     // Ansi keywords per https://docs.snowflake.net/manuals/sql-reference/reserved-keywords.html.  I did not include 'TRUE' and
     //   'FALSE' from the link's list because those are valid SelectStatement filters.
     // If any of these strings are contained in SelectStatement, then return false.
-    private static final String[] ansiKeywords = new String[] {"ALL", "ALTER", "AND", "ANY", "AS", "ASC", "BETWEEN",
+    // Did not include "AND", because this is a common word in filters.
+    private static final String[] ansiKeywords = new String[] {"ALL", "ALTER", "ANY", "AS", "ASC", "BETWEEN",
             "BY", "CASE", "CAST", "CHECK", "CLUSTER", "COLUMN", "CONNECT", "CREATE", "CROSS", "CURRENT_DATE",
             "CURRENT_ROLE", "CURRENT_USER", "CURRENT_TIME", "CURRENT_TIMESTAMP", "DELETE", "DESC", "DISTINCT",
             "DROP", "ELSE", "EXCLUSIVE", "EXISTS", "FOR", "FROM", "FULL", "GRANT", "GROUP",

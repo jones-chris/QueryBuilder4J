@@ -286,7 +286,7 @@ public abstract class SqlBuilder {
             newFilters[i] = String.format("'%s'", escape(originalFilters[i]));
         }
 
-        criteria.filter = "(" + String.join("", newFilters) + ")";
+        criteria.filter = "(" + String.join(",", newFilters) + ")";
     }
 
 }
