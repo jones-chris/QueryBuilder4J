@@ -27,7 +27,7 @@ public class RedshiftSqlBuilder extends SqlBuilder {
 
     @Override
     public String buildSql(SelectStatement query) throws Exception {
-        tableSchema = query.getTableSchema();
+//        tableSchema = query.getTableSchema();
 
         try {
             StringBuilder sql = new StringBuilder("");

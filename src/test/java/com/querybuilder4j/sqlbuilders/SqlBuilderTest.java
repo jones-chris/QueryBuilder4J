@@ -1,10 +1,8 @@
 package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.Constants;
-import com.querybuilder4j.QueryTests;
 import com.querybuilder4j.TestUtils;
 import com.querybuilder4j.config.DatabaseType;
-import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 import org.junit.After;
 import org.junit.Before;
@@ -13,7 +11,6 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.*;
 
@@ -21,7 +18,6 @@ import static org.junit.Assert.*;
 
 public class SqlBuilderTest {
     private static SqlBuilder sqlBuilder;
-    private static Connection conn;
 
 
     public SqlBuilderTest() { }
@@ -37,29 +33,33 @@ public class SqlBuilderTest {
     }
 
     @Test
-    public void runTests() throws Exception {
-        Set<DatabaseType> keys = Constants.dbProperties.keySet();
-        for (DatabaseType dbType : keys) {
+    @SuppressWarnings("unchecked")
+    public void runStaticStatementTests() throws Exception {
 
-            Properties props = Constants.dbProperties.get(dbType);
-            conn = TestUtils.getConnection(props);
+        // run each public method that returns a Map and test that generated SQL String is run against the database without errors.
+        Method[] methods = StaticStatementTests.class.getMethods();
+        for (Method method : methods) {
+            if (method.getGenericReturnType().getTypeName().equals("java.util.HashMap<java.lang.Object, java.lang.Object>") &&
+                    Modifier.isPublic(method.getModifiers()) &&
+                    method.getDeclaringClass().equals(StaticStatementTests.class)) {
+                Connection conn = null;
+                try {
+                    Map<Object, Object> results = (Map<Object, Object>) method.invoke(new StaticStatementTests(), null);
+                    DatabaseType dbType = ((SelectStatement) results.get("stmt")).getDatabaseType();
+                    Properties props = Constants.dbProperties.get(dbType);
+                    conn = TestUtils.getConnection(props);
+                    String sql = (String) results.get("sql");
+                    conn.createStatement().executeQuery(sql);
 
-            // run each public method that returns a ResultSet and test results.
-            Method[] methods = QueryTests.class.getMethods();
-            for (Method method : methods) {
-                if (method.getGenericReturnType().equals(String.class) &&
-                        Modifier.isPublic(method.getModifiers()) &&
-                        method.getDeclaringClass().equals(QueryTests.class)) {
-                    try {
-                        String sql = (String) method.invoke(new QueryTests(dbType, props), null);
-                        ResultSet rs = conn.createStatement().executeQuery(sql);
-
-                        //If this line is reached, then we know the SQL statement was accepted by the database, which is what
-                        //we are testing.
-                        assertTrue(true);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        assertTrue(false);
+                    //If this line is reached, then we know the SQL statement was accepted by the database, which is what
+                    //  we are testing.
+                    assertTrue(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    assertTrue(false);
+                } finally {
+                    if (conn != null) {
+                        conn.close();
                     }
                 }
             }
@@ -68,45 +68,28 @@ public class SqlBuilderTest {
     }
 
     @Test
-    public void runRandomizedTests() throws Exception {
+    public void runDynamicStatementTests() throws Exception {
         Set<DatabaseType> keys = Constants.dbProperties.keySet();
         for (DatabaseType dbType : keys) {
             Properties props = Constants.dbProperties.get(dbType);
-            conn = TestUtils.getConnection(props);
+
 
             // run SQL statement randomizer.
-            QueryTests queryTests = new QueryTests(dbType, props);
+            DynamicStatementTests queryTests = new DynamicStatementTests(dbType, props);
             Map<SelectStatement, String> sqlMap = queryTests.buildSql_randomizer();
 
             for (SelectStatement selectStatement : sqlMap.keySet()) {
-                try {
-                    Statement stmt = conn.createStatement();
+                try (Connection conn = TestUtils.getConnection(props);
+                     Statement stmt = conn.createStatement()) {
+
                     stmt.executeQuery(selectStatement.toSql());
-                    stmt.close();
                     assertTrue(true);
                 } catch (Exception ex) {
-                    System.out.println("STATEMENT COLUMNS:  " + selectStatement.getColumns());
-                    System.out.println();
-                    System.out.println();
-
-                    System.out.println("DATABASE TYPE:  " + dbType);
-
-                    System.out.println("STATEMENT CRITERIA:  ");
-                    System.out.println();
-                    for (Criteria criteria : selectStatement.getCriteria()) {
-                        System.out.println("Id:" + criteria.getId());
-                        System.out.println("parentId:" + criteria.parentId);
-                        System.out.println("frontParen:" + criteria.frontParenthesis);
-                        System.out.println("conjunction:" + criteria.conjunction);
-                        System.out.println("column:" + criteria.column);
-                        System.out.println("operator:" + criteria.operator);
-                        System.out.println("filter:" + criteria.filter);
-                        System.out.println("endParen" + criteria.endParenthesis);
-                    }
-                    System.out.println();
-                    System.out.println();
-
-                    System.out.println("SQL String:  " + sqlMap.get(selectStatement));
+                    System.out.println("Select Statement Object:  ");
+                    System.out.println(selectStatement.toString());
+                    System.out.println("\n");
+                    System.out.println("SQL String:  ");
+                    System.out.println(sqlMap.get(selectStatement));
                     ex.printStackTrace();
                     assertTrue(false);
                 }

@@ -30,8 +30,6 @@ import static java.util.Optional.ofNullable;
 // search if criteria id is a parentid, if true, add beginning parethesis.
 // if this index in set == last indexOf criteria with same parentId, then set end parenthesis.
 
-
-
 // rule:  if parent id is different from parent id BEFORE it, then set front parenthesis
 // rule:  if parent id is different from parent id AFTER it, then set end parenthesis
 

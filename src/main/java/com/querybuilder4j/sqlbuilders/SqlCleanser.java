@@ -96,11 +96,28 @@ public class SqlCleanser {
 //    }
 
     public static boolean sqlIsClean(Criteria criteria) {
-        boolean conjunctionIsClean = sqlIsClean(criteria.getConjunction().toString());
-        boolean frontParenIsClean = sqlIsClean(criteria.getFrontParenthesis().toString());
-        boolean columnIsClean = sqlIsClean(criteria.getColumn());
+        boolean conjunctionIsClean = true;
+        if (criteria.getConjunction() != null) {
+           conjunctionIsClean = sqlIsClean(criteria.getConjunction().toString());
+        }
+
+        boolean frontParenIsClean = true;
+        if (criteria.getFrontParenthesis() != null) {
+           frontParenIsClean = sqlIsClean(criteria.getFrontParenthesis().toString());
+        }
+
+        boolean columnIsClean = true;
+        if (criteria.getColumn() != null) {
+            columnIsClean = sqlIsClean(criteria.getColumn());
+        }
+
         //boolean operatorIsClean = sqlIsClean(criteria.getOperator());
-        boolean filterIsClean = sqlIsClean(criteria.getFilter());
+
+        boolean filterIsClean = true;
+        if (criteria.getFilter() != null) {
+            filterIsClean = sqlIsClean(criteria.getFilter());
+        }
+
         boolean endParenIsClean = true;
         for (Parenthesis paren : criteria.getEndParenthesis()) {
             endParenIsClean = sqlIsClean(paren.toString());

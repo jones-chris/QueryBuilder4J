@@ -1,7 +1,9 @@
 package com.querybuilder4j.sqlbuilders;
 
 
+import com.querybuilder4j.config.Conjunction;
 import com.querybuilder4j.config.Operator;
+import com.querybuilder4j.config.Parenthesis;
 import com.querybuilder4j.exceptions.BadSqlException;
 import com.querybuilder4j.exceptions.ColumnNameNotFoundException;
 import com.querybuilder4j.exceptions.DataTypeNotFoundException;
@@ -16,12 +18,13 @@ import java.util.Map;
 
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.escape;
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.sqlIsClean;
+import static java.util.Optional.ofNullable;
 
 public abstract class SqlBuilder {
     protected static Map<Integer, Boolean> typeMappings = new HashMap<>();
     protected char beginningDelimiter;
     protected char endingDelimter;
-    protected Map<String, Integer> tableSchema;
+    protected Map<String, Map<String, Integer>> tableSchema;
 
     static {
         typeMappings.put(Types.ARRAY, true);                     //ARRAY
@@ -76,16 +79,30 @@ public abstract class SqlBuilder {
 
         if (columns.size() == 0) throw new EmptyCollectionException("Columns parameter is empty");
 
-        boolean columnsAreClean = true;
+        final int TABLE_INDEX = 0;
+        final int COLUMN_INDEX = 1;
+
+        boolean tableIsClean = true;
+        boolean columnIsClean = true;
         for (String column : columns) {
-            columnsAreClean = sqlIsClean(column);
-            if (! columnsAreClean) throw new BadSqlException(column + " failed to be clean SQL");
+            String[] tableAndColumn = column.split("\\.");
+            if (tableAndColumn.length != 2) {
+                throw new EmptyCollectionException(String.format("The column, %s, needs to be in the format [table.column]", column));
+            }
+            tableIsClean = sqlIsClean(tableAndColumn[TABLE_INDEX]);
+            columnIsClean = sqlIsClean(tableAndColumn[COLUMN_INDEX]);
+            if (! tableIsClean || ! columnIsClean) {
+                throw new BadSqlException(column + " failed to be clean SQL");
+            }
         }
 
         String startSql = (distinct) ? "SELECT DISTINCT " : "SELECT ";
         StringBuilder sql = new StringBuilder(startSql);
         for (String column : columns) {
-            sql.append(String.format("%s%s%s, ", beginningDelimiter, escape(column), beginningDelimiter));
+            String[] tableAndColumn = column.split("\\.");
+            sql.append(String.format("%s%s%s.%s%s%s, ",
+                    beginningDelimiter, escape(tableAndColumn[TABLE_INDEX]), endingDelimter,
+                    beginningDelimiter, escape(tableAndColumn[COLUMN_INDEX]), beginningDelimiter));
         }
         sql = sql.delete(sql.length() - 2, sql.length()).append(" ");
         return sql;
@@ -100,6 +117,43 @@ public abstract class SqlBuilder {
 
         String s = String.format(" FROM %s%s%s ", beginningDelimiter, escape(table), endingDelimter);
         return new StringBuilder(s);
+    }
+
+    protected StringBuilder createJoinClause(List<Join> joins) throws IllegalArgumentException {
+
+        if (joins == null) throw new IllegalArgumentException("joins parameter is null");
+
+        if (joins.size() == 0) return null;
+
+        StringBuilder sb = new StringBuilder("");
+        for (int i=0; i<joins.size(); i++) {
+            Join join = joins.get(i);
+
+            if (join.getParentJoinColumns().size() != join.getTargetJoinColumns().size()) {
+                final String joinColumnsSizeDiffMessage = "The parent and target join columns have differing number of elements.";
+                throw new RuntimeException(joinColumnsSizeDiffMessage);
+            }
+
+            sb.append(join.getJoinType().toString());
+            sb.append(String.format(" %s%s%s ", beginningDelimiter, join.getTargetTable(), endingDelimter));
+
+            for (int j=0; j<join.getParentJoinColumns().size(); j++) {
+                String conjunction = (j == 0) ? "ON" : "AND";
+
+                //Format string in the form of " [ON/AND] `table1`.`column1` = `table2`.`column2` ", assuming the database
+                // type is MySql.
+                sb.append(String.format(" %s %S%s%s.%s%s%s = %s%s%s.%s%s%s ",
+                        conjunction,
+                        beginningDelimiter, join.getParentTable(), endingDelimter,
+                        beginningDelimiter, join.getParentJoinColumns().get(j), endingDelimter,
+                        beginningDelimiter, join.getTargetTable(), endingDelimter,
+                        beginningDelimiter, join.getTargetJoinColumns().get(j), endingDelimter));
+            }
+
+        }
+
+        return sb;
+
     }
 
     protected StringBuilder createWhereClause(List<Criteria> criteria) throws Exception {
@@ -126,7 +180,8 @@ public abstract class SqlBuilder {
                     if (criteriaClone.isValid()) {
                         if (criteriaClone.operator.equals(Operator.isNull) || criteriaClone.operator.equals(Operator.isNotNull)) {
                             criteriaClone.filter = null;
-                            sql.append(String.format(" %s ", criteriaClone.toString()));
+//                            sql.append(String.format(" %s ", criteriaClone.toString()));
+                            sql.append(String.format(" %s ", stringifyCriteria(criteriaClone)));
                             continue;
                         }
 
@@ -140,7 +195,8 @@ public abstract class SqlBuilder {
 //                            continue;
 //                        }
 
-                        boolean shouldHaveQuotes = isColumnQuoted(getColumnDataType(criteriaClone.column));
+                        String[] tableAndColumn = criteriaClone.column.split("\\.");
+                        boolean shouldHaveQuotes = isColumnQuoted(getColumnDataType(tableAndColumn[0], tableAndColumn[1]));
                         if (criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) {
                             if (shouldHaveQuotes) {
                                 wrapFilterInQuotes(criteriaClone);
@@ -148,10 +204,12 @@ public abstract class SqlBuilder {
                                 criteriaClone.filter = "(" + escape(criteriaClone.filter) + ")";
                             }
 
-                            sql.append(criteriaClone.toString()).append(" ");
+//                            sql.append(criteriaClone.toString()).append(" ");
+                            sql.append(stringifyCriteria(criteriaClone)).append(" ");
                         } else {
                             criteriaClone.filter = (shouldHaveQuotes) ? "'" + escape(criteriaClone.filter) + "'" : escape(criteriaClone.filter);
-                            sql.append(criteriaClone.toString()).append(" ");
+//                            sql.append(criteriaClone.toString()).append(" ");
+                            sql.append(stringifyCriteria(criteriaClone)).append(" ");
                         }
 
                     } else {
@@ -259,8 +317,8 @@ public abstract class SqlBuilder {
         }
     }
 
-    private int getColumnDataType(String columnName) throws SQLException, ColumnNameNotFoundException {
-        Integer dataType = tableSchema.get(columnName);
+    private int getColumnDataType(String table, String columnName) throws ColumnNameNotFoundException {
+        Integer dataType = tableSchema.get(table).get(columnName);
 
         if (dataType == null) {
             throw new ColumnNameNotFoundException(String.format("Could not find column, %s", columnName));
@@ -287,6 +345,42 @@ public abstract class SqlBuilder {
         }
 
         criteria.filter = "(" + String.join(",", newFilters) + ")";
+    }
+
+    private String stringifyCriteria(Criteria criteria) throws BadSqlException, EmptyCollectionException {
+
+        String[] tableAndColumn = criteria.column.split("\\.");
+        if (tableAndColumn.length != 2) {
+            throw new EmptyCollectionException(String.format("The column, %s, needs to be in the format [table.column]", criteria.column));
+        }
+
+        if (! sqlIsClean(tableAndColumn[0])) throw new BadSqlException(criteria.column + " failed to be clean SQL");
+        if (! sqlIsClean(tableAndColumn[1])) throw new BadSqlException(criteria.column + " failed to be clean SQL");
+        if (criteria.filter != null) {
+            if (! sqlIsClean(criteria.filter)) throw new BadSqlException(criteria.filter + " failed to be clean SQL");
+        }
+
+
+        String endParenthesisString = "";
+        if (criteria.endParenthesis != null) {
+            for (Parenthesis paren : criteria.endParenthesis) {
+                endParenthesisString += paren;
+            }
+        }
+
+        return String.format(" %s %s%s%s%s.%s%s%s %s %s%s ",
+                ofNullable(criteria.conjunction).orElse(Conjunction.Empty),
+                ofNullable(criteria.frontParenthesis).orElse(Parenthesis.Empty),
+                beginningDelimiter,
+                escape(tableAndColumn[0]),
+                endingDelimter,
+                beginningDelimiter,
+                escape(tableAndColumn[1]),
+                endingDelimter,
+                criteria.operator,
+                ofNullable(criteria.filter).orElse(""),
+                endParenthesisString);
+
     }
 
 }

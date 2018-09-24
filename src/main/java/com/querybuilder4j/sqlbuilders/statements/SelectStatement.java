@@ -5,7 +5,6 @@ import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.config.Parenthesis;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
 
-import java.sql.ResultSet;
 import java.util.*;
 
 import static com.querybuilder4j.config.Parenthesis.EndParenthesis;
@@ -15,10 +14,11 @@ import static com.querybuilder4j.config.SqlBuilderFactory.buildSqlBuilder;
 public class SelectStatement {
     private String name = "";
     private DatabaseType databaseType;
-    private Map<String, Integer> tableSchema;
+    private Map<String, Map<String, Integer>> tableSchema;
     private List<String> columns = new ArrayList<>();
     private String table = "";
     private List<Criteria> criteria = new ArrayList<>();
+    private List<Join> joins = new ArrayList<>();
     private boolean distinct;
     private boolean groupBy;
     private boolean orderBy;
@@ -55,11 +55,11 @@ public class SelectStatement {
         this.databaseType = databaseType;
     }
 
-    public Map<String, Integer> getTableSchema() {
+    public Map<String, Map<String, Integer>> getTableSchema() {
         return tableSchema;
     }
 
-    public void setTableSchema(Map<String, Integer> tableSchema) {
+    public void setTableSchema(Map<String, Map<String, Integer>> tableSchema) {
         this.tableSchema = tableSchema;
     }
 
@@ -85,6 +85,14 @@ public class SelectStatement {
 
     public void setCriteria(List<Criteria> criteria) {
         this.criteria = criteria;
+    }
+
+    public List<Join> getJoins() {
+        return joins;
+    }
+
+    public void setJoins(List<Join> joins) {
+        this.joins = joins;
     }
 
     public void setLimit(Long limit) {
@@ -258,7 +266,7 @@ public class SelectStatement {
             }
 
             // Determine if any remaining closing parenthesis are needed at end of criteria.  This only applies to criteria
-            // sets that end on a child criteria.
+            //   lists that end on a child criteria.
             StringBuilder s = new StringBuilder();
             for (Criteria crit : criteria) {
                 s.append(crit.toString());
@@ -280,7 +288,6 @@ public class SelectStatement {
             if (parenDiff > 0) {
                 for (int i=0; i<parenDiff; i++) {
                     criteria.get(criteria.size() - 1).endParenthesis.add(EndParenthesis);
-                    //criteria.last().endParenthesis.add(EndParenthesis);
                 }
             }
         }
