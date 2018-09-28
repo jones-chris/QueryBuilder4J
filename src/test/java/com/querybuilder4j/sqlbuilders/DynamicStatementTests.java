@@ -5,37 +5,30 @@ import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.Join;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
-import com.querybuilder4j.utils.ResultSetToHashMapConverter;
 import org.apache.commons.lang.math.RandomUtils;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.*;
 
 import static com.querybuilder4j.config.Conjunction.*;
 import static com.querybuilder4j.config.Operator.*;
 
 public class DynamicStatementTests {
-    private Connection connection;
     private Properties properties;
     private DatabaseType databaseType;
     private List<String> randomColumns = new ArrayList<>();
     private List<String> randomTables = new ArrayList<>();
     private List<Criteria> randomCriteria = new ArrayList<>();
-    private static final int NUMBER_OF_SQL_STATEMENTS = 50;
+    private static final int NUMBER_OF_SQL_STATEMENTS = 150;
 
 
     public DynamicStatementTests(DatabaseType databaseType, Properties properties) {
         this.databaseType = databaseType;
         this.properties = properties;
 
-        //columns
         randomColumns.add("county_spending_detail.department");
         randomColumns.add("county_spending_detail.service");
         randomColumns.add("county_spending_detail.fiscal_year_period");
 
-        //tables
         randomTables.add("county_spending_detail");
     }
 
@@ -74,8 +67,8 @@ public class DynamicStatementTests {
                 criteriaClone.setId(0);
                 criteriaSet.add(criteriaClone);
             } else {
-                criteriaSet.add(randomCriteria.remove(0)); //TODO:  Remove this later.  This is just to clear the first criteria's conjunction.
-                int numOfCriteria = org.apache.commons.lang3.RandomUtils.nextInt(1, randomCriteria.size());
+                criteriaSet.add(randomCriteria.get(0));
+                int numOfCriteria = TestUtils.getRandomInt(1, randomCriteria.size());
 
                 List<Integer> eligibleParentIds = new ArrayList<>();
                 eligibleParentIds.add(0);
@@ -114,7 +107,6 @@ public class DynamicStatementTests {
                 }
             }
 
-            //START TRIAL
             boolean needJoin = RandomUtils.nextBoolean();
             List<Join> joins = new ArrayList<>();
             if (needJoin) {
@@ -123,28 +115,18 @@ public class DynamicStatementTests {
                 joins.add(join);
             }
 
-            //END TRIAL
-
-            //get suppressNulls
             boolean isSuppressNulls = RandomUtils.nextBoolean();
-
-            //get groupBy
             boolean isGroupBy = RandomUtils.nextBoolean();
-
-            //get OrderBy
             boolean isOrderBy = RandomUtils.nextBoolean();
             boolean isAscending = RandomUtils.nextBoolean();
-
-            //get limit
             long limit = (long) RandomUtils.nextInt(100);
-
-            //get offset
             long offset = (long) RandomUtils.nextInt(100);
 
-            //create select statement with randomized properties
+            // Create select statement with randomized properties
             SelectStatement stmt = new SelectStatement(databaseType);
             stmt.setColumns(columnsList);
             stmt.setTable(table);
+            stmt.setJoins(joins);
             stmt.setCriteria(criteriaSet);
             stmt.setSuppressNulls(isSuppressNulls);
             stmt.setGroupBy(isGroupBy);
@@ -153,40 +135,10 @@ public class DynamicStatementTests {
             stmt.setLimit(limit);
             stmt.setOffset(offset);
 
-            //START TRIAL
-            if (joins.size() > 0) {
-                stmt.setJoins(joins);
-            }
-            //END TRIAL
-
-
-//            connection = TestUtils.getConnection(properties);
-//            ResultSet columnMetaData = connection.getMetaData().getColumns(null, null, "county_spending_detail", "%");
-//            stmt.setTableSchema(ResultSetToHashMapConverter.toHashMap(columnMetaData));
-            Map<String, Map<String, Integer>> whereClauseTableSchemas = new HashMap<>();
-            for (Criteria criteria : criteriaSet) {
-                String columnTable = criteria.column.split("\\.")[0];
-                if (! whereClauseTableSchemas.containsKey(columnTable)) {
-                    Map<String, Integer> tableSchema = getTableSchema(columnTable);
-                    whereClauseTableSchemas.put(columnTable, tableSchema);
-                }
-            }
-            stmt.setTableSchema(whereClauseTableSchemas);
-
-            //generate SQL statement and add to result list
-            results.put(stmt, stmt.toSql());
+            results.put(stmt, stmt.toSql(properties));
         }
 
         return results;
-    }
-
-    private Map<String, Integer> getTableSchema(String table) throws Exception {
-        try (Connection conn = TestUtils.getConnection(properties)) {
-            ResultSet columnMetaData = conn.getMetaData().getColumns(null, null, table, "%");
-            return ResultSetToHashMapConverter.toHashMap(columnMetaData);
-        } catch (Exception ex) {
-            throw ex;
-        }
     }
 
     private List<Criteria> getCriteriaSet() {

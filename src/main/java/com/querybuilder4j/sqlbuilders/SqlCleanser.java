@@ -2,6 +2,7 @@ package com.querybuilder4j.sqlbuilders;
 
 
 import com.querybuilder4j.config.Parenthesis;
+import com.querybuilder4j.exceptions.BadSqlException;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 
 import java.util.regex.Matcher;
@@ -95,7 +96,8 @@ public class SqlCleanser {
 //        return true;
 //    }
 
-    public static boolean sqlIsClean(Criteria criteria) {
+    public static boolean sqlIsClean(Criteria criteria) throws BadSqlException {
+
         boolean conjunctionIsClean = true;
         if (criteria.getConjunction() != null) {
            conjunctionIsClean = sqlIsClean(criteria.getConjunction().toString());
@@ -108,10 +110,12 @@ public class SqlCleanser {
 
         boolean columnIsClean = true;
         if (criteria.getColumn() != null) {
-            columnIsClean = sqlIsClean(criteria.getColumn());
+            String[] tableAndColumn = criteria.column.split("\\.");
+            final int TABLE_INDEX = 0;
+            final int COLUMN_INDEX = 1;
+            columnIsClean = sqlIsClean(tableAndColumn[TABLE_INDEX]) &&
+                            sqlIsClean(tableAndColumn[COLUMN_INDEX]);
         }
-
-        //boolean operatorIsClean = sqlIsClean(criteria.getOperator());
 
         boolean filterIsClean = true;
         if (criteria.getFilter() != null) {

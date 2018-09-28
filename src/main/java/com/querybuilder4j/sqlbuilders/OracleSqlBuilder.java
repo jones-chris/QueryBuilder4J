@@ -2,16 +2,19 @@ package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 
+import java.util.Properties;
+
 public class OracleSqlBuilder extends SqlBuilder {
 
-    public OracleSqlBuilder() {
+    public OracleSqlBuilder(SelectStatement stmt, Properties properties) {
+        super(stmt, properties);
         beginningDelimiter = '"';
         endingDelimter = '"';
     }
 
     @Override
     public String buildSql(SelectStatement query) throws Exception {
-//        tableSchema = query.getTableSchema();
+        tableSchemas = query.getTableSchemas();
 
         try {
             StringBuilder sql = new StringBuilder("");

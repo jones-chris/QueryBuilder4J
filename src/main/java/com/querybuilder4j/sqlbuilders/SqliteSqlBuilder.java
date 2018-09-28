@@ -1,11 +1,14 @@
 package com.querybuilder4j.sqlbuilders;
 
-import com.querybuilder4j.sqlbuilders.statements.Join;
+
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
+
+import java.util.Properties;
 
 public class SqliteSqlBuilder extends SqlBuilder {
 
-    public SqliteSqlBuilder() {
+    public SqliteSqlBuilder(SelectStatement stmt, Properties properties) {
+        super(stmt, properties);
         beginningDelimiter = '"';
         endingDelimter = '"';
     }
@@ -13,7 +16,7 @@ public class SqliteSqlBuilder extends SqlBuilder {
     @Override
     public String buildSql(SelectStatement query) throws Exception {
 
-        tableSchema = query.getTableSchema();
+        tableSchemas = query.getTableSchemas();
 
         StringBuilder sql = new StringBuilder("");
 

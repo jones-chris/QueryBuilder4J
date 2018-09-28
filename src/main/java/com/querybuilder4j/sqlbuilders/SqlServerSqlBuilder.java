@@ -2,9 +2,12 @@ package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 
+import java.util.Properties;
+
 public class SqlServerSqlBuilder extends SqlBuilder {
 
-    public SqlServerSqlBuilder() {
+    public SqlServerSqlBuilder(SelectStatement stmt, Properties properties) {
+        super(stmt, properties);
         beginningDelimiter = '[';
         endingDelimter = ']';
     }

@@ -14,7 +14,7 @@ import static com.querybuilder4j.config.SqlBuilderFactory.buildSqlBuilder;
 public class SelectStatement {
     private String name = "";
     private DatabaseType databaseType;
-    private Map<String, Map<String, Integer>> tableSchema;
+    private Map<String, Map<String, Integer>> tableSchemas;
     private List<String> columns = new ArrayList<>();
     private String table = "";
     private List<Criteria> criteria = new ArrayList<>();
@@ -55,12 +55,12 @@ public class SelectStatement {
         this.databaseType = databaseType;
     }
 
-    public Map<String, Map<String, Integer>> getTableSchema() {
-        return tableSchema;
+    public Map<String, Map<String, Integer>> getTableSchemas() {
+        return tableSchemas;
     }
 
-    public void setTableSchema(Map<String, Map<String, Integer>> tableSchema) {
-        this.tableSchema = tableSchema;
+    public void setTableSchemas(Map<String, Map<String, Integer>> tableSchemas) {
+        this.tableSchemas = tableSchemas;
     }
 
     public List<String> getColumns() {
@@ -313,12 +313,12 @@ public class SelectStatement {
         return false;
     }
 
-    public String toSql() {
+    public String toSql(Properties properties) {
         try {
             Collections.sort(this.criteria);
             clearParenthesisFromCriteria();
             addParenthesisToCriteria();
-            SqlBuilder sqlBuilder = buildSqlBuilder(databaseType);
+            SqlBuilder sqlBuilder = buildSqlBuilder(databaseType, this, properties);
             return sqlBuilder.buildSql(this);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());

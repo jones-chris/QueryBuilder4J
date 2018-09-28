@@ -2,9 +2,12 @@ package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.sqlbuilders.statements.*;
 
+import java.util.Properties;
+
 public class MySqlSqlBuilder extends SqlBuilder {
 
-    public MySqlSqlBuilder() {
+    public MySqlSqlBuilder(SelectStatement stmt, Properties properties) {
+        super(stmt, properties);
         beginningDelimiter = '`';
         endingDelimter = '`';
     }
@@ -12,7 +15,7 @@ public class MySqlSqlBuilder extends SqlBuilder {
     @Override
     public String buildSql(SelectStatement query) throws Exception {
 
-//        tableSchema = query.getTableSchema();
+        tableSchemas = query.getTableSchemas();
 
         try {
             StringBuilder sql = new StringBuilder("");

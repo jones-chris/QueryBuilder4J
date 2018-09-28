@@ -9,12 +9,13 @@ import com.querybuilder4j.exceptions.ColumnNameNotFoundException;
 import com.querybuilder4j.exceptions.DataTypeNotFoundException;
 import com.querybuilder4j.exceptions.EmptyCollectionException;
 import com.querybuilder4j.sqlbuilders.statements.*;
+import com.querybuilder4j.sqlbuilders.dao.*;
 
-import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.escape;
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.sqlIsClean;
@@ -24,7 +25,9 @@ public abstract class SqlBuilder {
     protected static Map<Integer, Boolean> typeMappings = new HashMap<>();
     protected char beginningDelimiter;
     protected char endingDelimter;
-    protected Map<String, Map<String, Integer>> tableSchema;
+    protected Map<String, Map<String, Integer>> tableSchemas;
+    protected SelectStatement stmt;
+    private final String BAD_SQL_EXCEPTION_MESSAGE = "%s failed to be clean SQL";
 
     static {
         typeMappings.put(Types.ARRAY, true);                     //ARRAY
@@ -69,7 +72,22 @@ public abstract class SqlBuilder {
     }
 
 
-    public SqlBuilder() {}
+    public SqlBuilder(SelectStatement stmt, Properties properties) {
+        this.stmt = stmt;
+
+        // Get all relevant table schemas.
+        MetaDataDaoImpl metaDataDao = new MetaDataDaoImpl(properties);
+        Map<String, Map<String, Integer>> whereClauseTableSchemas = new HashMap<>();
+        for (Criteria criteria : this.stmt.getCriteria()) {
+            String table = criteria.column.split("\\.")[0];
+            String column = criteria.column.split("\\.")[1];
+            if (! whereClauseTableSchemas.containsKey(table)) {
+                Map<String, Integer> tableSchema = metaDataDao.getTableSchema(table, column);
+                whereClauseTableSchemas.put(table, tableSchema);
+            }
+        }
+        this.stmt.setTableSchemas(whereClauseTableSchemas);
+    }
 
     public abstract String buildSql(SelectStatement query) throws Exception;
 
@@ -156,14 +174,22 @@ public abstract class SqlBuilder {
 
     }
 
+    /**
+     * Creates the WHERE clause of a SQL CRUD statement.
+     *
+     * @param criteria
+     * @return
+     * @throws Exception
+     */
     protected StringBuilder createWhereClause(List<Criteria> criteria) throws Exception {
+
         if (criteria == null) throw new IllegalArgumentException("The criteria parameter is null");
 
-        boolean criteriaAreClean = true;
-        for (Criteria crit : criteria) {
-            criteriaAreClean = sqlIsClean(crit);
-            if (! criteriaAreClean) throw new BadSqlException(crit + " failed to be clean SQL");
-        }
+//        boolean criteriaAreClean = true;
+//        for (Criteria crit : criteria) {
+//            criteriaAreClean = sqlIsClean(crit);
+//            if (! criteriaAreClean) throw new BadSqlException(crit + " failed to be clean SQL");
+//        }
 
         if (criteria.size() == 0) {
             return null;
@@ -171,23 +197,30 @@ public abstract class SqlBuilder {
             StringBuilder sql = new StringBuilder(" WHERE ");
 
             for (Criteria crit : criteria) {
+                if (! sqlIsClean(crit)) throw new BadSqlException(crit + " failed to be clean SQL");
+
                 // clone criteria
                 try {
                     Criteria criteriaClone = (Criteria) crit.clone();
+                    if (! criteriaClone.isValid()) throw new BadSqlException(String.format("The criteria in position %d is not valid"));
 
                     if (criteriaClone.getId() == 0) criteriaClone.conjunction = null;
 
-                    if (criteriaClone.isValid()) {
-                        if (criteriaClone.operator.equals(Operator.isNull) || criteriaClone.operator.equals(Operator.isNotNull)) {
-                            criteriaClone.filter = null;
-//                            sql.append(String.format(" %s ", criteriaClone.toString()));
-                            sql.append(String.format(" %s ", stringifyCriteria(criteriaClone)));
-                            continue;
+                    if (criteriaClone.operator.equals(Operator.isNull) || criteriaClone.operator.equals(Operator.isNotNull)) {
+                        criteriaClone.filter = null;
+                        if (! sqlIsClean(criteriaClone)) {
+                            throw new BadSqlException(String.format(BAD_SQL_EXCEPTION_MESSAGE, criteriaClone));
                         }
+                        sql.append(String.format(" %s ", stringifyCriteria(criteriaClone)));
+                        continue;
+                    }
 
-                        if (criteriaClone.filter == null || criteriaClone.filter.equals("")) {
-                            throw new BadSqlException(String.format("The criteria in position %d has a null or empty filter, but the operator is not \"IsNull\" or \"IsNotNull\""));
-                        }
+                    // Now that we know that the criteria's operator is not 'isNull' or 'isNotNull', we can assume that the
+                    // criteria's filter is needed.  Therefore, we should check if the filter is null or an empty string.
+                    // If so, throw an exception.
+                    if (criteriaClone.filter == null || criteriaClone.filter.equals("")) {
+                        throw new BadSqlException(String.format("The criteria in position %d has a null or empty filter, but the operator is not \"IsNull\" or \"IsNotNull\""));
+                    }
 
 //                        if (criteriaClone.isFilterSubquery()) {
 //                            criteriaClone.filter = escapeAndRemove(criteriaClone.filter);
@@ -195,32 +228,34 @@ public abstract class SqlBuilder {
 //                            continue;
 //                        }
 
-                        String[] tableAndColumn = criteriaClone.column.split("\\.");
-                        boolean shouldHaveQuotes = isColumnQuoted(getColumnDataType(tableAndColumn[0], tableAndColumn[1]));
-                        if (criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) {
-                            if (shouldHaveQuotes) {
-                                wrapFilterInQuotes(criteriaClone);
-                            } else {
-                                criteriaClone.filter = "(" + escape(criteriaClone.filter) + ")";
-                            }
-
-//                            sql.append(criteriaClone.toString()).append(" ");
-                            sql.append(stringifyCriteria(criteriaClone)).append(" ");
+                    String[] tableAndColumn = criteriaClone.column.split("\\.");
+                    boolean shouldHaveQuotes = isColumnQuoted(getColumnDataType(tableAndColumn[0], tableAndColumn[1]));
+                    if (criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) {
+                        if (shouldHaveQuotes) {
+                            wrapFilterInQuotes(criteriaClone);
                         } else {
-                            criteriaClone.filter = (shouldHaveQuotes) ? "'" + escape(criteriaClone.filter) + "'" : escape(criteriaClone.filter);
-//                            sql.append(criteriaClone.toString()).append(" ");
-                            sql.append(stringifyCriteria(criteriaClone)).append(" ");
+                            criteriaClone.filter = "(" + escape(criteriaClone.filter) + ")";
                         }
 
+                        if (! sqlIsClean(criteriaClone)) {
+                            throw new BadSqlException(String.format(BAD_SQL_EXCEPTION_MESSAGE, criteriaClone));
+                        }
+                        sql.append(stringifyCriteria(criteriaClone)).append(" ");
                     } else {
-                        throw new BadSqlException(String.format("The criteria in position %d is not valid"));
+                        criteriaClone.filter = (shouldHaveQuotes) ? "'" + escape(criteriaClone.filter) + "'" : escape(criteriaClone.filter);
+                        if (! sqlIsClean(criteriaClone)) {
+                            throw new BadSqlException(String.format(BAD_SQL_EXCEPTION_MESSAGE, criteriaClone));
+                        }
+                        sql.append(stringifyCriteria(criteriaClone)).append(" ");
                     }
+
                 } catch (CloneNotSupportedException ex) {
                     throw new Exception(ex.getMessage());
                 }
             }
             return sql;
         }
+
     }
 
     protected StringBuilder createGroupByClause(List<String> columns) throws IllegalArgumentException, EmptyCollectionException, BadSqlException {
@@ -318,7 +353,7 @@ public abstract class SqlBuilder {
     }
 
     private int getColumnDataType(String table, String columnName) throws ColumnNameNotFoundException {
-        Integer dataType = tableSchema.get(table).get(columnName);
+        Integer dataType = tableSchemas.get(table).get(columnName);
 
         if (dataType == null) {
             throw new ColumnNameNotFoundException(String.format("Could not find column, %s", columnName));
@@ -330,7 +365,7 @@ public abstract class SqlBuilder {
     private boolean isColumnQuoted(int columnDataType) throws DataTypeNotFoundException {
         Boolean isQuoted = typeMappings.get(columnDataType);
         if (isQuoted == null) {
-            throw new DataTypeNotFoundException(String.format("Data type, %s, not recognized", columnDataType));
+            throw new DataTypeNotFoundException(String.format("Data type, %s, is not recognized", columnDataType));
         } else {
             return isQuoted;
         }
@@ -347,19 +382,7 @@ public abstract class SqlBuilder {
         criteria.filter = "(" + String.join(",", newFilters) + ")";
     }
 
-    private String stringifyCriteria(Criteria criteria) throws BadSqlException, EmptyCollectionException {
-
-        String[] tableAndColumn = criteria.column.split("\\.");
-        if (tableAndColumn.length != 2) {
-            throw new EmptyCollectionException(String.format("The column, %s, needs to be in the format [table.column]", criteria.column));
-        }
-
-        if (! sqlIsClean(tableAndColumn[0])) throw new BadSqlException(criteria.column + " failed to be clean SQL");
-        if (! sqlIsClean(tableAndColumn[1])) throw new BadSqlException(criteria.column + " failed to be clean SQL");
-        if (criteria.filter != null) {
-            if (! sqlIsClean(criteria.filter)) throw new BadSqlException(criteria.filter + " failed to be clean SQL");
-        }
-
+    private String stringifyCriteria(Criteria criteria) {
 
         String endParenthesisString = "";
         if (criteria.endParenthesis != null) {
@@ -368,15 +391,12 @@ public abstract class SqlBuilder {
             }
         }
 
+        String[] tableAndColumn = criteria.column.split("\\.");
         return String.format(" %s %s%s%s%s.%s%s%s %s %s%s ",
                 ofNullable(criteria.conjunction).orElse(Conjunction.Empty),
                 ofNullable(criteria.frontParenthesis).orElse(Parenthesis.Empty),
-                beginningDelimiter,
-                escape(tableAndColumn[0]),
-                endingDelimter,
-                beginningDelimiter,
-                escape(tableAndColumn[1]),
-                endingDelimter,
+                beginningDelimiter, escape(tableAndColumn[0]), endingDelimter,
+                beginningDelimiter, escape(tableAndColumn[1]), endingDelimter,
                 criteria.operator,
                 ofNullable(criteria.filter).orElse(""),
                 endParenthesisString);

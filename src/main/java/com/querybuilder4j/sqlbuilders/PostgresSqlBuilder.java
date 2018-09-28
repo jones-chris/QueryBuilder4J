@@ -2,9 +2,12 @@ package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 
+import java.util.Properties;
+
 public class PostgresSqlBuilder extends SqlBuilder {
 
-    public PostgresSqlBuilder() {
+    public PostgresSqlBuilder(SelectStatement stmt, Properties properties) {
+        super(stmt, properties);
         beginningDelimiter = '"';
         endingDelimter = '"';
     }

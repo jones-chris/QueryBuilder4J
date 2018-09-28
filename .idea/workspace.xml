@@ -6,29 +6,39 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="818fc6ba-91d2-4f55-95a0-c5a8c17c3776" name="Default" comment="Added regular expression to SqlCleanser class to catch ANSI keywords.  Added SqlCleanserTest class.">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/Join.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/StaticStatementTests.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/QueryTests.java" afterPath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/DynamicStatementTests.java" />
+    <list default="true" id="818fc6ba-91d2-4f55-95a0-c5a8c17c3776" name="Default" comment="Tests pass when using INNER JOIN.">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/dao/MetaDataDao.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/dao/MetaDataDaoImpl.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/config/SqlBuilderFactory$1.class" afterPath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/config/SqlBuilderFactory$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/config/SqlBuilderFactory.class" afterPath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/config/SqlBuilderFactory.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/MySqlSqlBuilder.class" afterPath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/MySqlSqlBuilder.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/OracleSqlBuilder.class" afterPath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/OracleSqlBuilder.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.class" afterPath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/RedshiftSqlBuilder.class" afterPath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/RedshiftSqlBuilder.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/SqlBuilder.class" afterPath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/SqlBuilder.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/SqlCleanser.class" afterPath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/SqlCleanser.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/SqlServerSqlBuilder.class" afterPath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/SqlServerSqlBuilder.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/SqliteSqlBuilder.class" afterPath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/SqliteSqlBuilder.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/statements/Criteria.class" afterPath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/statements/Criteria.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/statements/SelectStatement.class" afterPath="$PROJECT_DIR$/build/classes/main/com/querybuilder4j/sqlbuilders/statements/SelectStatement.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/test/com/querybuilder4j/sqlbuilders/DynamicStatementTests.class" afterPath="$PROJECT_DIR$/build/classes/test/com/querybuilder4j/sqlbuilders/DynamicStatementTests.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/test/com/querybuilder4j/sqlbuilders/SqlBuilderTest.class" afterPath="$PROJECT_DIR$/build/classes/test/com/querybuilder4j/sqlbuilders/SqlBuilderTest.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/classes/test/com/querybuilder4j/sqlbuilders/StaticStatementTests.class" afterPath="$PROJECT_DIR$/build/classes/test/com/querybuilder4j/sqlbuilders/StaticStatementTests.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/artifacts/com_querybuilder4j_jar/com.querybuilder4j.jar" afterPath="$PROJECT_DIR$/out/artifacts/com_querybuilder4j_jar/com.querybuilder4j.jar" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/config/SqlBuilderFactory.java" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/config/SqlBuilderFactory.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/MySqlSqlBuilder.java" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/MySqlSqlBuilder.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/OracleSqlBuilder.java" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/OracleSqlBuilder.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.java" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/RedshiftSqlBuilder.java" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/RedshiftSqlBuilder.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlBuilder.java" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlBuilder.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlCleanser.java" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlCleanser.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlServerSqlBuilder.java" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlServerSqlBuilder.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqliteSqlBuilder.java" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqliteSqlBuilder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/Criteria.java" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/Criteria.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/SelectStatement.java" afterPath="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/SelectStatement.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/Constants.java" afterPath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/Constants.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/TestUtils.java" afterPath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/TestUtils.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/DynamicStatementTests.java" afterPath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/DynamicStatementTests.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/SqlBuilderTest.java" afterPath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/SqlBuilderTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/StaticStatementTests.java" afterPath="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/StaticStatementTests.java" />
     </list>
     <ignored path="com.querybuilder4j.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -76,11 +86,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="SelectStatement.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="SelectStatement.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/SelectStatement.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="167">
-              <caret line="323" column="0" selection-start-line="323" selection-start-column="0" selection-end-line="323" selection-end-column="0" />
+            <state relative-caret-position="4088">
+              <caret line="340" column="34" selection-start-line="340" selection-start-column="34" selection-end-line="340" selection-end-column="34" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -88,21 +98,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Criteria.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/Criteria.java">
+      <file leaf-file-name="DynamicStatementTests.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/DynamicStatementTests.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="226">
-              <caret line="146" column="59" selection-start-line="146" selection-start-column="59" selection-end-line="146" selection-end-column="59" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Join.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/Join.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="632">
-              <caret line="105" column="49" selection-start-line="105" selection-start-column="49" selection-end-line="105" selection-end-column="49" />
+            <state relative-caret-position="201">
+              <caret line="70" column="85" selection-start-line="70" selection-start-column="85" selection-end-line="70" selection-end-column="85" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -113,41 +113,29 @@
       <file leaf-file-name="SqlBuilder.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlBuilder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1189">
-              <caret line="201" column="50" selection-start-line="201" selection-start-column="32" selection-end-line="201" selection-end-column="50" />
+            <state relative-caret-position="278">
+              <caret line="78" column="0" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
               <folding>
-                <element signature="imports" expanded="true" />
+                <element signature="initializer##0;class#SqlBuilder#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SqlCleanser.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlCleanser.java">
+      <file leaf-file-name="MetaDataDaoImpl.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/dao/MetaDataDaoImpl.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="177">
-              <caret line="52" column="33" selection-start-line="52" selection-start-column="30" selection-end-line="52" selection-end-column="33" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SqlBuilderTest.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/SqlBuilderTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="603">
-              <caret line="72" column="18" selection-start-line="72" selection-start-column="15" selection-end-line="72" selection-end-column="18" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DynamicStatementTests.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/DynamicStatementTests.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="177">
-              <caret line="179" column="0" selection-start-line="179" selection-start-column="0" selection-end-line="179" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="392">
+              <caret line="28" column="75" selection-start-line="28" selection-start-column="75" selection-end-line="28" selection-end-column="75" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#396#397#0" expanded="true" />
+                <element signature="e#440#441#0" expanded="true" />
+                <element signature="e#481#482#0" expanded="true" />
+                <element signature="e#514#515#0" expanded="true" />
+                <element signature="e#570#571#0" expanded="true" />
+                <element signature="e#614#615#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -155,9 +143,11 @@
       <file leaf-file-name="SqliteSqlBuilder.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqliteSqlBuilder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="196">
-              <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="252">
+              <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -168,8 +158,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Enum" />
-        <option value="Interface" />
         <option value="JUnit4 Test Class" />
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -177,6 +167,11 @@
   <component name="Git.Settings">
     <option name="UPDATE_TYPE" value="REBASE" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
   </component>
   <component name="GradleLocalSettings">
     <option name="myGradleHomes">
@@ -513,9 +508,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/util/SetUtils.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/InsertStatement.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/UpdateStatement.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/DeleteStatement.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/AbstractSqlBuilder.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/StatementContainer.java" />
@@ -542,28 +534,31 @@
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/dbconnection/DbConnectionImpl.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/Statement.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/statements/StatementTest.java" />
-        <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/TestUtils.java" />
         <option value="$PROJECT_DIR$/settings.gradle" />
         <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/utils/ResultSetToHashMapConverter.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/SqlCleanserTest.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlCleanser.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/QueryTests.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/DynamicStatementTests.java" />
-        <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/SqlBuilderTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/Join.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/Constants.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/Criteria.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlServerSqlBuilder.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/RedshiftSqlBuilder.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlCleanser.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/dao/MetaDataDao.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/MySqlSqlBuilder.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/OracleSqlBuilder.java" />
-        <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/StaticStatementTests.java" />
-        <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/DynamicStatementTests.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/SelectStatement.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/RedshiftSqlBuilder.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqliteSqlBuilder.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlServerSqlBuilder.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/config/SqlBuilderFactory.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/SelectStatement.java" />
+        <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/SqlBuilderTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/StaticStatementTests.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/dao/MetaDataDaoImpl.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlBuilder.java" />
+        <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/DynamicStatementTests.java" />
+        <option value="$PROJECT_DIR$/src/test/java/com/querybuilder4j/TestUtils.java" />
       </list>
     </option>
   </component>
@@ -689,6 +684,66 @@
               <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider$GradleSourceSetDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="com.querybuilder4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="QueryBuilder4J" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider$GradleSourceSetDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="querybuilder4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="com.querybuilder4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="QueryBuilder4J" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="org.jetbrains.plugins.gradle.projectView.GradleTreeStructureProvider$GradleSourceSetDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="querybuilder4j" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sqlbuilders" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -731,10 +786,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="querybuilder4j" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="utils" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -793,11 +844,19 @@
               <option name="myItemId" value="querybuilder4j" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sqlbuilders" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dao" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="AndroidView" />
     </panes>
   </component>
@@ -808,7 +867,7 @@
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="HbShouldOpenHtmlAsHb" value="" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary" value="JUnit4" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../tests/QueryBuilder4JMVC/QueryBuilder4JMVC" />
     <property name="SearchEverywhereHistoryKey" value="constants&#9;FILE&#9;file://C:/Users/Public/Repos/QueryBuilder4J/src/test/java/com/querybuilder4j/Constants.java&#10;sqlite&#9;FILE&#9;file://C:/Users/Public/Repos/QueryBuilder4J/src/main/java/com/querybuilder4j/sqlbuilders/SqliteSqlBuilder.java&#10;sqlbuilder&#9;FILE&#9;file://C:/Users/Public/Repos/QueryBuilder4J/src/main/java/com/querybuilder4j/sqlbuilders/SqlBuilder.java&#10;sqlbuild&#9;FILE&#9;file://C:/Users/Public/Repos/QueryBuilder4J/src/main/java/com/querybuilder4j/sqlbuilders/SqlBuilder.java&#10;criteria&#9;FILE&#9;file://C:/Users/Public/Repos/QueryBuilder4J/src/main/java/com/querybuilder4j/sqlbuilders/statements/Criteria.java&#10;criteri&#9;FILE&#9;file://C:/Users/Public/Repos/QueryBuilder4J/src/main/java/com/querybuilder4j/sqlbuilders/statements/Criteria.java&#10;statement&#9;FILE&#9;file://C:/Users/Public/Repos/QueryBuilder4J/src/main/java/com/querybuilder4j/sqlbuilders/statements/Statement.java&#10;select st&#9;FILE&#9;file://C:/Users/Public/Repos/QueryBuilder4J/src/main/java/com/querybuilder4j/sqlbuilders/statements/SelectStatement.java&#10;operato&#9;PSI&#9;JAVA://com.querybuilder4j.config.Operator&#10;selectsta&#9;FILE&#9;file://C:/Users/Public/Repos/QueryBuilder4J/src/main/java/com/querybuilder4j/sqlbuilders/statements/SelectStatement.java&#10;postg&#9;FILE&#9;file://C:/Users/Public/Repos/QueryBuilder4J/src/main/java/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.java&#10;select&#9;FILE&#9;file://C:/Users/Public/Repos/QueryBuilder4J/src/main/java/com/querybuilder4j/sqlbuilders/statements/SelectStatement.java&#10;parenthe&#9;FILE&#9;file://C:/Users/Public/Repos/QueryBuilder4J/src/main/java/com/querybuilder4j/config/Parenthesis.java&#10;properties&#9;FILE&#9;file://C:/Users/Public/Repos/QueryBuilder4J/src/test/java/com/querybuilder4j/config.properties&#10;mysql&#9;FILE&#9;file://C:/AppInstall/repos/QueryBuilder4J/src/main/java/com/querybuilder4j/sqlbuilders/MySqlSqlBuilder.java&#10;getcolumndatatype&#9;null&#9;null" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
@@ -820,17 +879,20 @@
       <recent name="com.querybuilder4j.sqlbuilders.statements" />
       <recent name="com.querybuilder4j.dbconnection" />
     </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\Public\Repos\QueryBuilder4J\src\test\resources" />
-      <recent name="C:\Users\Public\Repos\QueryBuilder4J\src\test\java\com\querybuilder4j\sqlbuilders\properties" />
-      <recent name="C:\Users\Public\Repos\QueryBuilder4J\src\test\java\com\querybuilder4j\sqlbuilders" />
-    </key>
-    <key name="CreateTestDialog.Recents.Supers">
-      <recent name="" />
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.querybuilder4j.sqlbuilders.dao" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Public\Repos\com.querybuilder4j\src\main\java\com\querybuilder4j\sqlgenerators" />
       <recent name="C:\Users\Public\Repos\com.querybuilder4j\src\main\java\com\querybuilder4j" />
+    </key>
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Public\Repos\QueryBuilder4J\src\test\resources" />
+      <recent name="C:\Users\Public\Repos\QueryBuilder4J\src\test\java\com\querybuilder4j\sqlbuilders\properties" />
+      <recent name="C:\Users\Public\Repos\QueryBuilder4J\src\test\java\com\querybuilder4j\sqlbuilders" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -1420,34 +1482,34 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.23 at 21h 57m 24s.xml">
+    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.27 at 21h 19m 53s.xml">
       <configuration name="SqlBuilderTest.runDynamicStatementTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.23 at 22h 00m 50s.xml">
+    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.27 at 21h 22m 01s.xml">
       <configuration name="SqlBuilderTest.runDynamicStatementTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.23 at 22h 01m 42s.xml">
+    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.27 at 21h 22m 18s.xml">
       <configuration name="SqlBuilderTest.runDynamicStatementTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.23 at 22h 30m 00s.xml">
+    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.27 at 21h 22m 34s.xml">
       <configuration name="SqlBuilderTest.runDynamicStatementTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.23 at 22h 33m 47s.xml">
+    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.27 at 21h 23m 18s.xml">
       <configuration name="SqlBuilderTest.runDynamicStatementTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.23 at 22h 47m 24s.xml">
+    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.27 at 21h 23m 38s.xml">
       <configuration name="SqlBuilderTest.runDynamicStatementTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.23 at 22h 49m 00s.xml">
+    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.27 at 21h 24m 15s.xml">
       <configuration name="SqlBuilderTest.runDynamicStatementTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.23 at 22h 53m 02s.xml">
+    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.27 at 21h 34m 15s.xml">
       <configuration name="SqlBuilderTest.runDynamicStatementTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.23 at 22h 55m 06s.xml">
+    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.27 at 21h 34m 38s.xml">
       <configuration name="SqlBuilderTest.runDynamicStatementTests" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.23 at 22h 55m 29s.xml">
+    <history-entry file="SqlBuilderTest_runDynamicStatementTests - 2018.09.27 at 21h 36m 18s.xml">
       <configuration name="SqlBuilderTest.runDynamicStatementTests" configurationId="JUnit" />
     </history-entry>
   </component>
@@ -1475,12 +1537,13 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3576759" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" x="92" y="92" width="1736" height="826" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37290034" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37290034" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32922733" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32922733" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1945629" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32922733" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21108742" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20522387" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1495,7 +1558,6 @@
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32922733" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
@@ -1568,7 +1630,9 @@
     <MESSAGE value="Added more robust checks in SqlCleanser class.  Changed SelectStatement's toString method.  Ran randomized SQL tests twice for Postgres, MySQL, and SQLite." />
     <MESSAGE value="Added regular expression to SqlCleanser class to catch ANSI keywords.  Added SqlCleanserTest class." />
     <MESSAGE value="Removed '%' and 'AND' from SqlCleanser.  Added ',' as the join character when joining strings together in wrapFilterInQuotes method." />
-    <option name="LAST_COMMIT_MESSAGE" value="Removed '%' and 'AND' from SqlCleanser.  Added ',' as the join character when joining strings together in wrapFilterInQuotes method." />
+    <MESSAGE value="Tests pass when using INNER JOIN." />
+    <MESSAGE value="Refactored how tableSchemas are retrieved - they are now retrieved in the SqlBuilder constructor.  Refactored dynamic tests.  SQLite dynamic tests are passing." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactored how tableSchemas are retrieved - they are now retrieved in the SqlBuilder constructor.  Refactored dynamic tests.  SQLite dynamic tests are passing." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1611,7 +1675,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/DynamicStatementTests.java</url>
-          <line>179</line>
+          <line>140</line>
           <properties />
           <option name="timeStamp" value="120" />
         </line-breakpoint>
@@ -1635,55 +1699,55 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/TestUtils.java</url>
-          <line>39</line>
+          <line>36</line>
           <properties />
           <option name="timeStamp" value="212" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/TestUtils.java</url>
-          <line>41</line>
+          <line>38</line>
           <properties />
           <option name="timeStamp" value="213" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/TestUtils.java</url>
-          <line>40</line>
+          <line>37</line>
           <properties />
           <option name="timeStamp" value="214" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlCleanser.java</url>
-          <line>70</line>
+          <line>71</line>
           <properties />
           <option name="timeStamp" value="227" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlCleanser.java</url>
-          <line>61</line>
+          <line>62</line>
           <properties />
           <option name="timeStamp" value="236" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlCleanser.java</url>
-          <line>55</line>
+          <line>56</line>
           <properties />
           <option name="timeStamp" value="238" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/StaticStatementTests.java</url>
-          <line>125</line>
+          <line>122</line>
           <properties />
           <option name="timeStamp" value="240" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlBuilder.java</url>
-          <line>132</line>
+          <line>150</line>
           <properties />
           <option name="timeStamp" value="258" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlBuilder.java</url>
-          <line>89</line>
+          <line>107</line>
           <properties />
           <option name="timeStamp" value="263" />
         </line-breakpoint>
@@ -1694,7 +1758,7 @@
           <option name="timeStamp" value="270" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="271" />
+      <option name="time" value="275" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -1773,8 +1837,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/resources/sqlite.properties" />
-    <entry file="file://$PROJECT_DIR$/src/test/resources/oracle.properties" />
     <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.microsoft.sqlserver/mssql-jdbc/6.1.0.jre8/47d16d9b6556cf810ce26bff54bf592b26127927/mssql-jdbc-6.1.0.jre8.jar!/META-INF/services/java.sql.Driver">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1884,14 +1946,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/TestUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="476">
-          <caret line="38" column="43" selection-start-line="38" selection-start-column="43" selection-end-line="38" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/SqlCleanserTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="882">
@@ -1957,13 +2011,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/config/SqlBuilderFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
-          <caret line="24" column="0" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/exceptions/BadSqlException.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="70">
@@ -1996,116 +2043,125 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="364">
           <caret line="30" column="125" selection-start-line="30" selection-start-column="125" selection-end-line="30" selection-end-column="125" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/Join.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1036">
+          <caret line="105" column="49" selection-start-line="105" selection-start-column="49" selection-end-line="105" selection-end-column="49" />
           <folding>
             <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/Join.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="632">
-          <caret line="105" column="49" selection-start-line="105" selection-start-column="49" selection-end-line="105" selection-end-column="49" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/Criteria.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="226">
+        <state relative-caret-position="1442">
           <caret line="146" column="59" selection-start-line="146" selection-start-column="59" selection-end-line="146" selection-end-column="59" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlServerSqlBuilder.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/dao/MetaDataDao.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="15" column="23" selection-start-line="15" selection-start-column="23" selection-end-line="15" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/RedshiftSqlBuilder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="211">
-          <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/MySqlSqlBuilder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="140">
+          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="11" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/OracleSqlBuilder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="98">
+          <caret line="9" column="32" selection-start-line="9" selection-start-column="32" selection-end-line="9" selection-end-column="32" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/PostgresSqlBuilder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="98">
+          <caret line="9" column="32" selection-start-line="9" selection-start-column="32" selection-end-line="9" selection-end-column="32" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/RedshiftSqlBuilder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="67">
+          <caret line="9" column="32" selection-start-line="9" selection-start-column="32" selection-end-line="9" selection-end-column="32" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlServerSqlBuilder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="9" column="32" selection-start-line="9" selection-start-column="32" selection-end-line="9" selection-end-column="32" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/StaticStatementTests.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="120" column="179" selection-start-line="120" selection-start-column="179" selection-end-line="120" selection-end-column="179" />
+        <state relative-caret-position="416">
+          <caret line="121" column="109" selection-start-line="121" selection-start-column="109" selection-end-line="121" selection-end-column="109" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqliteSqlBuilder.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlCleanser.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+        <state relative-caret-position="492">
+          <caret line="113" column="38" selection-start-line="113" selection-start-column="38" selection-end-line="113" selection-end-column="38" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/SqlBuilderTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="603">
-          <caret line="72" column="18" selection-start-line="72" selection-start-column="15" selection-end-line="72" selection-end-column="18" />
+        <state relative-caret-position="548">
+          <caret line="84" column="65" selection-start-line="84" selection-start-column="65" selection-end-line="84" selection-end-column="65" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/SelectStatement.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/config/SqlBuilderFactory.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="167">
-          <caret line="323" column="0" selection-start-line="323" selection-start-column="0" selection-end-line="323" selection-end-column="0" />
+        <state relative-caret-position="308">
+          <caret line="22" column="79" selection-start-line="22" selection-start-column="79" selection-end-line="22" selection-end-column="79" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlCleanser.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/MySqlSqlBuilder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="177">
-          <caret line="52" column="33" selection-start-line="52" selection-start-column="30" selection-end-line="52" selection-end-column="33" />
-          <folding />
+        <state relative-caret-position="98">
+          <caret line="9" column="30" selection-start-line="9" selection-start-column="30" selection-end-line="9" selection-end-column="30" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlBuilder.java">
+    <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/TestUtils.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1189">
-          <caret line="201" column="50" selection-start-line="201" selection-start-column="32" selection-end-line="201" selection-end-column="50" />
+        <state relative-caret-position="14">
+          <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -2114,9 +2170,57 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/java/com/querybuilder4j/sqlbuilders/DynamicStatementTests.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="177">
-          <caret line="179" column="0" selection-start-line="179" selection-start-column="0" selection-end-line="179" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="201">
+          <caret line="70" column="85" selection-start-line="70" selection-start-column="85" selection-end-line="70" selection-end-column="85" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqlBuilder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="278">
+          <caret line="78" column="0" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
+          <folding>
+            <element signature="initializer##0;class#SqlBuilder#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/dao/MetaDataDaoImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="392">
+          <caret line="28" column="75" selection-start-line="28" selection-start-column="75" selection-end-line="28" selection-end-column="75" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#396#397#0" expanded="true" />
+            <element signature="e#440#441#0" expanded="true" />
+            <element signature="e#481#482#0" expanded="true" />
+            <element signature="e#514#515#0" expanded="true" />
+            <element signature="e#570#571#0" expanded="true" />
+            <element signature="e#614#615#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/SqliteSqlBuilder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/querybuilder4j/sqlbuilders/statements/SelectStatement.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4088">
+          <caret line="340" column="34" selection-start-line="340" selection-start-column="34" selection-end-line="340" selection-end-column="34" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

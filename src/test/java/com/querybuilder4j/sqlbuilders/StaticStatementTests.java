@@ -7,10 +7,7 @@ import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 import com.querybuilder4j.utils.ResultSetToHashMapConverter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.querybuilder4j.config.Conjunction.And;
 import static com.querybuilder4j.config.Operator.*;
@@ -122,7 +119,7 @@ public class StaticStatementTests {
 
         HashMap<Object, Object> results = new HashMap<>();
         results.put("stmt", stmt);
-        results.put("sql", stmt.toSql());
+        results.put("sql", stmt.toSql(new Properties())); //TODO:  FIX THIS...PASS IN ACTUAL PROPERTIES FILE.
         return results;
     }
 

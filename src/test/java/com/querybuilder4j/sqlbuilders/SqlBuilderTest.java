@@ -82,7 +82,7 @@ public class SqlBuilderTest {
                 try (Connection conn = TestUtils.getConnection(props);
                      Statement stmt = conn.createStatement()) {
 
-                    stmt.executeQuery(selectStatement.toSql());
+                    stmt.executeQuery(selectStatement.toSql(props));
                     assertTrue(true);
                 } catch (Exception ex) {
                     System.out.println("Select Statement Object:  ");
