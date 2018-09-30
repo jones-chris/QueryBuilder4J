@@ -15,7 +15,7 @@ public class MySqlSqlBuilder extends SqlBuilder {
     @Override
     public String buildSql(SelectStatement query) throws Exception {
 
-        tableSchemas = query.getTableSchemas();
+        //tableSchemas = query.getTableSchemas();
 
         try {
             StringBuilder sql = new StringBuilder("");

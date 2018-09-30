@@ -25,8 +25,11 @@ public abstract class SqlBuilder {
     protected static Map<Integer, Boolean> typeMappings = new HashMap<>();
     protected char beginningDelimiter;
     protected char endingDelimter;
-    protected Map<String, Map<String, Integer>> tableSchemas;
+    protected Map<String, Map<String, Integer>> tableSchemas = new HashMap<>();
+    protected final Properties properties;
     protected SelectStatement stmt;
+    protected final int TABLE_INDEX = 0;
+    protected final int COLUMN_INDEX = 1;
     private final String BAD_SQL_EXCEPTION_MESSAGE = "%s failed to be clean SQL";
 
     static {
@@ -74,42 +77,44 @@ public abstract class SqlBuilder {
 
     public SqlBuilder(SelectStatement stmt, Properties properties) {
         this.stmt = stmt;
-
-        // Get all relevant table schemas.
-        MetaDataDaoImpl metaDataDao = new MetaDataDaoImpl(properties);
-        Map<String, Map<String, Integer>> whereClauseTableSchemas = new HashMap<>();
-        for (Criteria criteria : this.stmt.getCriteria()) {
-            String table = criteria.column.split("\\.")[0];
-            String column = criteria.column.split("\\.")[1];
-            if (! whereClauseTableSchemas.containsKey(table)) {
-                Map<String, Integer> tableSchema = metaDataDao.getTableSchema(table, column);
-                whereClauseTableSchemas.put(table, tableSchema);
-            }
-        }
-        this.stmt.setTableSchemas(whereClauseTableSchemas);
+        this.properties = properties;
+        setTableSchemas(stmt.getColumns(), stmt.getCriteria());
     }
 
     public abstract String buildSql(SelectStatement query) throws Exception;
 
+    /**
+     * Creates the SELECT clause of a SELECT SQL statement.
+     *
+     * @param distinct
+     * @param columns
+     * @return
+     * @throws IllegalArgumentException
+     * @throws EmptyCollectionException
+     * @throws BadSqlException
+     */
     protected StringBuilder createSelectClause(boolean distinct, List<String> columns)
             throws IllegalArgumentException, EmptyCollectionException, BadSqlException {
         if (columns == null) throw new IllegalArgumentException("Columns parameter is null");
 
         if (columns.size() == 0) throw new EmptyCollectionException("Columns parameter is empty");
 
-        final int TABLE_INDEX = 0;
-        final int COLUMN_INDEX = 1;
-
-        boolean tableIsClean = true;
-        boolean columnIsClean = true;
+        boolean tableIsLegit = true;
+        boolean columnIsLegit = true;
         for (String column : columns) {
             String[] tableAndColumn = column.split("\\.");
             if (tableAndColumn.length != 2) {
                 throw new EmptyCollectionException(String.format("The column, %s, needs to be in the format [table.column]", column));
             }
-            tableIsClean = sqlIsClean(tableAndColumn[TABLE_INDEX]);
-            columnIsClean = sqlIsClean(tableAndColumn[COLUMN_INDEX]);
-            if (! tableIsClean || ! columnIsClean) {
+
+            tableIsLegit = tableSchemas.containsKey(tableAndColumn[TABLE_INDEX]);
+            if (! tableIsLegit) {
+                columnIsLegit = false;
+            } else {
+                columnIsLegit = tableSchemas.get(tableAndColumn[TABLE_INDEX]).containsKey(tableAndColumn[COLUMN_INDEX]);
+            }
+
+            if (! tableIsLegit || ! columnIsLegit) {
                 throw new BadSqlException(column + " failed to be clean SQL");
             }
         }
@@ -126,6 +131,14 @@ public abstract class SqlBuilder {
         return sql;
     }
 
+    /**
+     * Creates the FROM clause of a SELECT SQL statement.
+     *
+     * @param table
+     * @return
+     * @throws IllegalArgumentException
+     * @throws BadSqlException
+     */
     protected StringBuilder createFromClause(String table) throws IllegalArgumentException, BadSqlException {
         if (table == null) throw new IllegalArgumentException("table parameter is null");
 
@@ -137,6 +150,13 @@ public abstract class SqlBuilder {
         return new StringBuilder(s);
     }
 
+    /**
+     * Creates the JOIN clause of a SELECT SQL statement.
+     *
+     * @param joins
+     * @return
+     * @throws IllegalArgumentException
+     */
     protected StringBuilder createJoinClause(List<Join> joins) throws IllegalArgumentException {
 
         if (joins == null) throw new IllegalArgumentException("joins parameter is null");
@@ -258,6 +278,15 @@ public abstract class SqlBuilder {
 
     }
 
+    /**
+     * Creates the GROUP BY clause of a SELECT SQL statement.
+     *
+     * @param columns
+     * @return
+     * @throws IllegalArgumentException
+     * @throws EmptyCollectionException
+     * @throws BadSqlException
+     */
     protected StringBuilder createGroupByClause(List<String> columns) throws IllegalArgumentException, EmptyCollectionException, BadSqlException {
         if (columns == null) throw new IllegalArgumentException("The columns parameter is null");
 
@@ -273,7 +302,10 @@ public abstract class SqlBuilder {
             StringBuilder sql = new StringBuilder(" GROUP BY ");
 
             for (String column : columns) {
-                sql.append(String.format("%s%s%s, ", beginningDelimiter, escape(column), endingDelimter));
+                String[] tableAndColumn = column.split("\\.");
+                sql.append(String.format("%s%s%s.%s%s%s, ",
+                                          beginningDelimiter, escape(tableAndColumn[TABLE_INDEX]), endingDelimter,
+                                          beginningDelimiter, escape(tableAndColumn[COLUMN_INDEX]), endingDelimter));
             }
 
             sql.delete(sql.length() - 2, sql.length()).append(" ");
@@ -281,6 +313,16 @@ public abstract class SqlBuilder {
         }
     }
 
+    /**
+     * Creates the ORDER BY clause of a SELECT SQL statement.
+     *
+     * @param columns
+     * @param ascending
+     * @return
+     * @throws IllegalArgumentException
+     * @throws EmptyCollectionException
+     * @throws BadSqlException
+     */
     protected StringBuilder createOrderByClause(List<String> columns, boolean ascending) throws IllegalArgumentException, EmptyCollectionException, BadSqlException {
         if (columns == null) throw new IllegalArgumentException("The columns parameter is null");
 
@@ -296,7 +338,10 @@ public abstract class SqlBuilder {
             StringBuilder sql = new StringBuilder(" ORDER BY ");
 
             for (String column : columns) {
-                sql.append(String.format("%s%s%s, ", beginningDelimiter, escape(column), endingDelimter));
+                String[] tableAndColumn = column.split("\\.");
+                sql.append(String.format("%s%s%s.%s%s%s, ",
+                        beginningDelimiter, escape(tableAndColumn[TABLE_INDEX]), endingDelimter,
+                        beginningDelimiter, escape(tableAndColumn[COLUMN_INDEX]), endingDelimter));
             }
 
             sql.delete(sql.length() - 2, sql.length()).append(" ");
@@ -305,6 +350,14 @@ public abstract class SqlBuilder {
         }
     }
 
+    /**
+     * Creates the LIMIT clause of a SELECT SQL statement.
+     *
+     * @param limit
+     * @return
+     * @throws IllegalArgumentException
+     * @throws BadSqlException
+     */
     protected StringBuilder createLimitClause(Long limit) throws IllegalArgumentException, BadSqlException {
         if (! sqlIsClean(limit.toString())) throw new BadSqlException(limit.toString() + " failed to be clean SQL");
 
@@ -315,6 +368,14 @@ public abstract class SqlBuilder {
         }
     }
 
+    /**
+     * Creates the OFFSET clause of a SELECT SQL statement.
+     *
+     * @param offset
+     * @return
+     * @throws IllegalArgumentException
+     * @throws BadSqlException
+     */
     protected StringBuilder createOffsetClause(Long offset) throws IllegalArgumentException, BadSqlException {
         if (! sqlIsClean(offset.toString())) throw new BadSqlException(offset.toString() + " failed to be clean SQL");
 
@@ -325,6 +386,16 @@ public abstract class SqlBuilder {
         }
     }
 
+    /**
+     * Creates a WHERE clause condition that all columns in the columns parameter cannot be null.  This condition
+     * should is used to not return records where all selected columns have a null value.
+     *
+     * @param columns
+     * @return
+     * @throws IllegalArgumentException
+     * @throws EmptyCollectionException
+     * @throws BadSqlException
+     */
     protected StringBuilder createSuppressNullsClause(List<String> columns)
             throws IllegalArgumentException, EmptyCollectionException, BadSqlException {
         if (columns == null) throw new IllegalArgumentException("The columns parameter is null");
@@ -341,10 +412,15 @@ public abstract class SqlBuilder {
             StringBuilder sql = new StringBuilder();
 
             for (int i = 0; i < columns.size(); i++) {
+                String[] tableAndColumn = columns.get(i).split("\\.");
                 if (i == 0) {
-                    sql.append(String.format(" (%s%s%s IS NOT NULL ", beginningDelimiter, columns.get(i), endingDelimter));
+                    sql.append(String.format(" (%s%s%s.%s%s%s IS NOT NULL ",
+                                                beginningDelimiter, tableAndColumn[TABLE_INDEX], endingDelimter,
+                                                beginningDelimiter, tableAndColumn[COLUMN_INDEX], endingDelimter));
                 } else {
-                    sql.append(String.format(" OR %s%s%s IS NOT NULL ", beginningDelimiter, columns.get(i), endingDelimter));
+                    sql.append(String.format(" OR %s%s%s.%s%s%s IS NOT NULL ",
+                                               beginningDelimiter, tableAndColumn[TABLE_INDEX], endingDelimter,
+                                               beginningDelimiter, tableAndColumn[COLUMN_INDEX], endingDelimter));
                 }
             }
 
@@ -352,6 +428,14 @@ public abstract class SqlBuilder {
         }
     }
 
+    /**
+     * Gets the SQL JDBC Type for the table and column parameters.
+     *
+     * @param table
+     * @param columnName
+     * @return
+     * @throws ColumnNameNotFoundException
+     */
     private int getColumnDataType(String table, String columnName) throws ColumnNameNotFoundException {
         Integer dataType = tableSchemas.get(table).get(columnName);
 
@@ -362,6 +446,18 @@ public abstract class SqlBuilder {
         }
     }
 
+    /**
+     * Gets a boolean from the typeMappings class field associated with the SQL JDBC Types parameter, which is an int.
+     * The typeMappings field will return true if the SQL JDBC Types parameter should be quoted in a WHERE SQL clause and
+     * false if it should not be quoted.
+     *
+     * For example, the VARCHAR Type will return true, because it should be wrapped in single quotes in a WHERE SQL condition.
+     * On the other hand, the INTEGER Type will return false, because it should NOT be wrapped in single quotes in a WHERE SQL condition.
+     *
+     * @param columnDataType
+     * @return
+     * @throws DataTypeNotFoundException
+     */
     private boolean isColumnQuoted(int columnDataType) throws DataTypeNotFoundException {
         Boolean isQuoted = typeMappings.get(columnDataType);
         if (isQuoted == null) {
@@ -371,6 +467,12 @@ public abstract class SqlBuilder {
         }
     }
 
+    /**
+     * Wraps the criteria's filter in quotes.  If the criteria's filter is a list of items, the function assumes the list is
+     * comma separated and therefore splits on a comma (,).
+     *
+     * @param criteria
+     */
     private void wrapFilterInQuotes(Criteria criteria) {
         String[] originalFilters = criteria.filter.split(",");
         String[] newFilters = new String[originalFilters.length];
@@ -382,6 +484,14 @@ public abstract class SqlBuilder {
         criteria.filter = "(" + String.join(",", newFilters) + ")";
     }
 
+    /**
+     * Returns the SQL string of the criteria that is passed into the function.
+     *
+     * For example, it may return the string:  "AND "table1"."column1" = 'test'".
+     *
+     * @param criteria
+     * @return
+     */
     private String stringifyCriteria(Criteria criteria) {
 
         String endParenthesisString = "";
@@ -401,6 +511,46 @@ public abstract class SqlBuilder {
                 ofNullable(criteria.filter).orElse(""),
                 endParenthesisString);
 
+    }
+
+    /**
+     * Gets all table schemas for the tables included in the columns and criteria parameters.
+     * The function assumes that the columns are in the [table.column] format.
+     *
+     * @param columns
+     * @param criteria
+     */
+    private void setTableSchemas(List<String> columns, List<Criteria> criteria) {
+        MetaDataDaoImpl metaDataDao = new MetaDataDaoImpl(properties);
+
+        Map<String, Map<String, Integer>> stmtTableSchemas = new HashMap<>();
+        for (String col : columns) {
+            String[] tableAndColumn = col.split("\\.");
+            if (tableAndColumn.length != 2) {
+                throw new RuntimeException("A column needs to be in the format [table.column].  The ill-formatted column was " + col);
+            }
+            String table = tableAndColumn[0];
+            String column = tableAndColumn[1];
+            if (! stmtTableSchemas.containsKey(table)) {
+                Map<String, Integer> tableSchema = metaDataDao.getTableSchema(table, column);
+                stmtTableSchemas.put(table, tableSchema);
+            }
+        }
+
+        for (Criteria crit : criteria) {
+            String[] tableAndColumn = crit.column.split("\\.");
+            if (tableAndColumn.length != 2) {
+                throw new RuntimeException("A column needs to be in the format [table.column].  The ill-formatted column was " + crit.column);
+            }
+            String table = tableAndColumn[0];
+            String column = tableAndColumn[1];
+            if (! stmtTableSchemas.containsKey(table)) {
+                Map<String, Integer> tableSchema = metaDataDao.getTableSchema(table, column);
+                stmtTableSchemas.put(table, tableSchema);
+            }
+        }
+
+        this.tableSchemas = stmtTableSchemas;
     }
 
 }

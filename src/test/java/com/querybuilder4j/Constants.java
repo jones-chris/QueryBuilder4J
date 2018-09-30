@@ -11,12 +11,12 @@ public class Constants {
     public static final Map<DatabaseType, Properties> dbProperties = new HashMap<DatabaseType, Properties>() {
         {
             Properties postgresqlProps = new Properties();
-//            postgresqlProps.setProperty("url", "jdbc:postgresql://localhost:5432/postgres");
-//            postgresqlProps.setProperty("username", "postgres");
-//            postgresqlProps.setProperty("password", "budgeto");
-//            postgresqlProps.setProperty("driverClass", "org.postgresql.Driver");
-//            postgresqlProps.setProperty("databaseType", "PostgreSQL");
-//            put(DatabaseType.PostgreSQL, postgresqlProps);
+            postgresqlProps.setProperty("url", "jdbc:postgresql://localhost:5432/postgres");
+            postgresqlProps.setProperty("username", "postgres");
+            postgresqlProps.setProperty("password", "budgeto");
+            postgresqlProps.setProperty("driverClass", "org.postgresql.Driver");
+            postgresqlProps.setProperty("databaseType", "PostgreSQL");
+            put(DatabaseType.PostgreSQL, postgresqlProps);
 //
 //            Properties mysqlProps = new Properties();
 //            mysqlProps.setProperty("url", "jdbc:mysql://localhost:3306/sys");

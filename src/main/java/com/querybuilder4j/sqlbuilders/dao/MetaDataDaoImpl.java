@@ -12,8 +12,6 @@ public class MetaDataDaoImpl {
     private Properties properties;
 
 
-    public MetaDataDaoImpl() {}
-
     public MetaDataDaoImpl(Properties properties) {
         this.properties = properties;
     }

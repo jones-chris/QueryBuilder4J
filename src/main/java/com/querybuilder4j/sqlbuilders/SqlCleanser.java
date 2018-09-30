@@ -2,7 +2,6 @@ package com.querybuilder4j.sqlbuilders;
 
 
 import com.querybuilder4j.config.Parenthesis;
-import com.querybuilder4j.exceptions.BadSqlException;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 
 import java.util.regex.Matcher;
@@ -77,26 +76,7 @@ public class SqlCleanser {
 
     }
 
-    //TODO:  is this necessary?  The parameter is an enum, Operator.  We know all Operator enum values are safe, so why are testing them here?
-//    public static boolean sqlIsClean(Operator operator) {
-//
-//        String operatorUpperCaseString = operator.toString().toUpperCase();
-//        for (String mark : forbiddenMarks) {
-//            if (operatorUpperCaseString.contains(mark)) {
-//                return false;
-//            }
-//        }
-//
-//        for (String keyword : ansiKeywords) {
-//            if (operatorUpperCaseString.contains(keyword)) {
-//                return false;
-//            }
-//        }
-//
-//        return true;
-//    }
-
-    public static boolean sqlIsClean(Criteria criteria) throws BadSqlException {
+    public static boolean sqlIsClean(Criteria criteria) throws IllegalArgumentException {
 
         boolean conjunctionIsClean = true;
         if (criteria.getConjunction() != null) {
@@ -111,6 +91,10 @@ public class SqlCleanser {
         boolean columnIsClean = true;
         if (criteria.getColumn() != null) {
             String[] tableAndColumn = criteria.column.split("\\.");
+            if (tableAndColumn.length != 2) {
+                throw new IllegalArgumentException("A criteria's column field needs to be in the format of [table.column].  " +
+                        "Here is the criteria object that failed:  " + criteria);
+            }
             final int TABLE_INDEX = 0;
             final int COLUMN_INDEX = 1;
             columnIsClean = sqlIsClean(tableAndColumn[TABLE_INDEX]) &&
