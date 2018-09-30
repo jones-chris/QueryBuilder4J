@@ -12,10 +12,7 @@ import com.querybuilder4j.sqlbuilders.statements.*;
 import com.querybuilder4j.sqlbuilders.dao.*;
 
 import java.sql.Types;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.escape;
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.sqlIsClean;
@@ -30,7 +27,6 @@ public abstract class SqlBuilder {
     protected SelectStatement stmt;
     protected final int TABLE_INDEX = 0;
     protected final int COLUMN_INDEX = 1;
-    private final String BAD_SQL_EXCEPTION_MESSAGE = "%s failed to be clean SQL";
 
     static {
         typeMappings.put(Types.ARRAY, true);                     //ARRAY
@@ -79,6 +75,18 @@ public abstract class SqlBuilder {
         this.stmt = stmt;
         this.properties = properties;
         setTableSchemas(stmt.getColumns(), stmt.getCriteria());
+
+        // Test that the columns in the stmt's columns and criteria fields can be found in the target database.
+        String exceptionMessage = "One of the columns in either the SelectStatement's columns or criteria fields is " +
+                "either is not in the correct [table.column] format or a column's table name or column name could not be " +
+                "found in the database.";
+        if (! statementColumnsAreLegit(stmt.getColumns())) throw new RuntimeException(exceptionMessage);
+
+        if (stmt.getCriteria().size() > 0) {
+            List<String> criteriaColumns = new ArrayList<>();
+            stmt.getCriteria().forEach(crit -> criteriaColumns.add(crit.column));
+            if (! statementColumnsAreLegit(criteriaColumns)) throw new RuntimeException(exceptionMessage);
+        }
     }
 
     public abstract String buildSql(SelectStatement query) throws Exception;
@@ -98,26 +106,6 @@ public abstract class SqlBuilder {
         if (columns == null) throw new IllegalArgumentException("Columns parameter is null");
 
         if (columns.size() == 0) throw new EmptyCollectionException("Columns parameter is empty");
-
-        boolean tableIsLegit = true;
-        boolean columnIsLegit = true;
-        for (String column : columns) {
-            String[] tableAndColumn = column.split("\\.");
-            if (tableAndColumn.length != 2) {
-                throw new EmptyCollectionException(String.format("The column, %s, needs to be in the format [table.column]", column));
-            }
-
-            tableIsLegit = tableSchemas.containsKey(tableAndColumn[TABLE_INDEX]);
-            if (! tableIsLegit) {
-                columnIsLegit = false;
-            } else {
-                columnIsLegit = tableSchemas.get(tableAndColumn[TABLE_INDEX]).containsKey(tableAndColumn[COLUMN_INDEX]);
-            }
-
-            if (! tableIsLegit || ! columnIsLegit) {
-                throw new BadSqlException(column + " failed to be clean SQL");
-            }
-        }
 
         String startSql = (distinct) ? "SELECT DISTINCT " : "SELECT ";
         StringBuilder sql = new StringBuilder(startSql);
@@ -158,7 +146,6 @@ public abstract class SqlBuilder {
      * @throws IllegalArgumentException
      */
     protected StringBuilder createJoinClause(List<Join> joins) throws IllegalArgumentException {
-
         if (joins == null) throw new IllegalArgumentException("joins parameter is null");
 
         if (joins.size() == 0) return null;
@@ -191,7 +178,6 @@ public abstract class SqlBuilder {
         }
 
         return sb;
-
     }
 
     /**
@@ -202,27 +188,21 @@ public abstract class SqlBuilder {
      * @throws Exception
      */
     protected StringBuilder createWhereClause(List<Criteria> criteria) throws Exception {
-
         if (criteria == null) throw new IllegalArgumentException("The criteria parameter is null");
-
-//        boolean criteriaAreClean = true;
-//        for (Criteria crit : criteria) {
-//            criteriaAreClean = sqlIsClean(crit);
-//            if (! criteriaAreClean) throw new BadSqlException(crit + " failed to be clean SQL");
-//        }
 
         if (criteria.size() == 0) {
             return null;
         } else {
             StringBuilder sql = new StringBuilder(" WHERE ");
+            final String BAD_SQL_EXCEPTION_MESSAGE = "%s failed to be clean SQL";
 
             for (Criteria crit : criteria) {
-                if (! sqlIsClean(crit)) throw new BadSqlException(crit + " failed to be clean SQL");
+                if (! sqlIsClean(crit)) throw new BadSqlException(String.format(BAD_SQL_EXCEPTION_MESSAGE, crit));
 
                 // clone criteria
                 try {
                     Criteria criteriaClone = (Criteria) crit.clone();
-                    if (! criteriaClone.isValid()) throw new BadSqlException(String.format("The criteria in position %d is not valid"));
+                    if (! criteriaClone.isValid()) throw new BadSqlException(String.format("A criteria is not valid"));
 
                     if (criteriaClone.getId() == 0) criteriaClone.conjunction = null;
 
@@ -275,7 +255,6 @@ public abstract class SqlBuilder {
             }
             return sql;
         }
-
     }
 
     /**
@@ -361,11 +340,11 @@ public abstract class SqlBuilder {
     protected StringBuilder createLimitClause(Long limit) throws IllegalArgumentException, BadSqlException {
         if (! sqlIsClean(limit.toString())) throw new BadSqlException(limit.toString() + " failed to be clean SQL");
 
-        if (limit == null) {
-            throw new IllegalArgumentException("The limit parameter is null");
-        } else {
+//        if (limit == null) {
+//            throw new IllegalArgumentException("The limit parameter is null");
+//        } else {
             return new StringBuilder(String.format(" LIMIT %s ", limit));
-        }
+//        }
     }
 
     /**
@@ -379,11 +358,11 @@ public abstract class SqlBuilder {
     protected StringBuilder createOffsetClause(Long offset) throws IllegalArgumentException, BadSqlException {
         if (! sqlIsClean(offset.toString())) throw new BadSqlException(offset.toString() + " failed to be clean SQL");
 
-        if (offset == null) {
-            throw new IllegalArgumentException("The offset parameter was null");
-        } else {
+//        if (offset == null) {
+//            throw new IllegalArgumentException("The offset parameter was null");
+//        } else {
             return new StringBuilder(String.format(" OFFSET %s ", offset));
-        }
+//        }
     }
 
     /**
@@ -493,7 +472,6 @@ public abstract class SqlBuilder {
      * @return
      */
     private String stringifyCriteria(Criteria criteria) {
-
         String endParenthesisString = "";
         if (criteria.endParenthesis != null) {
             for (Parenthesis paren : criteria.endParenthesis) {
@@ -510,7 +488,6 @@ public abstract class SqlBuilder {
                 criteria.operator,
                 ofNullable(criteria.filter).orElse(""),
                 endParenthesisString);
-
     }
 
     /**
@@ -551,6 +528,35 @@ public abstract class SqlBuilder {
         }
 
         this.tableSchemas = stmtTableSchemas;
+    }
+
+    /**
+     * Tests whether each column in the columns parameter has a table and column that can be found in the target database.
+     * This method assumes that each column is in the format of [table.column].  After splitting the column on a period (.),
+     * the method will return false if the resulting array does not have exactly 2 elements (a table and a column).
+     *
+     * @return boolean
+     */
+    private boolean statementColumnsAreLegit(List<String> columns) {
+        boolean tableIsLegit = true;
+        boolean columnIsLegit = true;
+        for (String column : columns) {
+            String[] tableAndColumn = column.split("\\.");
+
+            // Check that the tableAndColumn variable has two elements.  The column format should be [table.column].
+            if (tableAndColumn.length != 2) return false;
+
+            // Now that we know that the tableAndColumn variable has 2 elements, test if the table and column can be found
+            // in the database.
+            tableIsLegit = tableSchemas.containsKey(tableAndColumn[TABLE_INDEX]);
+            if (! tableIsLegit) return false;
+
+            columnIsLegit = tableSchemas.get(tableAndColumn[TABLE_INDEX]).containsKey(tableAndColumn[COLUMN_INDEX]);
+            if (! columnIsLegit) return false;
+
+        }
+
+        return true;
     }
 
 }
