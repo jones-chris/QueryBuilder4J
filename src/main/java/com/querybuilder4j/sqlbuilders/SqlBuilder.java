@@ -11,6 +11,7 @@ import com.querybuilder4j.exceptions.EmptyCollectionException;
 import com.querybuilder4j.sqlbuilders.statements.*;
 import com.querybuilder4j.sqlbuilders.dao.*;
 
+import java.sql.SQLType;
 import java.sql.Types;
 import java.util.*;
 
@@ -37,7 +38,7 @@ public abstract class SqlBuilder {
         typeMappings.put(Types.BOOLEAN, false);                  //BOOLEAN
         typeMappings.put(Types.CHAR, true);                      //CHAR
         typeMappings.put(Types.CLOB, true);                      //CLOB
-        typeMappings.put(Types.DATALINK, false);                 //DATALINK
+        //typeMappings.put(Types.DATALINK, false);                 //DATALINK
         typeMappings.put(Types.DATE, true);                      //DATE
         typeMappings.put(Types.DECIMAL, true);                   //DECIMAL
         typeMappings.put(Types.DISTINCT, true);                  //DISTINCT
@@ -229,11 +230,15 @@ public abstract class SqlBuilder {
 //                        }
 
                     String[] tableAndColumn = criteriaClone.column.split("\\.");
-                    boolean shouldHaveQuotes = isColumnQuoted(getColumnDataType(tableAndColumn[0], tableAndColumn[1]));
+                    int columnDataType = getColumnDataType(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
+                    boolean shouldHaveQuotes = isColumnQuoted(columnDataType);
                     if (criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) {
                         if (shouldHaveQuotes) {
                             wrapFilterInQuotes(criteriaClone);
                         } else {
+                            if (! canParseNonQuotedFilter(criteriaClone.filter, columnDataType)) {
+                                throw new BadSqlException(String.format(BAD_SQL_EXCEPTION_MESSAGE, criteriaClone));
+                            }
                             criteriaClone.filter = "(" + escape(criteriaClone.filter) + ")";
                         }
 
@@ -557,6 +562,47 @@ public abstract class SqlBuilder {
         }
 
         return true;
+    }
+
+    /**
+     * Tests whether a String (s) can be parsed into a numerical or boolean type successfully based on the sqlType parameter.
+     * This method is used to prevent SQL Injection on columns that would not be wrapped in single quotes in the WHERE clause
+     * of the SQL statement.  For example:
+     *
+     *     SELECT * FROM students WHERE age > ?
+     *
+     * If the column, Age, has a database type of Integer, and I passed " '' OR 1=1 --", then the input would not be wrapped in
+     * single quotes and the SQL Injection attack would be successful.  However, if I passed the input into this method, it would
+     * not parse into an Java integer and the method would return false.
+     *
+     * Therefore, this assures is that the input String (s) is indeed numeric or boolean and is safe to not be wrapped in single
+     * quotes.
+     *
+     * @param s
+     * @param sqlType
+     * @return boolean
+     */
+    private boolean canParseNonQuotedFilter(String s, int sqlType) {
+        try {
+            if (sqlType == Types.BIGINT || sqlType == Types.DOUBLE || sqlType == Types.NUMERIC || sqlType == Types.ROWID || sqlType == Types.REAL) {
+                Double.parseDouble(s);
+                return true;
+            } else if (sqlType == Types.BIT || sqlType == Types.INTEGER || sqlType == Types.SMALLINT || sqlType == Types.TINYINT) {
+                Integer.parseInt(s);
+                return true;
+            } else if (sqlType == Types.BOOLEAN) {
+                Boolean.parseBoolean(s);
+                return true;
+            } else if (sqlType == Types.FLOAT) {
+                Float.parseFloat(s);
+                return true;
+            } else {
+                throw new RuntimeException(String.format("Did not recognize SQL Type:  %s", sqlType));
+            }
+        } catch (NumberFormatException ex) {
+            return false;
+        }
+
     }
 
 }

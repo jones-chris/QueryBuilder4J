@@ -306,6 +306,7 @@ public class SelectStatement {
 
     public String toSql(Properties properties) {
         try {
+            databaseType = Enum.valueOf(DatabaseType.class, properties.getProperty("databaseType"));
             Collections.sort(this.criteria);
             clearParenthesisFromCriteria();
             addParenthesisToCriteria();
