@@ -2,32 +2,18 @@ package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 
+import java.util.Properties;
+
 public class OracleSqlBuilder extends SqlBuilder {
 
-    public OracleSqlBuilder() {
+    public OracleSqlBuilder(SelectStatement stmt, Properties properties) {
+        super(stmt, properties);
         beginningDelimiter = '"';
         endingDelimter = '"';
-
-//        typeMappings.put("integer", false);
-//        typeMappings.put("float", false);
-//        typeMappings.put("unsigned integer", false);
-//        typeMappings.put("number", false);
-//        typeMappings.put("char", true);
-//        typeMappings.put("long", false);
-//        typeMappings.put("nchar", true);
-//        typeMappings.put("nvarchar2", true);
-//        typeMappings.put("varchar2", true);
-//        typeMappings.put("date", true);
-//        typeMappings.put("timestamp", true);
-//        typeMappings.put("timestamp with local time zone", true);
-//        typeMappings.put("timestamp with time zone", true);
-//        typeMappings.put("interval year to month", true);
-//        typeMappings.put("interval day to second", true);
     }
 
     @Override
     public String buildSql(SelectStatement query) throws Exception {
-        tableSchema = query.getTableSchema();
 
         try {
             StringBuilder sql = new StringBuilder("");

@@ -6,9 +6,6 @@ import com.querybuilder4j.config.Operator;
 import com.querybuilder4j.config.Parenthesis;
 import com.sun.istack.internal.NotNull;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +27,6 @@ import static java.util.Optional.ofNullable;
 // search if criteria id is a parentid, if true, add beginning parethesis.
 // if this index in set == last indexOf criteria with same parentId, then set end parenthesis.
 
-
-
 // rule:  if parent id is different from parent id BEFORE it, then set front parenthesis
 // rule:  if parent id is different from parent id AFTER it, then set end parenthesis
 
@@ -42,8 +37,6 @@ import static java.util.Optional.ofNullable;
 // loop through each criteria (using index)
         // find first index of parent
 
-@XmlType(namespace = "Criteria")
-@XmlRootElement(namespace = "Criteria")
 public class Criteria implements Cloneable, Comparable {
     @NotNull
     private Integer id;
@@ -136,19 +129,35 @@ public class Criteria implements Cloneable, Comparable {
 
     @Override
     public String toString() throws IllegalArgumentException {
+//        String endParenthesisString = "";
+//        if (endParenthesis != null) {
+//            for (Parenthesis paren : endParenthesis) {
+//                endParenthesisString += paren;
+//            }
+//        }
+//
+//        return String.format(" %s %s%s %s %s%s ", ofNullable(conjunction).orElse(Conjunction.Empty),
+//                                                  ofNullable(frontParenthesis).orElse(Parenthesis.Empty),
+//                                                  column,
+//                                                  operator,
+//                                                  ofNullable(filter).orElse(""),
+//                                                  endParenthesisString);
+        StringBuilder sb = new StringBuilder();
+        sb.append("Conjunction:  ").append(ofNullable(conjunction).orElse(Conjunction.Empty));
+        sb.append("Front Parenthesis:  ").append(ofNullable(frontParenthesis).orElse(Parenthesis.Empty));
+        sb.append("Column:  ").append(column);
+        sb.append("Operator:  ").append(operator);
+        sb.append("Filer:  ").append(ofNullable(filter).orElse(""));
+
         String endParenthesisString = "";
         if (endParenthesis != null) {
             for (Parenthesis paren : endParenthesis) {
                 endParenthesisString += paren;
             }
         }
+        sb.append("End Parenthesis:  ").append(endParenthesisString);
 
-        return String.format(" %s %s%s %s %s%s ", ofNullable(conjunction).orElse(Conjunction.Empty),
-                                                  ofNullable(frontParenthesis).orElse(Parenthesis.Empty),
-                                                  column,
-                                                  operator,
-                                                  ofNullable(filter).orElse(""),
-                                                  endParenthesisString);
+        return sb.toString();
     }
 
 

@@ -76,31 +76,36 @@ public class SqlCleanser {
 
     }
 
-    //TODO:  is this necessary?  The parameter is an enum, Operator.  We know all Operator enum values are safe, so why are testing them here?
-//    public static boolean sqlIsClean(Operator operator) {
-//
-//        String operatorUpperCaseString = operator.toString().toUpperCase();
-//        for (String mark : forbiddenMarks) {
-//            if (operatorUpperCaseString.contains(mark)) {
-//                return false;
-//            }
-//        }
-//
-//        for (String keyword : ansiKeywords) {
-//            if (operatorUpperCaseString.contains(keyword)) {
-//                return false;
-//            }
-//        }
-//
-//        return true;
-//    }
+    public static boolean sqlIsClean(Criteria criteria) throws IllegalArgumentException {
 
-    public static boolean sqlIsClean(Criteria criteria) {
-        boolean conjunctionIsClean = sqlIsClean(criteria.getConjunction().toString());
-        boolean frontParenIsClean = sqlIsClean(criteria.getFrontParenthesis().toString());
-        boolean columnIsClean = sqlIsClean(criteria.getColumn());
-        //boolean operatorIsClean = sqlIsClean(criteria.getOperator());
-        boolean filterIsClean = sqlIsClean(criteria.getFilter());
+        boolean conjunctionIsClean = true;
+        if (criteria.getConjunction() != null) {
+           conjunctionIsClean = sqlIsClean(criteria.getConjunction().toString());
+        }
+
+        boolean frontParenIsClean = true;
+        if (criteria.getFrontParenthesis() != null) {
+           frontParenIsClean = sqlIsClean(criteria.getFrontParenthesis().toString());
+        }
+
+        boolean columnIsClean = true;
+        if (criteria.getColumn() != null) {
+            String[] tableAndColumn = criteria.column.split("\\.");
+            if (tableAndColumn.length != 2) {
+                throw new IllegalArgumentException("A criteria's column field needs to be in the format of [table.column].  " +
+                        "Here is the criteria object that failed:  " + criteria);
+            }
+            final int TABLE_INDEX = 0;
+            final int COLUMN_INDEX = 1;
+            columnIsClean = sqlIsClean(tableAndColumn[TABLE_INDEX]) &&
+                            sqlIsClean(tableAndColumn[COLUMN_INDEX]);
+        }
+
+        boolean filterIsClean = true;
+        if (criteria.getFilter() != null) {
+            filterIsClean = sqlIsClean(criteria.getFilter());
+        }
+
         boolean endParenIsClean = true;
         for (Parenthesis paren : criteria.getEndParenthesis()) {
             endParenIsClean = sqlIsClean(paren.toString());

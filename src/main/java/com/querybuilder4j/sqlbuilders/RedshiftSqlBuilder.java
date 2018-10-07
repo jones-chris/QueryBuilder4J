@@ -2,9 +2,12 @@ package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 
+import java.util.Properties;
+
 public class RedshiftSqlBuilder extends SqlBuilder {
 
-    public RedshiftSqlBuilder() {
+    public RedshiftSqlBuilder(SelectStatement stmt, Properties properties) {
+        super(stmt, properties);
         beginningDelimiter = '"';
         endingDelimter = '"';
 
@@ -27,7 +30,7 @@ public class RedshiftSqlBuilder extends SqlBuilder {
 
     @Override
     public String buildSql(SelectStatement query) throws Exception {
-        tableSchema = query.getTableSchema();
+//        tableSchema = query.getTableSchema();
 
         try {
             StringBuilder sql = new StringBuilder("");

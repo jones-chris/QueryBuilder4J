@@ -27,7 +27,7 @@ public class Constants {
             put(DatabaseType.MySql, mysqlProps);
 
             Properties sqliteProps = new Properties();
-            sqliteProps.setProperty("url", "jdbc:sqlite:C:/novena/db_setup/novena-dev.db");
+            sqliteProps.setProperty("url", "jdbc:sqlite:C:/Users/Public/Repos/tests/QueryBuilder4JMVC/QueryBuilder4JMVC/data/querybuilder4j.db");
             sqliteProps.setProperty("driverClass", "org.sqlite.JDBC");
             sqliteProps.setProperty("databaseType", "Sqlite");
             put(DatabaseType.Sqlite, sqliteProps);
