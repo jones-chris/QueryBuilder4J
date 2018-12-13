@@ -72,6 +72,7 @@ public class SqlBuilderTest {
 
     }
 
+
     @Test
     public void runDynamicStatementTests() throws Exception {
         Set<DatabaseType> keys = Constants.dbProperties.keySet();
