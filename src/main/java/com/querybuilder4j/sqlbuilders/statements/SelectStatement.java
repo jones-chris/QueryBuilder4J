@@ -2,8 +2,11 @@ package com.querybuilder4j.sqlbuilders.statements;
 
 
 import com.querybuilder4j.config.DatabaseType;
+import com.querybuilder4j.config.Operator;
 import com.querybuilder4j.config.Parenthesis;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import java.util.*;
 
@@ -315,6 +318,33 @@ public class SelectStatement {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    public SqlParameterSource getSqlParameterMap() {
+        int namedParameterCount = 0;
+        MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+
+        for (Criteria crit : criteria) {
+            if (crit.operator.equals(Operator.isNull) || crit.operator.equals(Operator.isNotNull)) {
+                namedParameterCount++;
+                continue;
+            }
+
+            if (crit.operator.equals(Operator.in) || crit.operator.equals(Operator.notIn)) {
+                String[] filters = crit.filter.split(",");
+                for (String filter : filters) {
+                    String paramName = "filter" + namedParameterCount;
+                    namedParameters.addValue(paramName, filter);
+                    namedParameterCount++;
+                }
+            } else {
+                String paramName = "filter" + namedParameterCount;
+                namedParameters.addValue(paramName, crit.filter);
+                namedParameterCount++;
+            }
+        }
+
+        return namedParameters;
     }
 
     @Override

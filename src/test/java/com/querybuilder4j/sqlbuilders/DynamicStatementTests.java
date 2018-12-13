@@ -18,7 +18,7 @@ public class DynamicStatementTests {
     private List<String> randomColumns = new ArrayList<>();
     private List<String> randomTables = new ArrayList<>();
     private List<Criteria> randomCriteria = new ArrayList<>();
-    private static final int NUMBER_OF_SQL_STATEMENTS = 150;
+    private static final int NUMBER_OF_SQL_STATEMENTS = 50;
 
 
     public DynamicStatementTests(DatabaseType databaseType, Properties properties) {
@@ -200,7 +200,7 @@ public class DynamicStatementTests {
         criteriaLike.conjunction = And;
         criteriaLike.column = "county_spending_detail.service";
         criteriaLike.operator = like;
-        criteriaLike.filter = "General Government";
+        criteriaLike.filter = "General%";
 
         //not like
         Criteria criteriaNotLike = new Criteria(7);
@@ -208,7 +208,7 @@ public class DynamicStatementTests {
         criteriaNotLike.conjunction = And;
         criteriaNotLike.column = "county_spending_detail.service";
         criteriaNotLike.operator = notLike;
-        criteriaNotLike.filter = "General Government";
+        criteriaNotLike.filter = "%Government";
 
         //in
         Criteria criteriaIn = new Criteria(8);

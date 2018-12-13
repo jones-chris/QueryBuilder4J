@@ -28,6 +28,7 @@ public abstract class SqlBuilder {
     protected SelectStatement stmt;
     protected final int TABLE_INDEX = 0;
     protected final int COLUMN_INDEX = 1;
+    protected int namedParameterCount = 0;
 
     static {
         typeMappings.put(Types.ARRAY, true);                     //ARRAY
@@ -485,14 +486,44 @@ public abstract class SqlBuilder {
         }
 
         String[] tableAndColumn = criteria.column.split("\\.");
-        return String.format(" %s %s%s%s%s.%s%s%s %s %s%s ",
-                ofNullable(criteria.conjunction).orElse(Conjunction.Empty),
-                ofNullable(criteria.frontParenthesis).orElse(Parenthesis.Empty),
-                beginningDelimiter, escape(tableAndColumn[0]), endingDelimter,
-                beginningDelimiter, escape(tableAndColumn[1]), endingDelimter,
-                criteria.operator,
-                ofNullable(criteria.filter).orElse(""),
-                endParenthesisString);
+        //if operator is IN or NOT IN
+        if (criteria.operator.equals(Operator.in) || criteria.operator.equals(Operator.notIn)) {
+            // This is the format of the criteria:  " %s %s%s%s%s.%s%s%s %s %s%s "
+            StringBuilder sb = new StringBuilder();
+            sb.append(" ").append(ofNullable(criteria.conjunction).orElse(Conjunction.Empty)).append(" ");
+            sb.append(" ").append(ofNullable(criteria.frontParenthesis).orElse(Parenthesis.Empty)).append(" ");
+            sb.append(beginningDelimiter).append(escape(tableAndColumn[0])).append(endingDelimter).append(".");
+            sb.append(beginningDelimiter).append(escape(tableAndColumn[1])).append(endingDelimter);
+            sb.append(" ").append(criteria.operator).append(" ("); // Opening parenthesis begins the IN or NOT IN list.
+
+            String[] filters = criteria.filter.split(",");
+            for (String filter : filters) {
+                sb.append(":").append("filter").append(namedParameterCount).append(",");
+                namedParameterCount++;
+            }
+            // Remove trailing comma.
+            sb.deleteCharAt(sb.length()-1);
+            sb.append(")"); // Ends the IN or NOT IN list.
+            sb.append(endParenthesisString);
+
+            return sb.toString();
+        } else {
+            String filterNamedParameter = (criteria.operator.equals(Operator.isNull) || criteria.operator.equals(Operator.isNotNull)) ? "" : ":filter" + namedParameterCount;
+
+            String s = String.format(" %s %s%s%s%s.%s%s%s %s %s%s ",
+                       ofNullable(criteria.conjunction).orElse(Conjunction.Empty),
+                       ofNullable(criteria.frontParenthesis).orElse(Parenthesis.Empty),
+                       beginningDelimiter, escape(tableAndColumn[0]), endingDelimter,
+                       beginningDelimiter, escape(tableAndColumn[1]), endingDelimter,
+                       criteria.operator,
+                       filterNamedParameter,
+                       //":filter" + namedParameterCount,
+                       //ofNullable(criteria.filter).orElse(""),
+                       endParenthesisString);
+
+            namedParameterCount++;
+            return s;
+        }
     }
 
     /**
