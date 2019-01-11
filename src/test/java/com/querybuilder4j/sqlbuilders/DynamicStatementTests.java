@@ -135,6 +135,8 @@ public class DynamicStatementTests {
             stmt.setLimit(limit);
             stmt.setOffset(offset);
 
+            //SqlBuilder sqlBuilder = SqlBuilderFactory.buildSqlBuilder(databaseType, stmt, null, properties, null);
+            //results.put(stmt, sqlBuilder.buildSql(stmt));
             results.put(stmt, stmt.toSql(properties));
         }
 

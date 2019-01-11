@@ -78,42 +78,45 @@ public class SqlCleanser {
 
     public static boolean sqlIsClean(Criteria criteria) throws IllegalArgumentException {
 
-        boolean conjunctionIsClean = true;
-        if (criteria.getConjunction() != null) {
-           conjunctionIsClean = sqlIsClean(criteria.getConjunction().toString());
-        }
-
-        boolean frontParenIsClean = true;
-        if (criteria.getFrontParenthesis() != null) {
-           frontParenIsClean = sqlIsClean(criteria.getFrontParenthesis().toString());
-        }
-
-        boolean columnIsClean = true;
-        if (criteria.getColumn() != null) {
-            String[] tableAndColumn = criteria.column.split("\\.");
-            if (tableAndColumn.length != 2) {
-                throw new IllegalArgumentException("A criteria's column field needs to be in the format of [table.column].  " +
-                        "Here is the criteria object that failed:  " + criteria);
-            }
-            final int TABLE_INDEX = 0;
-            final int COLUMN_INDEX = 1;
-            columnIsClean = sqlIsClean(tableAndColumn[TABLE_INDEX]) &&
-                            sqlIsClean(tableAndColumn[COLUMN_INDEX]);
-        }
+//        boolean conjunctionIsClean = true;
+//        if (criteria.getConjunction() != null) {
+//           conjunctionIsClean = sqlIsClean(criteria.getConjunction().toString());
+//        }
+//
+//        boolean frontParenIsClean = true;
+//        if (criteria.getFrontParenthesis() != null) {
+//           frontParenIsClean = sqlIsClean(criteria.getFrontParenthesis().toString());
+//        }
+//
+//        boolean columnIsClean = true;
+//        if (criteria.getColumn() != null) {
+//            String[] tableAndColumn = criteria.column.split("\\.");
+//            if (tableAndColumn.length != 2) {
+//                throw new IllegalArgumentException("A criteria's column field needs to be in the format of [table.column].  " +
+//                        "Here is the criteria object that failed:  " + criteria);
+//            }
+//            final int TABLE_INDEX = 0;
+//            final int COLUMN_INDEX = 1;
+//            columnIsClean = sqlIsClean(tableAndColumn[TABLE_INDEX]) &&
+//                            sqlIsClean(tableAndColumn[COLUMN_INDEX]);
+//        }
 
         boolean filterIsClean = true;
         if (criteria.getFilter() != null) {
-            filterIsClean = sqlIsClean(criteria.getFilter());
-        }
-
-        boolean endParenIsClean = true;
-        for (Parenthesis paren : criteria.getEndParenthesis()) {
-            endParenIsClean = sqlIsClean(paren.toString());
-            if (! endParenIsClean) {
-                break;
+            if (criteria.getFilter() instanceof String) {
+                filterIsClean = sqlIsClean(criteria.getFilter().toString());
             }
         }
 
-        return conjunctionIsClean && frontParenIsClean && columnIsClean  && filterIsClean && endParenIsClean;
+//        boolean endParenIsClean = true;
+//        for (Parenthesis paren : criteria.getEndParenthesis()) {
+//            endParenIsClean = sqlIsClean(paren.toString());
+//            if (! endParenIsClean) {
+//                break;
+//            }
+//        }
+
+        //return conjunctionIsClean && frontParenIsClean && columnIsClean  && filterIsClean && endParenIsClean;
+        return filterIsClean;
     }
 }

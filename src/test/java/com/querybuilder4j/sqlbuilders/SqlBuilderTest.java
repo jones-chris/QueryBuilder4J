@@ -4,14 +4,9 @@ import com.querybuilder4j.Constants;
 import com.querybuilder4j.TestUtils;
 import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
-import com.querybuilder4j.utils.JSONRowMapper;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -76,6 +71,7 @@ public class SqlBuilderTest {
     @Test
     public void runDynamicStatementTests() throws Exception {
         Set<DatabaseType> keys = Constants.dbProperties.keySet();
+        String propertyFile = System.getProperty("testProperties");
         for (DatabaseType dbType : keys) {
             Properties props = Constants.dbProperties.get(dbType);
 
@@ -88,13 +84,13 @@ public class SqlBuilderTest {
                 try (Connection conn = TestUtils.getConnection(props);
                      Statement stmt = conn.createStatement()) {
 
-                    String parameterizedSql = selectStatement.toSql(props);
-                    SqlParameterSource namedParameters = selectStatement.getSqlParameterMap();
-                    NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(TestUtils.getDataSource(props));
-                    List<JSONObject> results = jdbcTemplate.query(parameterizedSql, namedParameters, new JSONRowMapper());
-                    JSONArray jsonArray = new JSONArray();
-                    results.forEach((jsonObject -> jsonArray.put(jsonObject)));
-                    //stmt.executeQuery();
+                    String sql = selectStatement.toSql(props);
+                    //SqlParameterSource namedParameters = selectStatement.getSqlParameterMap();
+                    //NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(TestUtils.getDataSource(props));
+                    //List<JSONObject> results = jdbcTemplate.query(parameterizedSql, namedParameters, new JSONRowMapper());
+                    //JSONArray jsonArray = new JSONArray();
+                    //results.forEach((jsonObject -> jsonArray.put(jsonObject)));
+                    stmt.executeQuery(sql);
                     assertTrue(true);
                 } catch (Exception ex) {
                     System.out.println("Select Statement Object:  ");

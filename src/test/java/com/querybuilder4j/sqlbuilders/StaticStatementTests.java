@@ -3,6 +3,7 @@ package com.querybuilder4j.sqlbuilders;
 import com.querybuilder4j.Constants;
 import com.querybuilder4j.TestUtils;
 import com.querybuilder4j.config.DatabaseType;
+import com.querybuilder4j.config.SqlBuilderFactory;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 import com.querybuilder4j.utils.ResultSetToHashMapConverter;
@@ -119,7 +120,11 @@ public class StaticStatementTests {
 
         HashMap<Object, Object> results = new HashMap<>();
         results.put("stmt", stmt);
-        results.put("sql", stmt.toSql(new Properties())); //TODO:  FIX THIS...PASS IN ACTUAL PROPERTIES FILE.
+
+        //TODO:  FIX THIS...PASS IN ACTUAL PROPERTIES FILE.
+        //SqlBuilder sqlBuilder = SqlBuilderFactory.buildSqlBuilder(DatabaseType.PostgreSQL, stmt, null, null, null);
+        //sqlBuilder.buildSql(stmt);
+        results.put("sql", stmt.toSql(new Properties()));
         return results;
     }
 

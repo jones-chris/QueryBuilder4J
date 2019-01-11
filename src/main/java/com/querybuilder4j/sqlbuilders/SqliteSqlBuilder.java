@@ -1,68 +1,67 @@
 package com.querybuilder4j.sqlbuilders;
 
 
+import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 
+import java.util.Map;
 import java.util.Properties;
 
 public class SqliteSqlBuilder extends SqlBuilder {
 
-    public SqliteSqlBuilder(SelectStatement stmt, Properties properties) {
-        super(stmt, properties);
+    public SqliteSqlBuilder(SelectStatement stmt, Map<String, String> subQueries,
+                            Properties properties, QueryTemplateDao queryTemplateDao) throws Exception {
+        super(stmt, subQueries, properties, queryTemplateDao);
         beginningDelimiter = '"';
         endingDelimter = '"';
     }
 
     @Override
-    public String buildSql(SelectStatement query) throws Exception {
-
-        //tableSchemas = query.getTableSchemas();
-
+    public String buildSql() throws Exception {
         StringBuilder sql = new StringBuilder("");
 
         // Select
-        StringBuilder select = createSelectClause(query.isDistinct(), query.getColumns());
+        StringBuilder select = createSelectClause(stmt.isDistinct(), stmt.getColumns());
         if (select != null)
             sql.append(select);
 
         // From
-        StringBuilder from = createFromClause(query.getTable());
+        StringBuilder from = createFromClause(stmt.getTable());
         if (from != null)
             sql.append(from);
 
         // Joins
-        StringBuilder joins = createJoinClause(query.getJoins());
+        StringBuilder joins = createJoinClause(stmt.getJoins());
         if (joins != null)
             sql.append(joins);
 
         // Where
-        StringBuilder where = createWhereClause(query.getCriteria());
+        StringBuilder where = createWhereClause(stmt.getCriteria());
         if (where != null)
             sql.append(where);
 
         // Suppress Null (part of Where clause)
-        if (query.isSuppressNulls()) {
+        if (stmt.isSuppressNulls()) {
             if (sql.toString().contains(" WHERE ")) {
-                sql.append(" AND ").append(createSuppressNullsClause(query.getColumns()));
+                sql.append(" AND ").append(createSuppressNullsClause(stmt.getColumns()));
             } else {
-                sql.append(" WHERE ").append(createSuppressNullsClause(query.getColumns()));
+                sql.append(" WHERE ").append(createSuppressNullsClause(stmt.getColumns()));
             }
         }
 
         // Group By
-        if (query.isGroupBy()) sql.append(createGroupByClause(query.getColumns()));
+        if (stmt.isGroupBy()) sql.append(createGroupByClause(stmt.getColumns()));
 
         // Order By
-        if (query.isOrderBy()) sql.append(createOrderByClause(query.getColumns(), query.isAscending()));
+        if (stmt.isOrderBy()) sql.append(createOrderByClause(stmt.getColumns(), stmt.isAscending()));
 
         // Limit
-        sql.append(createLimitClause(query.getLimit()));
+        sql.append(createLimitClause(stmt.getLimit()));
 
         // Offset
-        sql.append(createOffsetClause(query.getOffset()));
+        sql.append(createOffsetClause(stmt.getOffset()));
 
         return sql.toString();
-
     }
 
 }

@@ -1,43 +1,46 @@
 package com.querybuilder4j.sqlbuilders;
 
+import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 
+import java.util.Map;
 import java.util.Properties;
 
 public class OracleSqlBuilder extends SqlBuilder {
 
-    public OracleSqlBuilder(SelectStatement stmt, Properties properties) {
-        super(stmt, properties);
+    public OracleSqlBuilder(SelectStatement stmt, Map<String, String> subQueries,
+                            Properties properties, QueryTemplateDao queryTemplateDao) throws Exception {
+        super(stmt, subQueries, properties, queryTemplateDao);
         beginningDelimiter = '"';
         endingDelimter = '"';
     }
 
     @Override
-    public String buildSql(SelectStatement query) throws Exception {
+    public String buildSql() throws Exception {
 
         try {
             StringBuilder sql = new StringBuilder("");
-            sql.append(createSelectClause(query.isDistinct(), query.getColumns()));
-            sql.append(createFromClause(query.getTable()));
-            sql.append(createWhereClause(query.getCriteria()));
+            sql.append(createSelectClause(stmt.isDistinct(), stmt.getColumns()));
+            sql.append(createFromClause(stmt.getTable()));
+            sql.append(createWhereClause(stmt.getCriteria()));
 
-            if (query.isSuppressNulls()) {
+            if (stmt.isSuppressNulls()) {
                 if (sql.toString().contains(" WHERE ")) {
-                    sql.append(" AND ").append(createSuppressNullsClause(query.getColumns()));
+                    sql.append(" AND ").append(createSuppressNullsClause(stmt.getColumns()));
                 } else {
-                    sql.append(" WHERE ").append(createSuppressNullsClause(query.getColumns()));
+                    sql.append(" WHERE ").append(createSuppressNullsClause(stmt.getColumns()));
                 }
             }
 
             if (sql.toString().contains(" WHERE ")) {
-                sql.append(" AND ").append(createLimitClause(query.getLimit()));
+                sql.append(" AND ").append(createLimitClause(stmt.getLimit()));
             } else {
-                sql.append(" WHERE ").append(createLimitClause(query.getLimit()));
+                sql.append(" WHERE ").append(createLimitClause(stmt.getLimit()));
             }
 
-            sql.append(createGroupByClause(query.getColumns()));
-            sql.append(createOrderByClause(query.getColumns(), query.isAscending()));
-            sql.append(createOffsetClause(query.getOffset()));
+            sql.append(createGroupByClause(stmt.getColumns()));
+            sql.append(createOrderByClause(stmt.getColumns(), stmt.isAscending()));
+            sql.append(createOffsetClause(stmt.getOffset()));
 
             return sql.toString();
         } catch (Exception e) {

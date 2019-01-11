@@ -70,7 +70,7 @@ public class StatementTest {
         criteria.add(criteria2);
         criteria.add(criteria3);
         criteria.add(criteria4);
-        statement.addCriteria(criteria);
+        statement.getCriteria().addAll(criteria);
 
         System.out.println(criteria);
         assertTrue(true);

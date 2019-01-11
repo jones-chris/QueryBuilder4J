@@ -1,71 +1,66 @@
 package com.querybuilder4j.sqlbuilders;
 
+import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
 import com.querybuilder4j.sqlbuilders.statements.*;
 
+import java.util.Map;
 import java.util.Properties;
 
 public class MySqlSqlBuilder extends SqlBuilder {
 
-    public MySqlSqlBuilder(SelectStatement stmt, Properties properties) {
-        super(stmt, properties);
+    public MySqlSqlBuilder(SelectStatement stmt, Map<String, String> subQueries,
+                           Properties properties, QueryTemplateDao queryTemplateDao) throws Exception {
+        super(stmt, subQueries, properties, queryTemplateDao);
         beginningDelimiter = '`';
         endingDelimter = '`';
     }
 
     @Override
-    public String buildSql(SelectStatement query) throws Exception {
+    public String buildSql() throws Exception {
+        StringBuilder sql = new StringBuilder("");
 
-        //tableSchemas = query.getTableSchemas();
+        // Select
+        StringBuilder select = createSelectClause(stmt.isDistinct(), stmt.getColumns());
+        if (select != null)
+            sql.append(select);
 
-        try {
-            StringBuilder sql = new StringBuilder("");
+        // From
+        StringBuilder from = createFromClause(stmt.getTable());
+        if (from != null)
+            sql.append(from);
 
-            // Select
-            StringBuilder select = createSelectClause(query.isDistinct(), query.getColumns());
-            if (select != null)
-                sql.append(select);
+        // Joins
+        StringBuilder joins = createJoinClause(stmt.getJoins());
+        if (joins != null)
+            sql.append(joins);
 
-            // From
-            StringBuilder from = createFromClause(query.getTable());
-            if (from != null)
-                sql.append(from);
+        // Where
+        StringBuilder where = createWhereClause(stmt.getCriteria());
+        if (where != null)
+            sql.append(where);
 
-            // Joins
-            StringBuilder joins = createJoinClause(query.getJoins());
-            if (joins != null)
-                sql.append(joins);
-
-            // Where
-            StringBuilder where = createWhereClause(query.getCriteria());
-            if (where != null)
-                sql.append(where);
-
-            // Suppress Nulls (part of Where clause)
-            if (query.isSuppressNulls()) {
-                if (sql.toString().contains(" WHERE ")) {
-                    sql.append(" AND ").append(createSuppressNullsClause(query.getColumns()));
-                } else {
-                    sql.append(" WHERE ").append(createSuppressNullsClause(query.getColumns()));
-                }
+        // Suppress Nulls (part of Where clause)
+        if (stmt.isSuppressNulls()) {
+            if (sql.toString().contains(" WHERE ")) {
+                sql.append(" AND ").append(createSuppressNullsClause(stmt.getColumns()));
+            } else {
+                sql.append(" WHERE ").append(createSuppressNullsClause(stmt.getColumns()));
             }
-
-            // Group By
-            if (query.isGroupBy()) sql.append(createGroupByClause(query.getColumns()));
-
-            // Order By
-            if (query.isOrderBy()) sql.append(createOrderByClause(query.getColumns(), query.isAscending()));
-
-            // Liimit
-            sql.append(createLimitClause(query.getLimit()));
-
-            // Offset
-            sql.append(createOffsetClause(query.getOffset()));
-
-            return sql.toString();
-
-        } catch (Exception e) {
-            throw e;
         }
+
+        // Group By
+        if (stmt.isGroupBy()) sql.append(createGroupByClause(stmt.getColumns()));
+
+        // Order By
+        if (stmt.isOrderBy()) sql.append(createOrderByClause(stmt.getColumns(), stmt.isAscending()));
+
+        // Liimit
+        sql.append(createLimitClause(stmt.getLimit()));
+
+        // Offset
+        sql.append(createOffsetClause(stmt.getOffset()));
+
+        return sql.toString();
     }
 
 }
