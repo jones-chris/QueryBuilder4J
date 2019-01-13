@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.sql.Connection;
@@ -56,7 +57,7 @@ public class SqlBuilderTest {
                     assertTrue(true);
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    assertTrue(false);
+                    fail();
                 } finally {
                     if (conn != null) {
                         conn.close();
@@ -70,13 +71,11 @@ public class SqlBuilderTest {
 
     @Test
     public void runDynamicStatementTests() throws Exception {
-        Set<DatabaseType> keys = Constants.dbProperties.keySet();
-        String propertyFile = System.getProperty("testProperties");
-        for (DatabaseType dbType : keys) {
-            Properties props = Constants.dbProperties.get(dbType);
+        Map<DatabaseType, Properties> testProperties = getTestProperties();
+        for (DatabaseType dbType : testProperties.keySet()) {
+            Properties props = testProperties.get(dbType);
 
-
-            // run SQL statement randomizer.
+            // Run SQL statement randomizer.
             DynamicStatementTests queryTests = new DynamicStatementTests(dbType, props);
             Map<SelectStatement, String> sqlMap = queryTests.buildSql_randomizer();
 
@@ -85,11 +84,6 @@ public class SqlBuilderTest {
                      Statement stmt = conn.createStatement()) {
 
                     String sql = selectStatement.toSql(props);
-                    //SqlParameterSource namedParameters = selectStatement.getSqlParameterMap();
-                    //NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(TestUtils.getDataSource(props));
-                    //List<JSONObject> results = jdbcTemplate.query(parameterizedSql, namedParameters, new JSONRowMapper());
-                    //JSONArray jsonArray = new JSONArray();
-                    //results.forEach((jsonObject -> jsonArray.put(jsonObject)));
                     stmt.executeQuery(sql);
                     assertTrue(true);
                 } catch (Exception ex) {
@@ -99,10 +93,66 @@ public class SqlBuilderTest {
                     System.out.println("SQL String:  ");
                     System.out.println(sqlMap.get(selectStatement));
                     ex.printStackTrace();
-                    assertTrue(false);
+                    fail();
                 }
             }
         }
+    }
+
+    private Map<DatabaseType, Properties> getTestProperties() throws IOException {
+        // If the 'testProperties' command line argument does not exist, then run tests using the default:  test-config.properties.
+        String testPropertiesFilePath = System.getProperty("testProperties");
+        if (testPropertiesFilePath == null) {
+            testPropertiesFilePath = "./src/test/resources/test-config.properties";
+        }
+
+        // Get all database type properties into one Properties object.
+        FileReader reader = new FileReader(testPropertiesFilePath);
+        Properties allTestProperties = new Properties();
+        allTestProperties.load(reader);
+
+        // Check that all properties have a non-null value.
+        allTestProperties.values().forEach((property) -> {
+            if (property == null) {
+                throw new NullPointerException(String.format("The property, %s, has a null value.  All properties must have a value " +
+                        "in the test properties file.", property));
+            }
+        });
+
+        // Get each database type's properties.
+        Map<DatabaseType, Properties> props = new HashMap<>();
+        Object url;
+        Object driverClass;
+        Object databaseType;
+        Object username;
+        Object password;
+
+        // Get each DatabaseType's properties if they exist in test properties file.
+        for (DatabaseType dbType : DatabaseType.values()) {
+            String dbTypeString = dbType.toString().toLowerCase();
+            Properties dbProps = new Properties();
+
+            url = allTestProperties.get(dbTypeString + ".url");
+            driverClass = allTestProperties.get(dbTypeString + ".driverClass");
+            databaseType = allTestProperties.get(dbTypeString + ".databaseType");
+            username = allTestProperties.get(dbTypeString + ".username");
+            password = allTestProperties.get(dbTypeString + ".password");
+
+            if (url != null && driverClass != null && databaseType != null) {
+                dbProps.setProperty("url", url.toString());
+                dbProps.setProperty("driverClass", driverClass.toString());
+                dbProps.setProperty("databaseType", databaseType.toString());
+
+                if (username != null && password != null) {
+                    dbProps.setProperty("username", username.toString());
+                    dbProps.setProperty("password", password.toString());
+                }
+
+                props.put(dbType, dbProps);
+            }
+        }
+
+        return props;
     }
 
 }
