@@ -1,3 +1,4 @@
 # QueryBuilder4J
+![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiYWNYVXdQWWlCWmMvWmVOL2tnTXhTZ0dEd3RvQTl5QzBaalJRYXBVMnBQdm5YY0d5RmFzR3dUajBMRlNBVGtrMVVDeG1WVWVzeVZIYytVVjlnblhQblpNPSIsIml2UGFyYW1ldGVyU3BlYyI6IkdJcGdGNTVOVHB3U0l1K3giLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
 A library for building SELECT SQL statements.
