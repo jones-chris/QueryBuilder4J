@@ -33,40 +33,40 @@ public class SqlBuilderTest {
 
     }
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void runStaticStatementTests() throws Exception {
-
-        // run each public method that returns a Map and test that generated SQL String is run against the database without errors.
-        Method[] methods = StaticStatementTests.class.getMethods();
-        for (Method method : methods) {
-            if (method.getGenericReturnType().getTypeName().equals("java.util.HashMap<java.lang.Object, java.lang.Object>") &&
-                    Modifier.isPublic(method.getModifiers()) &&
-                    method.getDeclaringClass().equals(StaticStatementTests.class)) {
-                Connection conn = null;
-                try {
-                    Map<Object, Object> results = (Map<Object, Object>) method.invoke(new StaticStatementTests(), null);
-                    DatabaseType dbType = ((SelectStatement) results.get("stmt")).getDatabaseType();
-                    Properties props = Constants.dbProperties.get(dbType);
-                    conn = TestUtils.getConnection(props);
-                    String sql = (String) results.get("sql");
-                    conn.createStatement().executeQuery(sql);
-
-                    //If this line is reached, then we know the SQL statement was accepted by the database, which is what
-                    //  we are testing.
-                    assertTrue(true);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    fail();
-                } finally {
-                    if (conn != null) {
-                        conn.close();
-                    }
-                }
-            }
-        }
-
-    }
+//    @Test
+//    @SuppressWarnings("unchecked")
+//    public void runStaticStatementTests() throws Exception {
+//
+//        // run each public method that returns a Map and test that generated SQL String is run against the database without errors.
+//        Method[] methods = StaticStatementTests.class.getMethods();
+//        for (Method method : methods) {
+//            if (method.getGenericReturnType().getTypeName().equals("java.util.HashMap<java.lang.Object, java.lang.Object>") &&
+//                    Modifier.isPublic(method.getModifiers()) &&
+//                    method.getDeclaringClass().equals(StaticStatementTests.class)) {
+//                Connection conn = null;
+//                try {
+//                    Map<Object, Object> results = (Map<Object, Object>) method.invoke(new StaticStatementTests(), null);
+//                    DatabaseType dbType = ((SelectStatement) results.get("stmt")).getDatabaseType();
+//                    Properties props = Constants.dbProperties.get(dbType);
+//                    conn = TestUtils.getConnection(props);
+//                    String sql = (String) results.get("sql");
+//                    conn.createStatement().executeQuery(sql);
+//
+//                    //If this line is reached, then we know the SQL statement was accepted by the database, which is what
+//                    //  we are testing.
+//                    assertTrue(true);
+//                } catch (Exception ex) {
+//                    ex.printStackTrace();
+//                    fail();
+//                } finally {
+//                    if (conn != null) {
+//                        conn.close();
+//                    }
+//                }
+//            }
+//        }
+//
+//    }
 
 
     @Test
@@ -114,8 +114,8 @@ public class SqlBuilderTest {
         // Check that all properties have a non-null value.
         allTestProperties.values().forEach((property) -> {
             if (property == null) {
-                throw new NullPointerException(String.format("The property, %s, has a null value.  All properties must have a value " +
-                        "in the test properties file.", property));
+                throw new NullPointerException("The property has a null value.  All properties must have a value " +
+                        "in the test properties file.  Please ensure that there are no comments in the properties file, also.");
             }
         });
 

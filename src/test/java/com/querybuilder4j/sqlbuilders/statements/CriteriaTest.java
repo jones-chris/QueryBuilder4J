@@ -96,19 +96,19 @@ public class CriteriaTest {
         assertTrue(criteria.isValid());
     }
 
-    @Test
-    public void toString_AllDataPresent() throws Exception {
-        criteria1.frontParenthesis = Parenthesis.FrontParenthesis;
-        criteria1.endParenthesis.add(Parenthesis.EndParenthesis);
-        criteria1.endParenthesis.add(Parenthesis.EndParenthesis);
-        String expected = " And (column1 = filter1)) ";
-
-        String actual = criteria1.toString();
-
-        System.out.println(expected);
-        System.out.println(actual);
-        assertTrue(charsMatch(expected, actual));
-    }
+//    @Test
+//    public void toString_AllDataPresent() throws Exception {
+//        criteria1.frontParenthesis = Parenthesis.FrontParenthesis;
+//        criteria1.endParenthesis.add(Parenthesis.EndParenthesis);
+//        criteria1.endParenthesis.add(Parenthesis.EndParenthesis);
+//        String expected = " And (column1 = filter1)) ";
+//
+//        String actual = criteria1.toString();
+//
+//        System.out.println(expected);
+//        System.out.println(actual);
+//        assertTrue(charsMatch(expected, actual));
+//    }
 
     @Test
     public void compareTo() throws Exception {
