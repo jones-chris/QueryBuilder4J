@@ -1,8 +1,11 @@
 package com.querybuilder4j.sqlbuilders;
 
-import com.querybuilder4j.Constants;
 import com.querybuilder4j.TestUtils;
+import com.querybuilder4j.config.Conjunction;
 import com.querybuilder4j.config.DatabaseType;
+import com.querybuilder4j.config.Operator;
+import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
+import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 import org.junit.After;
 import org.junit.Before;
@@ -19,13 +22,14 @@ import static org.junit.Assert.*;
 
 public class SqlBuilderTest {
     private static SqlBuilder sqlBuilder;
+    private static QueryTemplateDao queryTemplateDao = new QueryTemplateDaoImpl();
 
 
     public SqlBuilderTest() { }
 
     @Before
     public void setUp() throws Exception {
-
+        
     }
 
     @After
@@ -67,6 +71,79 @@ public class SqlBuilderTest {
 //        }
 //
 //    }
+
+    @Test
+    public void runSubQuery_noArgs() throws Exception {
+        // create root statement
+        Criteria criteria = new Criteria();
+        criteria.setId(0);
+        criteria.setConjunction(Conjunction.And);
+        criteria.setColumn("county_spending_detail.department");
+        criteria.setOperator(Operator.in);
+        criteria.setFilter("subquery0");
+        SelectStatement rootStmt = new SelectStatement(DatabaseType.Sqlite);
+        rootStmt.getColumns().add("county_spending_detail.amount");
+        rootStmt.setTable("county_spending_detail");
+        rootStmt.getCriteria().add(criteria);
+        rootStmt.getSubQueries().put("subquery0", "getDepartmentsIn2014()");
+        rootStmt.setQueryTemplateDao(queryTemplateDao);
+
+        // run toSql()
+        Properties props = getTestProperties().get(DatabaseType.Sqlite);
+        String sql = rootStmt.toSql(props);
+
+        // check that sql is generated
+        assertTrue(sql != null);
+    }
+
+    @Test
+    public void runSubQuery_oneRegularArg() throws Exception {
+        // create root statement
+        Criteria criteria = new Criteria();
+        criteria.setId(0);
+        criteria.setConjunction(Conjunction.And);
+        criteria.setColumn("county_spending_detail.department");
+        criteria.setOperator(Operator.in);
+        criteria.setFilter("subquery0");
+        SelectStatement rootStmt = new SelectStatement(DatabaseType.Sqlite);
+        rootStmt.getColumns().add("county_spending_detail.amount");
+        rootStmt.setTable("county_spending_detail");
+        rootStmt.getCriteria().add(criteria);
+        rootStmt.getSubQueries().put("subquery0", "getDepartmentsByYear(year=2014)");
+        rootStmt.setQueryTemplateDao(queryTemplateDao);
+
+        // run toSql()
+        Properties props = getTestProperties().get(DatabaseType.Sqlite);
+        String sql = rootStmt.toSql(props);
+
+        // check that sql is generated
+        assertTrue(sql != null);
+    }
+
+    @Test
+    public void runSubQuery_oneSubQueryArg() throws Exception {
+        // create root statement
+        Criteria criteria = new Criteria();
+        criteria.setId(0);
+        criteria.setConjunction(Conjunction.And);
+        criteria.setColumn("county_spending_detail.department");
+        criteria.setOperator(Operator.in);
+        criteria.setFilter("subquery0");
+        SelectStatement rootStmt = new SelectStatement(DatabaseType.Sqlite);
+        rootStmt.getColumns().add("county_spending_detail.amount");
+        rootStmt.setTable("county_spending_detail");
+        rootStmt.getCriteria().add(criteria);
+        rootStmt.getSubQueries().put("subquery0", "getDepartmentsByYear(year=subquery1)");
+        rootStmt.getSubQueries().put("subquery1", "get2014FiscalYear()");
+        rootStmt.setQueryTemplateDao(queryTemplateDao);
+
+        // run toSql()
+        Properties props = getTestProperties().get(DatabaseType.Sqlite);
+        String sql = rootStmt.toSql(props);
+
+        // check that sql is generated
+        assertTrue(sql != null);
+    }
 
 
     @Test

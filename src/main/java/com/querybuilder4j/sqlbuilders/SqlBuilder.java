@@ -206,8 +206,10 @@ public abstract class SqlBuilder {
                 // parameterized SQL string.
                 if (argIsSubQuery(criteriaClone.filter.toString())) {
                     // the criteria's filter should be the subquery id that can be retrieved from parsedSubQueries.
-                    SubQuery parameterizedSubQuerySql = (SubQuery) parsedSubQueries.get(criteriaClone.filter.toString());
-                    criteriaClone.filter = "(" + parameterizedSubQuerySql.getSql() + ")";
+                    //SubQuery parameterizedSubQuerySql = (SubQuery) parsedSubQueries.get(criteriaClone.filter.toString());
+                    String subquery = parsedSubQueries.get(criteriaClone.filter.toString()).toString();
+                    criteriaClone.filter = "(" + subquery + ")";
+                    sql.append(stringifyCriteria(criteriaClone)).append(" ");
                     continue;
                 }
 
@@ -311,10 +313,7 @@ public abstract class SqlBuilder {
      * should is used to not return records where all selected columns have a null value.
      *
      * @param columns
-     * @return
-     * @throws IllegalArgumentException
-     * @throws EmptyCollectionException
-     * @throws BadSqlException
+     * @return StringBuilder
      */
     protected StringBuilder createSuppressNullsClause(List<String> columns) {
         StringBuilder sql = new StringBuilder();
@@ -510,6 +509,11 @@ public abstract class SqlBuilder {
                 String subQueryName = subQuery.getValue().substring(0, subQuery.getValue().indexOf("("));
                 String[] subQueryArgs = subQuery.getValue().substring(subQuery.getValue().indexOf("(") + 1, subQuery.getValue().indexOf(")")).split(",");
 
+                // If there are no args, then there will be one element in subQueryArgs and it will be an empty string.
+                if (subQueryArgs.length == 1 && subQueryArgs[0].equals("")) {
+                    subQueryArgs = new String[0];
+                }
+
                 if (! parsedSubQueries.containsKey(subQueryId)) {
                     // run query if subQuery has no args
                     if (subQueryArgs.length == 0) {
@@ -520,7 +524,7 @@ public abstract class SqlBuilder {
                     } else { // else subquery has args
                         // test if it is a lowest level query by using contains("subquery")
                         if (! argsContainSubQuery(subQueryArgs)) {
-                            SubQuery parsedSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
+                            String parsedSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
                             parsedSubQueries.put(subQueryId, parsedSubQuery);
                         } else {
                             for (String arg : subQueryArgs) {
@@ -531,7 +535,7 @@ public abstract class SqlBuilder {
                                         break;
                                     } else {
                                         // subquery has NOT already been parsed.
-                                        SubQuery parsedSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
+                                        String parsedSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
                                         parsedSubQueries.put(subQueryId, parsedSubQuery);
                                     }
                                 }
@@ -564,11 +568,11 @@ public abstract class SqlBuilder {
         return begIndexOfSubQuery == 0;
     }
 
-    private SubQuery buildSubQuery(String subQueryId, String subQueryName, String[] subQueryArgs) throws Exception {
+    private String buildSubQuery(String subQueryId, String subQueryName, String[] subQueryArgs) throws Exception {
         SelectStatement stmt = queryTemplateDao.getQueryTemplateByName(subQueryName);
         if (stmt != null) {
             stmt.setCriteriaArguments(getSubQueryArgs(subQueryArgs));
-            return new SubQuery(stmt.toSql(properties));
+            return stmt.toSql(properties);
         } else {
             String message = String.format("Could not find statement object in database with name:  %s", subQueryName);
             throw new Exception(message);
@@ -584,7 +588,7 @@ public abstract class SqlBuilder {
 
     private boolean argsContainSubQuery(String[] args) {
         for (String arg : args) {
-            if (arg.substring(0,8).equals("subquery")) {
+            if (arg.length() >= 8 && arg.substring(0,8).equals("subquery")) {
                 return true;
             }
         }
@@ -624,7 +628,7 @@ public abstract class SqlBuilder {
         }
 
         // create list of statement's SELECT columns and WHERE columns.
-        List<String> columns = this.stmt.getColumns();
+        List<String> columns = new ArrayList<>(this.stmt.getColumns());
         this.stmt.getCriteria().forEach((criterion) -> columns.add(criterion.getColumn()));
 
         for (String column : this.stmt.getColumns()) {

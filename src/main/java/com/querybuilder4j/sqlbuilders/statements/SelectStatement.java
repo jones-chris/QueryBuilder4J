@@ -174,6 +174,22 @@ public class SelectStatement {
         return this;
     }
 
+    public Map<String, String> getSubQueries() {
+        return subQueries;
+    }
+
+    public void setSubQueries(Map<String, String> subQueries) {
+        this.subQueries = subQueries;
+    }
+
+    public QueryTemplateDao getQueryTemplateDao() {
+        return queryTemplateDao;
+    }
+
+    public void setQueryTemplateDao(QueryTemplateDao queryTemplateDao) {
+        this.queryTemplateDao = queryTemplateDao;
+    }
+
     public Map<String, String> getCriteriaArguments() {
         return criteriaArguments;
     }
@@ -360,7 +376,7 @@ public class SelectStatement {
         if (criteriaArguments.size() != 0) {
             for (Criteria criterion : criteria) {
                 String filter = criterion.filter.toString();
-                if (filter.substring(0, 7).equals("$param ")) {
+                if (filter.substring(0, 7).equals("$param:")) {
                     String paramName = filter.substring(7);
                     String paramValue = criteriaArguments.get(paramName);
                     if (paramValue != null) {
@@ -377,6 +393,12 @@ public class SelectStatement {
     /************************
      * Start of builder API
      ************************/
+
+    public static SelectStatement select(String[] columns) {
+        SelectStatement statement = new SelectStatement();
+        statement.setColumns(Arrays.asList(columns));
+        return statement;
+    }
 
     public static SelectStatement select(DatabaseType databaseType, List<String> columns) {
         SelectStatement statement = new SelectStatement();
