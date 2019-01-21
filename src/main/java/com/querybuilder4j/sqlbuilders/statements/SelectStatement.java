@@ -1,6 +1,7 @@
 package com.querybuilder4j.sqlbuilders.statements;
 
 
+import com.google.gson.Gson;
 import com.querybuilder4j.config.*;
 import com.querybuilder4j.exceptions.NoMatchingParameterException;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
@@ -284,7 +285,21 @@ public class SelectStatement {
 //        Collections.sort(this.criteria);
 //        clearParenthesisFromCriteria();
 //        addParenthesisToCriteria();
-//        replaceParameters(); //Todo: is this needed?
+//        replaceParameters();
+//    }
+
+//    /**
+//     * Call this before using a SqlBuilder class to build a SQL statement from a SelectStatement.
+//     */
+//    public void prepareStatement() {
+//        try {
+//            Collections.sort(this.criteria);
+//            clearParenthesisFromCriteria();
+//            addParenthesisToCriteria();
+//            replaceParameters();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e.getMessage());
+//        }
 //    }
 
     public String toSql(Properties properties) {
@@ -293,8 +308,8 @@ public class SelectStatement {
             Collections.sort(this.criteria);
             clearParenthesisFromCriteria();
             addParenthesisToCriteria();
-            replaceParameters(); //Todo: is this needed?
-            SqlBuilder sqlBuilder = SqlBuilderFactory.buildSqlBuilder(databaseType, this, subQueries, properties, queryTemplateDao);
+            replaceParameters();
+            SqlBuilder sqlBuilder = SqlBuilderFactory.buildSqlBuilder(databaseType, this, properties);
             return sqlBuilder.buildSql();
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -331,193 +346,76 @@ public class SelectStatement {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("");
-
-        sb.append(String.format("Name:  %s | ", name));
-
-        sb.append(String.format("Database Type:  %s | ", databaseType));
-
-        columns.forEach(col -> sb.append(String.format("Column:  %s | ", col)));
-
-        sb.append(String.format("Table:  %s | ", table));
-
-        sb.append("Criteria:  ");
-        criteria.forEach(crit -> {
-            sb.append(String.format("Id:  %d ", crit.getId()));
-            sb.append(String.format("ParentId:  %d ", crit.getParentId()));
-            sb.append(String.format("Conjunction:  %s ", crit.getConjunction()));
-            sb.append(String.format("Front Parenthesis:  %s ", crit.getFrontParenthesis()));
-            sb.append(String.format("Column:  %s ", crit.getColumn()));
-            sb.append(String.format("Operator:  %s ", crit.getOperator()));
-            sb.append(String.format("Filter:  %s ", crit.getFilter()));
-            sb.append("End Parenthesis:  ");
-            crit.endParenthesis.forEach(paren -> sb.append(paren));
-            sb.append(" | ");
-        });
-
-        sb.append(String.format("Distinct:  %s | ", distinct));
-
-        sb.append(String.format("Group By:  %s | ", groupBy));
-
-        sb.append(String.format("Order By:  %s | ", orderBy));
-
-        sb.append(String.format("Limit:  %d | ", limit));
-
-        sb.append(String.format("Ascending:  %s | ", ascending));
-
-        sb.append(String.format("Offset:  %d | ", offset));
-
-        sb.append(String.format("Suppress Nulls:  %s | ", suppressNulls));
-
-        return sb.toString();
+        Gson gson = new Gson();
+        return gson.toJson(this);
+//        StringBuilder sb = new StringBuilder("");
+//
+//        sb.append(String.format("Name:  %s | ", name));
+//
+//        sb.append(String.format("Database Type:  %s | ", databaseType));
+//
+//        columns.forEach(col -> sb.append(String.format("Column:  %s | ", col)));
+//
+//        sb.append(String.format("Table:  %s | ", table));
+//
+//        sb.append("Criteria:  ");
+//        criteria.forEach(crit -> {
+//            sb.append(String.format("Id:  %d ", crit.getId()));
+//            sb.append(String.format("ParentId:  %d ", crit.getParentId()));
+//            sb.append(String.format("Conjunction:  %s ", crit.getConjunction()));
+//            sb.append(String.format("Front Parenthesis:  %s ", crit.getFrontParenthesis()));
+//            sb.append(String.format("Column:  %s ", crit.getColumn()));
+//            sb.append(String.format("Operator:  %s ", crit.getOperator()));
+//            sb.append(String.format("Filter:  %s ", crit.getFilter()));
+//            sb.append("End Parenthesis:  ");
+//            crit.endParenthesis.forEach(paren -> sb.append(paren));
+//            sb.append(" | ");
+//        });
+//
+//        sb.append(String.format("Distinct:  %s | ", distinct));
+//
+//        sb.append(String.format("Group By:  %s | ", groupBy));
+//
+//        sb.append(String.format("Order By:  %s | ", orderBy));
+//
+//        sb.append(String.format("Limit:  %d | ", limit));
+//
+//        sb.append(String.format("Ascending:  %s | ", ascending));
+//
+//        sb.append(String.format("Offset:  %d | ", offset));
+//
+//        sb.append(String.format("Suppress Nulls:  %s | ", suppressNulls));
+//
+//        return sb.toString();
     }
 
     private void replaceParameters() throws NoMatchingParameterException {
         if (criteriaArguments.size() != 0) {
             for (Criteria criterion : criteria) {
+
                 String filter = criterion.filter.toString();
-                if (filter.substring(0, 7).equals("$param:")) {
-                    String paramName = filter.substring(7);
-                    String paramValue = criteriaArguments.get(paramName);
-                    if (paramValue != null) {
-                        criterion.filter = paramValue;
-                    } else {
-                        String message = String.format("No criteria parameter was found with the name, %s", paramName);
-                        throw new NoMatchingParameterException(message);
+                String[] splitFilters = filter.split(",");
+                List<String> resultFilters = new ArrayList<>();
+
+                for (String splitFilter : splitFilters) {
+                    if (splitFilter.length() >=7 && splitFilter.substring(0, 7).equals("$param:")) {
+                        String paramName = splitFilter.substring(7);
+                        String paramValue = criteriaArguments.get(paramName);
+                        if (paramValue != null) {
+                            resultFilters.add(paramValue);
+                            //criterion.filter = paramValue;
+                        } else {
+                            String message = String.format("No criteria parameter was found with the name, %s", paramName);
+                            throw new NoMatchingParameterException(message);
+                        }
                     }
+                }
+
+                if (resultFilters.size() != 0) {
+                    criterion.filter = String.join(",", resultFilters);
                 }
             }
         }
-    }
-
-    /************************
-     * Start of builder API
-     ************************/
-
-    public static SelectStatement select(String[] columns) {
-        SelectStatement statement = new SelectStatement();
-        statement.setColumns(Arrays.asList(columns));
-        return statement;
-    }
-
-    public static SelectStatement select(DatabaseType databaseType, List<String> columns) {
-        SelectStatement statement = new SelectStatement();
-        statement.setColumns(columns);
-        return statement;
-    }
-
-    public SelectStatement distinct() {
-        this.distinct = true;
-        return this;
-    }
-
-    public SelectStatement from(String table) {
-        this.table = table;
-        return this;
-    }
-
-    public SelectStatement where(String tableAndColumn, Operator operator, String filter) {
-        Criteria criteria = new Criteria();
-        criteria.setColumn(tableAndColumn);
-        criteria.setOperator(operator);
-        criteria.setFilter(filter);
-        criteria.setId(0);
-        criteria.setParentId(null);
-        this.criteria.add(criteria);
-        return this;
-    }
-
-    public SelectStatement and(String tableAndColumn, Operator operator, String filter, int parentId) {
-        Criteria criteria = createCriteria(Conjunction.And, tableAndColumn, operator, filter, parentId);
-        this.criteria.add(criteria);
-        return this;
-    }
-
-    public SelectStatement or(String tableAndColumn, Operator operator, String filter, int parentId) {
-        Criteria criteria = createCriteria(Conjunction.Or, tableAndColumn, operator, filter, parentId);
-        this.criteria.add(criteria);
-        return this;
-    }
-
-    public SelectStatement andSuppressNulls() {
-        this.suppressNulls = true;
-        return this;
-    }
-
-    public SelectStatement innerJoin(String targetTable,
-                                     List<String> parentTableAndColumns,
-                                     List<String> targetTableAndColumns) {
-        Join join = createJoin(Join.JoinType.INNER, this.table, targetTable, parentTableAndColumns, targetTableAndColumns);
-        this.joins.add(join);
-        return this;
-    }
-
-    public SelectStatement outerJoin(String targetTable,
-                                     List<String> parentTableAndColumns,
-                                     List<String> targetTableAndColumns) {
-        Join join = createJoin(Join.JoinType.OUTER, this.table, targetTable, parentTableAndColumns, targetTableAndColumns);
-        this.joins.add(join);
-        return this;
-    }
-
-    public SelectStatement leftJoin(String targetTable,
-                                     List<String> parentTableAndColumns,
-                                     List<String> targetTableAndColumns) {
-        Join join = createJoin(Join.JoinType.LEFT, this.table, targetTable, parentTableAndColumns, targetTableAndColumns);
-        this.joins.add(join);
-        return this;
-    }
-
-    public SelectStatement rightJoin(String targetTable,
-                                     List<String> parentTableAndColumns,
-                                     List<String> targetTableAndColumns) {
-        Join join = createJoin(Join.JoinType.RIGHT, this.table, targetTable, parentTableAndColumns, targetTableAndColumns);
-        this.joins.add(join);
-        return this;
-    }
-
-    public SelectStatement fullJoin(String targetTable,
-                                    List<String> parentTableAndColumns,
-                                    List<String> targetTableAndColumns) {
-        Join join = createJoin(Join.JoinType.FULL, this.table, targetTable, parentTableAndColumns, targetTableAndColumns);
-        this.joins.add(join);
-        return this;
-    }
-
-    public SelectStatement limit(Long limit) {
-        this.limit = limit;
-        return this;
-    }
-
-    public SelectStatement offset(Long offset) {
-        this.offset = offset;
-        return this;
-    }
-
-    private Join createJoin(Join.JoinType joinType,
-                            String parentTable,
-                            String targetTable,
-                            List<String> parentTableAndColumns,
-                            List<String> targetTableAndColumns) {
-        Join join = new Join();
-        join.setJoinType(joinType);
-        join.setParentTable(parentTable);
-        join.setTargetTable(targetTable);
-        join.setParentJoinColumns(parentTableAndColumns);
-        join.setTargetJoinColumns(targetTableAndColumns);
-        return join;
-    }
-
-    private Criteria createCriteria(Conjunction conjunction, String tableAndColumn, Operator operator,
-                                    String filter, int parentId) {
-        Criteria criteria = new Criteria();
-        criteria.setConjunction(conjunction);
-        criteria.setColumn(tableAndColumn);
-        criteria.setOperator(operator);
-        criteria.setFilter(filter);
-        criteria.setId(this.criteria.size());
-        criteria.setParentId(parentId);
-        return criteria;
     }
 
 }

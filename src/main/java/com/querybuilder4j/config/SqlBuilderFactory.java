@@ -9,22 +9,20 @@ import java.util.Properties;
 
 public class SqlBuilderFactory {
 
-    public static SqlBuilder buildSqlBuilder(DatabaseType databaseType, SelectStatement stmt,
-                                             Map<String, String> subQueries, Properties properties,
-                                             QueryTemplateDao queryTemplateDao) throws Exception {
+    public static SqlBuilder buildSqlBuilder(DatabaseType databaseType, SelectStatement stmt, Properties properties) throws Exception {
         SqlBuilder sqlBuilder;
         switch (databaseType) {
-            case MySql:      sqlBuilder = new MySqlSqlBuilder(stmt, subQueries, properties, queryTemplateDao);
+            case MySql:      sqlBuilder = new MySqlSqlBuilder(stmt, properties);
                              break;
-            case Oracle:     sqlBuilder = new OracleSqlBuilder(stmt, subQueries, properties, queryTemplateDao);
+            case Oracle:     sqlBuilder = new OracleSqlBuilder(stmt, properties);
                              break;
-            case PostgreSQL: sqlBuilder = new PostgresSqlBuilder(stmt, subQueries, properties, queryTemplateDao);
+            case PostgreSQL: sqlBuilder = new PostgresSqlBuilder(stmt, properties);
                              break;
-            case Redshift:   sqlBuilder = new RedshiftSqlBuilder(stmt, subQueries, properties, queryTemplateDao);
+            case Redshift:   sqlBuilder = new RedshiftSqlBuilder(stmt, properties);
                              break;
-            case SqlServer:  sqlBuilder = new SqlServerSqlBuilder(stmt, subQueries, properties, queryTemplateDao);
+            case SqlServer:  sqlBuilder = new SqlServerSqlBuilder(stmt, properties);
                              break;
-            case Sqlite:     sqlBuilder = new SqliteSqlBuilder(stmt, subQueries, properties, queryTemplateDao);
+            case Sqlite:     sqlBuilder = new SqliteSqlBuilder(stmt, properties);
                              break;
             default:         throw new RuntimeException(String.format("Database type, %s, not recognized", databaseType));
         }

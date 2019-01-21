@@ -12,8 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.*;
@@ -88,12 +86,12 @@ public class SqlBuilderTest {
         rootStmt.getSubQueries().put("subquery0", "getDepartmentsIn2014()");
         rootStmt.setQueryTemplateDao(queryTemplateDao);
 
-        // run toSql()
+        // Call toSql()
         Properties props = getTestProperties().get(DatabaseType.Sqlite);
         String sql = rootStmt.toSql(props);
 
-        // check that sql is generated
-        assertTrue(sql != null);
+        // Test that SQL runs successfully against database.
+        testIfSqlExecutesSuccessfully(sql, rootStmt, props);
     }
 
     @Test
@@ -112,17 +110,17 @@ public class SqlBuilderTest {
         rootStmt.getSubQueries().put("subquery0", "getDepartmentsByYear(year=2014)");
         rootStmt.setQueryTemplateDao(queryTemplateDao);
 
-        // run toSql()
+        // Call toSql()
         Properties props = getTestProperties().get(DatabaseType.Sqlite);
         String sql = rootStmt.toSql(props);
 
-        // check that sql is generated
-        assertTrue(sql != null);
+        // Test that SQL runs successfully against database.
+        testIfSqlExecutesSuccessfully(sql, rootStmt, props);
     }
 
     @Test
     public void runSubQuery_oneSubQueryArg() throws Exception {
-        // create root statement
+        // Create root statement
         Criteria criteria = new Criteria();
         criteria.setId(0);
         criteria.setConjunction(Conjunction.And);
@@ -137,12 +135,46 @@ public class SqlBuilderTest {
         rootStmt.getSubQueries().put("subquery1", "get2014FiscalYear()");
         rootStmt.setQueryTemplateDao(queryTemplateDao);
 
-        // run toSql()
+        // Call toSql()
         Properties props = getTestProperties().get(DatabaseType.Sqlite);
         String sql = rootStmt.toSql(props);
 
-        // check that sql is generated
-        assertTrue(sql != null);
+        // Test that SQL runs successfully against database.
+        testIfSqlExecutesSuccessfully(sql, rootStmt, props);
+    }
+
+    @Test
+    public void runSubQuery_oneRegularArgOneSubQuery() throws Exception {
+        // Create root statement
+        Criteria criteria = new Criteria();
+        criteria.setId(0);
+        criteria.setConjunction(Conjunction.And);
+        criteria.setColumn("county_spending_detail.department");
+        criteria.setOperator(Operator.in);
+        criteria.setFilter("subquery0");
+
+        Criteria criteria1 = new Criteria();
+        criteria1.setId(1);
+        criteria1.setConjunction(Conjunction.And);
+        criteria1.setColumn("county_spending_detail.department");
+        criteria1.setOperator(Operator.in);
+        criteria1.setFilter("subquery1");
+
+        SelectStatement rootStmt = new SelectStatement(DatabaseType.Sqlite);
+        rootStmt.getColumns().add("county_spending_detail.amount");
+        rootStmt.setTable("county_spending_detail");
+        rootStmt.getCriteria().add(criteria);
+        rootStmt.getCriteria().add(criteria1);
+        rootStmt.getSubQueries().put("subquery0", "getDepartmentsByMultipleYears(year1=subquery1,year2=2017)");
+        rootStmt.getSubQueries().put("subquery1", "get2014FiscalYear()");
+        rootStmt.setQueryTemplateDao(queryTemplateDao);
+
+        // Call toSql()
+        Properties props = getTestProperties().get(DatabaseType.Sqlite);
+        String sql = rootStmt.toSql(props);
+
+        // Test that SQL runs successfully against database.
+        testIfSqlExecutesSuccessfully(sql, rootStmt, props);
     }
 
 
@@ -157,22 +189,22 @@ public class SqlBuilderTest {
             Map<SelectStatement, String> sqlMap = queryTests.buildSql_randomizer();
 
             for (SelectStatement selectStatement : sqlMap.keySet()) {
-                try (Connection conn = TestUtils.getConnection(props);
-                     Statement stmt = conn.createStatement()) {
-
-                    String sql = selectStatement.toSql(props);
-                    stmt.executeQuery(sql);
-                    assertTrue(true);
-                } catch (Exception ex) {
-                    System.out.println("Select Statement Object:  ");
-                    System.out.println(selectStatement.toString());
-                    System.out.println("\n");
-                    System.out.println("SQL String:  ");
-                    System.out.println(sqlMap.get(selectStatement));
-                    ex.printStackTrace();
-                    fail();
-                }
+                String sql = selectStatement.toSql(props);
+                testIfSqlExecutesSuccessfully(sql, selectStatement, props);
             }
+        }
+    }
+
+    private void testIfSqlExecutesSuccessfully(String sql, SelectStatement selectStatement, Properties props) {
+        try (Connection conn = TestUtils.getConnection(props);
+             Statement stmt = conn.createStatement()) {
+
+            stmt.executeQuery(sql);
+            assertTrue(true);
+        } catch (Exception ex) {
+            System.out.println("Select Statement Object:  " + selectStatement.toString() + "\n");
+            System.out.println("Generated SQL:  " + sql + "\n");
+            fail();
         }
     }
 

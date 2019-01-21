@@ -80,10 +80,23 @@ public class QueryTemplateDaoImpl implements QueryTemplateDao {
         criteria2.setFilter("2014");
 
         SelectStatement get2014FiscalYear = new SelectStatement(DatabaseType.Sqlite);
-        getDepartmentsByYear.getColumns().add("county_spending_detail.fiscal_year");
-        getDepartmentsByYear.setTable("county_spending_detail");
-        getDepartmentsByYear.getCriteria().add(criteria2);
+        get2014FiscalYear.getColumns().add("county_spending_detail.fiscal_year");
+        get2014FiscalYear.setTable("county_spending_detail");
+        get2014FiscalYear.getCriteria().add(criteria2);
         queries.put("get2014FiscalYear", get2014FiscalYear);
+
+        //getDepartmentsByMultipleYears
+        Criteria criteria3 = new Criteria();
+        criteria3.setId(0);
+        criteria3.setColumn("county_spending_detail.fiscal_year");
+        criteria3.setOperator(Operator.in);
+        criteria3.setFilter("$param:year1,$param:year2");
+
+        SelectStatement getDepartmentsByMultipleYears = new SelectStatement(DatabaseType.Sqlite);
+        getDepartmentsByMultipleYears.getColumns().add("county_spending_detail.department");
+        getDepartmentsByMultipleYears.setTable("county_spending_detail");
+        getDepartmentsByMultipleYears.getCriteria().add(criteria3);
+        queries.put("getDepartmentsByMultipleYears", getDepartmentsByMultipleYears);
     }
 
 }

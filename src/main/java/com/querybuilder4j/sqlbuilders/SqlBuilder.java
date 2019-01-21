@@ -1,9 +1,7 @@
 package com.querybuilder4j.sqlbuilders;
 
 
-import com.querybuilder4j.config.Conjunction;
-import com.querybuilder4j.config.Operator;
-import com.querybuilder4j.config.Parenthesis;
+import com.querybuilder4j.config.*;
 import com.querybuilder4j.exceptions.BadSqlException;
 import com.querybuilder4j.exceptions.ColumnNameNotFoundException;
 import com.querybuilder4j.exceptions.DataTypeNotFoundException;
@@ -25,12 +23,11 @@ public abstract class SqlBuilder {
     protected Map<String, Map<String, Integer>> tableSchemas = new HashMap<>();
     protected final Properties properties;
     protected SelectStatement stmt;
-    protected Map<String, String> subQueries = new HashMap<>();
-    protected Map<String, Object> parsedSubQueries = new HashMap<>();
-    //protected Map<String, String> sqlParameterMap = new HashMap<>();
+    //protected Map<String, String> subQueries = new HashMap<>();
+    protected Map<String, SelectStatement> subQueries2 = new HashMap<>();
+    protected Map<String, String> parsedSubQueries = new HashMap<>();
     protected final int TABLE_INDEX = 0;
     protected final int COLUMN_INDEX = 1;
-    //protected int namedParameterCount = 0;
     protected QueryTemplateDao queryTemplateDao;
 
     static {
@@ -75,26 +72,43 @@ public abstract class SqlBuilder {
         typeMappings.put(Types.VARCHAR, true);                   //VARCHAR
     }
 
-    public SqlBuilder(SelectStatement stmt, Map<String, String> subQueries,
-                      Properties properties, QueryTemplateDao queryTemplateDao) throws Exception {
+    public SqlBuilder(SelectStatement stmt, Properties properties) throws Exception {
         this.stmt = stmt;
         this.properties = properties;
 
-        if (subQueries != null) {
-            this.subQueries = subQueries;
-        }
+//        if (subQueries != null) {
+//            this.subQueries = subQueries;
+//        }
 
-        if (queryTemplateDao != null) {
-            this.queryTemplateDao = queryTemplateDao;
+        if (stmt.getQueryTemplateDao() != null) {
+            this.queryTemplateDao = stmt.getQueryTemplateDao();
         }
 
         if (! criteriaAreValid()) {
             throw new Exception("A criteria is not valid");
         }
 
+        // First, get all SelectStatements that are listed in subqueries.  Later we will replace the params in each subquery.
+        if (stmt.getSubQueries().size() != 0 && queryTemplateDao != null) {
+            this.stmt.getSubQueries().forEach((subQueryId, subQueryCall) -> {
+                String subQueryName = subQueryCall.substring(0, subQueryCall.indexOf("("));
+                SelectStatement queryTemplate = queryTemplateDao.getQueryTemplateByName(subQueryName);
+                if (queryTemplate == null) {
+                    throw new RuntimeException(String.format("Could not find subquery named %s in SqlBuilder's queryTemplateDao", subQueryName));
+                } else {
+                    this.subQueries2.put(subQueryId, queryTemplate);
+                }
+            });
+        }
+
         if (statementIsValid()) {
             parseSubqueries();
+        } else {
+            throw new RuntimeException("The statement was not valid");
         }
+//        if (statementIsValid()) {
+//            parseSubqueries();
+//        }
     }
 
     public abstract String buildSql() throws Exception;
@@ -186,7 +200,9 @@ public abstract class SqlBuilder {
                 // clone criteria
                 Criteria criteriaClone = (Criteria) crit.clone();
 
-                if (criteriaClone.getId() == 0) criteriaClone.conjunction = null;
+                if (criteriaClone.getId() == 0) {
+                    criteriaClone.conjunction = null;
+                }
 
                 if (criteriaClone.operator.equals(Operator.isNull) || criteriaClone.operator.equals(Operator.isNotNull)) {
                     criteriaClone.filter = null;
@@ -204,11 +220,22 @@ public abstract class SqlBuilder {
 
                 // If the criteria's filter is a SubQuery, then generate the SelectStatement's
                 // parameterized SQL string.
-                if (argIsSubQuery(criteriaClone.filter.toString())) {
+                if (argIsSubQuery(criteriaClone.filter)) {
                     // the criteria's filter should be the subquery id that can be retrieved from parsedSubQueries.
-                    //SubQuery parameterizedSubQuerySql = (SubQuery) parsedSubQueries.get(criteriaClone.filter.toString());
-                    String subquery = parsedSubQueries.get(criteriaClone.filter.toString()).toString();
-                    criteriaClone.filter = "(" + subquery + ")";
+                    String[] args = criteriaClone.filter.split(",");
+                    for (String arg : args) {
+                        if (argIsSubQuery(arg)) {
+                            String subquery = parsedSubQueries.get(arg);
+                            criteriaClone.filter = criteriaClone.filter.replace(arg, "(" + subquery + ")");
+                        }
+                    }
+
+                    if (criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) {
+                        criteriaClone.filter = "(" + criteriaClone.filter + ")";
+                    }
+
+                    //String subquery = parsedSubQueries.get(criteriaClone.filter);
+                    //criteriaClone.filter = "(" + subquery + ")";
                     sql.append(stringifyCriteria(criteriaClone)).append(" ");
                     continue;
                 }
@@ -502,9 +529,61 @@ public abstract class SqlBuilder {
 
      */
 
-    private void parseSubqueries() throws Exception {
+    protected void parseSubqueries() throws Exception {
+        // First, get all SelectStatements that are listed in subqueries.  Later we will replace the params in each subquery.
+//        Map<String, SelectStatement> queryTemplates = new HashMap<>();
+//        subQueries.values().forEach((subquery) -> {
+//            String subQueryName = subquery.substring(0, subquery.indexOf("("));
+//            SelectStatement queryTemplate = queryTemplateDao.getQueryTemplateByName(subQueryName);
+//            if (queryTemplate == null) {
+//                throw new RuntimeException(String.format("Could not find subquery named %s in queryTemplateDao", subQueryName));
+//            } else {
+//                queryTemplates.put(subQueryName, queryTemplate);
+//            }
+//        });
+
         while (! allSubQueriesAreParsed()) {
-            for (Map.Entry<String, String> subQuery : subQueries.entrySet()) {
+//            for (Map.Entry<String, String> subQuery : subQueries.entrySet()) {
+//                String subQueryId = subQuery.getKey();
+//                String subQueryName = subQuery.getValue().substring(0, subQuery.getValue().indexOf("("));
+//                String[] subQueryArgs = subQuery.getValue().substring(subQuery.getValue().indexOf("(") + 1, subQuery.getValue().indexOf(")")).split(",");
+//
+//                // If there are no args, then there will be one element in subQueryArgs and it will be an empty string.
+//                if (subQueryArgs.length == 1 && subQueryArgs[0].equals("")) {
+//                    subQueryArgs = new String[0];
+//                }
+//
+//                if (! parsedSubQueries.containsKey(subQueryId)) {
+//                    // run query if subQuery has no args
+//                    if (subQueryArgs.length == 0) {
+//                        //SelectStatement queryTemplate = queryTemplateDao.getQueryTemplateByName(subQueryName);
+//                        SelectStatement queryTemplate = queryTemplates.get(subQueryName);
+//                        //String sql = queryTemplate.toSql(properties);
+//                        parsedSubQueries.put(subQueryId, sql);
+//                    } else { // else subquery has args
+//                        // test if it is a lowest level query by using contains("subquery")
+//                        if (! argsContainSubQuery(subQueryArgs)) {
+//                            String parsedSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
+//                            parsedSubQueries.put(subQueryId, parsedSubQuery);
+//                        } else {
+//                            for (String arg : subQueryArgs) {
+//                                // determine if arg is a subquery
+//                                if (argIsSubQuery(arg)) {
+//                                    if (parsedSubQueries.containsKey(arg)) {
+//                                        // subquery has already been parsed.
+//                                        break;
+//                                    } else {
+//                                        // subquery has NOT already been parsed.
+//                                        String parsedSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
+//                                        parsedSubQueries.put(subQueryId, parsedSubQuery);
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+            for (Map.Entry<String, String> subQuery : this.stmt.getSubQueries().entrySet()) {
                 String subQueryId = subQuery.getKey();
                 String subQueryName = subQuery.getValue().substring(0, subQuery.getValue().indexOf("("));
                 String[] subQueryArgs = subQuery.getValue().substring(subQuery.getValue().indexOf("(") + 1, subQuery.getValue().indexOf(")")).split(",");
@@ -517,9 +596,9 @@ public abstract class SqlBuilder {
                 if (! parsedSubQueries.containsKey(subQueryId)) {
                     // run query if subQuery has no args
                     if (subQueryArgs.length == 0) {
-                        SelectStatement queryTemplate = queryTemplateDao.getQueryTemplateByName(subQueryName);
+                        //SelectStatement queryTemplate = queryTemplateDao.getQueryTemplateByName(subQueryName);
+                        SelectStatement queryTemplate = subQueries2.get(subQueryId);
                         String sql = queryTemplate.toSql(properties);
-                        //String sql = buildSql(queryTemplate);
                         parsedSubQueries.put(subQueryId, sql);
                     } else { // else subquery has args
                         // test if it is a lowest level query by using contains("subquery")
@@ -544,11 +623,12 @@ public abstract class SqlBuilder {
                     }
                 }
             }
+
         }
     }
 
     private boolean allSubQueriesAreParsed() {
-        for (String subquery : subQueries.keySet()) {
+        for (String subquery : subQueries2.keySet()) {
             if (! parsedSubQueries.containsKey(subquery)) {
                 return false;
             }
@@ -565,13 +645,16 @@ public abstract class SqlBuilder {
      */
     private boolean argIsSubQuery(String arg) {
         int begIndexOfSubQuery = arg.toLowerCase().indexOf("subquery");
-        return begIndexOfSubQuery == 0;
+        return begIndexOfSubQuery > -1;
     }
 
     private String buildSubQuery(String subQueryId, String subQueryName, String[] subQueryArgs) throws Exception {
-        SelectStatement stmt = queryTemplateDao.getQueryTemplateByName(subQueryName);
+        //SelectStatement stmt = queryTemplateDao.getQueryTemplateByName(subQueryName);
+        SelectStatement stmt = subQueries2.get(subQueryId);
         if (stmt != null) {
             stmt.setCriteriaArguments(getSubQueryArgs(subQueryArgs));
+            stmt.setQueryTemplateDao(this.queryTemplateDao);
+            stmt.setSubQueries(getRelevantSubQueries(subQueryArgs));
             return stmt.toSql(properties);
         } else {
             String message = String.format("Could not find statement object in database with name:  %s", subQueryName);
@@ -584,6 +667,27 @@ public abstract class SqlBuilder {
 //            sqlParameterMap.put(key, sqlParameterSource.get(key).toString());
 //            namedParameterCount++;
 //        }
+//    }
+
+    private Map<String, String> getRelevantSubQueries(String[] subQueryArgs) {
+        Map<String, String> relevantSubQueries = new HashMap<>();
+        for (String paramAndArg : subQueryArgs) {
+            String arg = paramAndArg.split("=")[1];
+            if (argIsSubQuery(arg)) {
+                String subQueryCall = this.stmt.getSubQueries().get(arg);
+                relevantSubQueries.put(arg, subQueryCall);
+            }
+        }
+        return relevantSubQueries;
+    }
+
+//    private Map<String, String> getUnparsedSubQueries() {
+//        Map<String, String> unparsedSubQueries = new HashMap<>();
+//        this.stmt.getSubQueries().keySet().forEach((subQueryId) -> {
+//            if (! parsedSubQueries.keySet().contains(subQueryId)) {
+//                unparsedSubQueries.put(subQueryId, this.stmt.getSubQueries().get(subQueryId));
+//            }
+//        });
 //    }
 
     private boolean argsContainSubQuery(String[] args) {
@@ -659,9 +763,8 @@ public abstract class SqlBuilder {
                 return false;
             }
 
-            String BAD_SQL_EXCEPTION_MESSAGE = "%s failed to be clean SQL";
             if (! sqlIsClean(criterion)) {
-                throw new Exception(String.format(BAD_SQL_EXCEPTION_MESSAGE, criterion));
+                throw new Exception(String.format("%s failed to be clean SQL", criterion));
             }
 
             // Now that we know that the criteria's operator is not 'isNull' or 'isNotNull', we can assume that the
@@ -680,8 +783,8 @@ public abstract class SqlBuilder {
             int columnDataType = getColumnDataType(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
             boolean shouldHaveQuotes = isColumnQuoted(columnDataType);
             if (! shouldHaveQuotes) {
-                if (! canParseNonQuotedFilter(criterion.filter.toString(), columnDataType)) {
-                    throw new Exception(String.format(BAD_SQL_EXCEPTION_MESSAGE, criterion));
+                if (! SqlCleanser.canParseNonQuotedFilter(criterion.filter.toString(), columnDataType)) {
+                    throw new Exception(String.format("The criteria's filter is not an number type, but the column is:  %s", criterion));
                 }
             }
         }
@@ -714,48 +817,6 @@ public abstract class SqlBuilder {
         }
 
         return true;
-    }
-
-
-    /**
-     * Tests whether a String (s) can be parsed into a numerical or boolean type successfully based on the sqlType parameter.
-     * This method is used to prevent SQL Injection on columns that would not be wrapped in single quotes in the WHERE clause
-     * of the SQL statement.  For example:
-     *
-     *     SELECT * FROM students WHERE age > ?
-     *
-     * If the column, Age, has a database type of Integer, and I passed " '' OR 1=1 --", then the input would not be wrapped in
-     * single quotes and the SQL Injection attack would be successful.  However, if I passed the input into this method, it would
-     * not parse into an Java integer and the method would return false.
-     *
-     * Therefore, this assures is that the input String (s) is indeed numeric or boolean and is safe to not be wrapped in single
-     * quotes.
-     *
-     * @param s
-     * @param sqlType
-     * @return boolean
-     */
-    private boolean canParseNonQuotedFilter(String s, int sqlType) throws Exception {
-        try {
-            if (sqlType == Types.BIGINT || sqlType == Types.DOUBLE || sqlType == Types.NUMERIC || sqlType == Types.ROWID || sqlType == Types.REAL) {
-                Double.parseDouble(s);
-                return true;
-            } else if (sqlType == Types.BIT || sqlType == Types.INTEGER || sqlType == Types.SMALLINT || sqlType == Types.TINYINT) {
-                Integer.parseInt(s);
-                return true;
-            } else if (sqlType == Types.BOOLEAN) {
-                Boolean.parseBoolean(s);
-                return true;
-            } else if (sqlType == Types.FLOAT) {
-                Float.parseFloat(s);
-                return true;
-            } else {
-                throw new Exception(String.format("Did not recognize SQL Type:  %s", sqlType));
-            }
-        } catch (NumberFormatException ex) {
-            return false;
-        }
-
     }
 
 }

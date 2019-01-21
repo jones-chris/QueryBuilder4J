@@ -8,9 +8,8 @@ import java.util.Properties;
 
 public class RedshiftSqlBuilder extends SqlBuilder {
 
-    public RedshiftSqlBuilder(SelectStatement stmt, Map<String, String> subQueries,
-                              Properties properties, QueryTemplateDao queryTemplateDao) throws Exception {
-        super(stmt, subQueries, properties, queryTemplateDao);
+    public RedshiftSqlBuilder(SelectStatement stmt, Properties properties) throws Exception {
+        super(stmt, properties);
         beginningDelimiter = '"';
         endingDelimter = '"';
     }

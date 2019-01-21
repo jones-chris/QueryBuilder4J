@@ -1,24 +1,21 @@
 package com.querybuilder4j.sqlbuilders;
 
 
-import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 
-import java.util.Map;
 import java.util.Properties;
 
 public class SqliteSqlBuilder extends SqlBuilder {
 
-    public SqliteSqlBuilder(SelectStatement stmt, Map<String, String> subQueries,
-                            Properties properties, QueryTemplateDao queryTemplateDao) throws Exception {
-        super(stmt, subQueries, properties, queryTemplateDao);
+    public SqliteSqlBuilder(SelectStatement stmt, Properties properties) throws Exception {
+        super(stmt, properties);
         beginningDelimiter = '"';
         endingDelimter = '"';
     }
 
     @Override
     public String buildSql() throws Exception {
-        StringBuilder sql = new StringBuilder("");
+        StringBuilder sql = new StringBuilder();
 
         // Select
         StringBuilder select = createSelectClause(stmt.isDistinct(), stmt.getColumns());

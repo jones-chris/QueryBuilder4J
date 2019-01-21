@@ -4,6 +4,7 @@ package com.querybuilder4j.sqlbuilders;
 import com.querybuilder4j.config.Parenthesis;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 
+import java.sql.Types;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,46 +78,81 @@ public class SqlCleanser {
     }
 
     public static boolean sqlIsClean(Criteria criteria) throws IllegalArgumentException {
-
-//        boolean conjunctionIsClean = true;
-//        if (criteria.getConjunction() != null) {
-//           conjunctionIsClean = sqlIsClean(criteria.getConjunction().toString());
-//        }
-//
-//        boolean frontParenIsClean = true;
-//        if (criteria.getFrontParenthesis() != null) {
-//           frontParenIsClean = sqlIsClean(criteria.getFrontParenthesis().toString());
-//        }
-//
-//        boolean columnIsClean = true;
-//        if (criteria.getColumn() != null) {
-//            String[] tableAndColumn = criteria.column.split("\\.");
-//            if (tableAndColumn.length != 2) {
-//                throw new IllegalArgumentException("A criteria's column field needs to be in the format of [table.column].  " +
-//                        "Here is the criteria object that failed:  " + criteria);
-//            }
-//            final int TABLE_INDEX = 0;
-//            final int COLUMN_INDEX = 1;
-//            columnIsClean = sqlIsClean(tableAndColumn[TABLE_INDEX]) &&
-//                            sqlIsClean(tableAndColumn[COLUMN_INDEX]);
-//        }
-
-        boolean filterIsClean = true;
+        //todo:  don't pass params and subqueries into sqlIsClean().
+        //todo:  also make Criteria's filter field a String again instead of Object since we're not using SubQuery class anymore.
         if (criteria.getFilter() != null) {
-            if (criteria.getFilter() instanceof String) {
-                filterIsClean = sqlIsClean(criteria.getFilter().toString());
+            String[] filterItems = criteria.getFilter().toString().split(",");
+
+//            for (String filterItem : filterItems) {
+//                Pattern patternSubQuery = Pattern.compile("^subquery[0-9]+");
+//                Pattern patternParam = Pattern.compile("^\\$param:");
+//                Matcher matcherSubQuery = patternSubQuery.matcher(filterItem);
+//                Matcher matcherParam = patternParam.matcher(filterItem);
+//
+//                // If filter does NOT contain a param or subquery, then check that string is clean using sqlIsClean().
+//                if (! matcherSubQuery.find() && ! matcherParam.find()) {
+                if (! isSubQueryOrParam(criteria.getFilter().toString())) {
+                    if (criteria.getFilter() instanceof String) {
+                        boolean filterIsClean = sqlIsClean(criteria.getFilter().toString());
+                        if (! filterIsClean) return false;
+                    }
+                }
+//            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Tests whether a String (s) can be parsed into a numerical or boolean type successfully based on the sqlType parameter.
+     * This method is used to prevent SQL Injection on columns that would not be wrapped in single quotes in the WHERE clause
+     * of the SQL statement.  For example:
+     *
+     *     SELECT * FROM students WHERE age > ?
+     *
+     * If the column, Age, has a database type of Integer, and I passed " '' OR 1=1 --", then the input would not be wrapped in
+     * single quotes and the SQL Injection attack would be successful.  However, if I passed the input into this method, it would
+     * not parse into an Java integer and the method would return false.
+     *
+     * Therefore, this assures is that the input String (s) is indeed numeric or boolean and is safe to not be wrapped in single
+     * quotes.
+     *
+     * @param s
+     * @param sqlType
+     * @return boolean
+     */
+    public static boolean canParseNonQuotedFilter(String s, int sqlType) throws Exception {
+        if (! isSubQueryOrParam(s)) {
+            try {
+                if (sqlType == Types.BIGINT || sqlType == Types.DOUBLE || sqlType == Types.NUMERIC || sqlType == Types.ROWID || sqlType == Types.REAL) {
+                    Double.parseDouble(s);
+                    return true;
+                } else if (sqlType == Types.BIT || sqlType == Types.INTEGER || sqlType == Types.SMALLINT || sqlType == Types.TINYINT) {
+                    Integer.parseInt(s);
+                    return true;
+                } else if (sqlType == Types.BOOLEAN) {
+                    Boolean.parseBoolean(s);
+                    return true;
+                } else if (sqlType == Types.FLOAT) {
+                    Float.parseFloat(s);
+                    return true;
+                } else {
+                    throw new Exception(String.format("Did not recognize SQL Type:  %s", sqlType));
+                }
+            } catch (NumberFormatException ex) {
+                return false;
             }
         }
 
-//        boolean endParenIsClean = true;
-//        for (Parenthesis paren : criteria.getEndParenthesis()) {
-//            endParenIsClean = sqlIsClean(paren.toString());
-//            if (! endParenIsClean) {
-//                break;
-//            }
-//        }
+        return true;
+    }
 
-        //return conjunctionIsClean && frontParenIsClean && columnIsClean  && filterIsClean && endParenIsClean;
-        return filterIsClean;
+    private static boolean isSubQueryOrParam(String s) {
+        Pattern patternSubQuery = Pattern.compile("^subquery[0-9]+");
+        Pattern patternParam = Pattern.compile("^\\$param:");
+        Matcher matcherSubQuery = patternSubQuery.matcher(s);
+        Matcher matcherParam = patternParam.matcher(s);
+
+        return matcherSubQuery.find() || matcherParam.find();
     }
 }

@@ -8,9 +8,8 @@ import java.util.Properties;
 
 public class MySqlSqlBuilder extends SqlBuilder {
 
-    public MySqlSqlBuilder(SelectStatement stmt, Map<String, String> subQueries,
-                           Properties properties, QueryTemplateDao queryTemplateDao) throws Exception {
-        super(stmt, subQueries, properties, queryTemplateDao);
+    public MySqlSqlBuilder(SelectStatement stmt, Properties properties) throws Exception {
+        super(stmt, properties);
         beginningDelimiter = '`';
         endingDelimter = '`';
     }
