@@ -8,9 +8,8 @@ import java.util.Properties;
 
 public class SqlServerSqlBuilder extends SqlBuilder {
 
-    public SqlServerSqlBuilder(SelectStatement stmt, Map<String, String> subQueries,
-                               Properties properties, QueryTemplateDao queryTemplateDao) throws Exception {
-        super(stmt, subQueries, properties, queryTemplateDao);
+    public SqlServerSqlBuilder(SelectStatement stmt, Properties properties) throws Exception {
+        super(stmt, properties);
         beginningDelimiter = '[';
         endingDelimter = ']';
     }

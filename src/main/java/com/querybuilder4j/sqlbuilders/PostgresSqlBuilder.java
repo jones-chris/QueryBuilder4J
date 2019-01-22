@@ -8,9 +8,8 @@ import java.util.Properties;
 
 public class PostgresSqlBuilder extends SqlBuilder {
 
-    public PostgresSqlBuilder(SelectStatement stmt, Map<String, String> subQueries,
-                              Properties properties, QueryTemplateDao queryTemplateDao) throws Exception {
-        super(stmt, subQueries, properties, queryTemplateDao);
+    public PostgresSqlBuilder(SelectStatement stmt, Properties properties) throws Exception {
+        super(stmt, properties);
         beginningDelimiter = '"';
         endingDelimter = '"';
     }

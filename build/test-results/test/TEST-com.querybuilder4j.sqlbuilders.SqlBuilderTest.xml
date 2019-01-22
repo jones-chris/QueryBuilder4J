@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.querybuilder4j.sqlbuilders.SqlBuilderTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2019-01-14T01:31:04" hostname="sm7chrisjones" time="0.55">
+  <properties/>
+  <testcase name="runDynamicStatementTests" classname="com.querybuilder4j.sqlbuilders.SqlBuilderTest" time="0.55"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

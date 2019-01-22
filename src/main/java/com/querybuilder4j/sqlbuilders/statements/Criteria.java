@@ -18,7 +18,7 @@ public class Criteria implements Cloneable, Comparable {
     public Parenthesis frontParenthesis;
     public String column;
     public Operator operator;
-    public Object filter;
+    public String filter;
     public List<Parenthesis> endParenthesis = new ArrayList<>();
 
 
@@ -74,11 +74,11 @@ public class Criteria implements Cloneable, Comparable {
         this.operator = operator;
     }
 
-    public Object getFilter() {
+    public String getFilter() {
         return filter;
     }
 
-    public void setFilter(Object filter) {
+    public void setFilter(String filter) {
         this.filter = filter;
     }
 
