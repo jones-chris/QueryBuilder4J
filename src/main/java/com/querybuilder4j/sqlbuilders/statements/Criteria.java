@@ -8,6 +8,7 @@ import com.querybuilder4j.config.Parenthesis;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.querybuilder4j.sqlbuilders.SqlCleanser.escape;
 import static java.util.Optional.ofNullable;
 
 
@@ -102,19 +103,6 @@ public class Criteria implements Cloneable, Comparable {
 
     @Override
     public String toString() throws IllegalArgumentException {
-//        String endParenthesisString = "";
-//        if (endParenthesis != null) {
-//            for (Parenthesis paren : endParenthesis) {
-//                endParenthesisString += paren;
-//            }
-//        }
-//
-//        return String.format(" %s %s%s %s %s%s ", ofNullable(conjunction).orElse(Conjunction.Empty),
-//                                                  ofNullable(frontParenthesis).orElse(Parenthesis.Empty),
-//                                                  column,
-//                                                  operator,
-//                                                  ofNullable(filter).orElse(""),
-//                                                  endParenthesisString);
         StringBuilder sb = new StringBuilder();
         sb.append("Conjunction:  ").append(ofNullable(conjunction).orElse(Conjunction.Empty));
         sb.append("Front Parenthesis:  ").append(ofNullable(frontParenthesis).orElse(Parenthesis.Empty));
@@ -131,6 +119,33 @@ public class Criteria implements Cloneable, Comparable {
         sb.append("End Parenthesis:  ").append(endParenthesisString);
 
         return sb.toString();
+    }
+
+    /**
+     * Returns the SQL string representation of the criteria in this format:
+     * [AND/OR] [FRONT PARENTHESIS] table_name.column_name [OPERATOR] filter [END PARENTHESIS]
+     *
+     * @param beginningDelimiter
+     * @param endingDelimiter
+     * @return String
+     */
+    public String toSql(char beginningDelimiter, char endingDelimiter) {
+        String endParenthesisString = "";
+        if (this.endParenthesis != null) {
+            for (Parenthesis paren : this.endParenthesis) {
+                endParenthesisString += paren;
+            }
+        }
+
+        String[] tableAndColumn = this.column.split("\\.");
+        return String.format(" %s %s%s%s%s.%s%s%s %s %s%s ",
+                ofNullable(this.conjunction).orElse(Conjunction.Empty),
+                ofNullable(this.frontParenthesis).orElse(Parenthesis.Empty),
+                beginningDelimiter, escape(tableAndColumn[0]), endingDelimiter,
+                beginningDelimiter, escape(tableAndColumn[1]), endingDelimiter,
+                this.operator,
+                ofNullable(this.filter).orElse(""),
+                endParenthesisString);
     }
 
 

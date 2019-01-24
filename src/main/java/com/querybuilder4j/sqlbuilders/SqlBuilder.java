@@ -14,71 +14,133 @@ import java.util.*;
 
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.escape;
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.sqlIsClean;
-import static java.util.Optional.ofNullable;
 
+/**
+ * This class uses a SelectStatement to generate a SELECT SQL string.
+ */
 public abstract class SqlBuilder {
+
+    /**
+     * A Map with the keys being JDBC Types and the values being booleans.  The boolean values represent whether filters
+     * with the given JDBC type should be quoted.  For example, if a column's JDBC type is INTEGER, then the value in the
+     * typeMappings field is false, because integers do not need to be wrapped in quotes in a SQL WHERE clause.  On the
+     * other hand, if a column's JDBC type is NVARCHAR, then the value in the typeMappings field is true, because varchar's
+     * do not need to be wrapped in quotes in a SQL WHERE clause.
+     */
     protected final static Map<Integer, Boolean> typeMappings = new HashMap<>();
+
+    /**
+     * The character to begin wrapping the table and column in a SQL statement.  For example, PostgreSQL uses a double quote
+     * to wrap the table and column in a SELECT SQL statement like so:  SELECT "employees"."name" FROM "employees".  MySQL
+     * uses back ticks like so:  SELECT `employees`.`name` from `employees`.
+     */
     protected char beginningDelimiter;
+
+    /**
+     * The character to end wrapping the table and column in a SQL statement.  For example, PostgreSQL uses a double quote
+     * to wrap the table and column in a SELECT SQL statement like so:  SELECT "employees"."name" FROM "employees".  MySQL
+     * uses back ticks like so:  SELECT `employees`.`name` from `employees`.
+     */
     protected char endingDelimter;
+
+
+    /**
+     * A Map with the values being the stmt's table columns and the values being their JDBC types.
+     */
+    //TODO:  pass tableSchemas to subqueries so that the metadata does not have to be fetched from the database again.
     protected Map<String, Map<String, Integer>> tableSchemas = new HashMap<>();
+
+    /**
+     * The database connection properties.  The first three properties below are required and the last two are optional.
+     * 1) Database URL
+     * 2) JDCB driver class
+     *      ex) org.sqlite.JDBC
+     * 3) QueryBuilder4J DatabaseType
+     *      ex) Sqlite
+     * 4) Database username (optional)
+     * 5) Database password (optional)
+     */
     protected final Properties properties;
+
+    /**
+     * The SelectStatement that encapsulates the data to generate the SELECT SQL string.
+     */
     protected SelectStatement stmt;
-    //protected Map<String, String> subQueries = new HashMap<>();
-    protected Map<String, SelectStatement> subQueries2 = new HashMap<>();
-    protected Map<String, String> parsedSubQueries = new HashMap<>();
+
+    /**
+     * A Map of the stmt's subqueries with the key being the subquery id (subquery0, subquery1, etc) and the value being
+     * the subquery deserialized into a SelectStatement object.
+     */
+    protected Map<String, SelectStatement> unbuiltSubQueries = new HashMap<>();
+
+    /**
+     * A Map of the stmt's subqueries with the key being the subquery id (subquery0, subquery1, etc) and the value being
+     * the SELECT SQL string generated from the SelectStatement object in the subQueries field of this class.
+     */
+    protected Map<String, String> builtSubQueries = new HashMap<>();
+
+    /**
+     * A constant to be used after a column is split on "." and the resulting array is [table_name, column_name].  In
+     * such an array, index 0 returns table_name.
+     */
     protected final int TABLE_INDEX = 0;
+
+    /**
+     * A constant to be used after a column is split on "." and the resulting array is [table_name, column_name].  In
+     * such an array, index 1 returns column_name.
+     */
     protected final int COLUMN_INDEX = 1;
+
+    /**
+     * The class that will be used to retrieve subqueries, if they exist in the stmt.
+     */
     protected QueryTemplateDao queryTemplateDao;
 
     static {
-        typeMappings.put(Types.ARRAY, true);                     //ARRAY
-        typeMappings.put(Types.BIGINT, false);                   //BIGINT
-        typeMappings.put(Types.BINARY, true);                    //BINARY
-        typeMappings.put(Types.BIT, false);                      //BIT
-        typeMappings.put(Types.BLOB, true);                      //BLOB
-        typeMappings.put(Types.BOOLEAN, false);                  //BOOLEAN
-        typeMappings.put(Types.CHAR, true);                      //CHAR
-        typeMappings.put(Types.CLOB, true);                      //CLOB
-        //typeMappings.put(Types.DATALINK, false);                 //DATALINK
-        typeMappings.put(Types.DATE, true);                      //DATE
-        typeMappings.put(Types.DECIMAL, true);                   //DECIMAL
-        typeMappings.put(Types.DISTINCT, true);                  //DISTINCT
-        typeMappings.put(Types.DOUBLE, false);                   //DOUBLE
-        typeMappings.put(Types.FLOAT, false);                    //FLOAT
-        typeMappings.put(Types.INTEGER, false);                  //INTEGER
-        typeMappings.put(Types.JAVA_OBJECT, true);               //JAVA_OBJECT
-        typeMappings.put(Types.LONGNVARCHAR, true);              //LONGNVARCHAR
-        typeMappings.put(Types.LONGVARBINARY, true);             //LONGVARBINARY
-        typeMappings.put(Types.LONGVARCHAR, true);               //LONGVARCHAR
-        typeMappings.put(Types.NCHAR, true);                     //NCHAR
-        typeMappings.put(Types.NCLOB, true);                     //NCLOB
-        typeMappings.put(Types.NULL, true);                      //NULL
-        typeMappings.put(Types.NUMERIC, false);                  //NUMERIC
-        typeMappings.put(Types.NVARCHAR, true);                  //NVARCHAR
-        typeMappings.put(Types.OTHER, true);                     //OTHER
-        typeMappings.put(Types.REAL, false);                     //REAL
-        typeMappings.put(Types.REF, true);                       //REF
-        typeMappings.put(Types.REF_CURSOR, true);                //REF_CURSOR
-        typeMappings.put(Types.ROWID, false);                    //ROWID
-        typeMappings.put(Types.SMALLINT, false);                 //SMALLINT
-        typeMappings.put(Types.SQLXML, true);                    //SQLXML
-        typeMappings.put(Types.STRUCT, true);                    //STRUCT
-        typeMappings.put(Types.TIME, true);                      //TIME
-        typeMappings.put(Types.TIME_WITH_TIMEZONE, true);        //TIME_WITH_TIMEZONE
-        typeMappings.put(Types.TIMESTAMP, true);                 //TIMESTAMP
-        typeMappings.put(Types.TIMESTAMP_WITH_TIMEZONE, true);   //TIMESTAMP_WITH_TIMEZONE
-        typeMappings.put(Types.TINYINT, false);                  //TINYINT
-        typeMappings.put(Types.VARBINARY, true);                 //VARBINARY
-        typeMappings.put(Types.VARCHAR, true);                   //VARCHAR
+        typeMappings.put(Types.ARRAY, true);
+        typeMappings.put(Types.BIGINT, false);
+        typeMappings.put(Types.BINARY, true);
+        typeMappings.put(Types.BIT, false);
+        typeMappings.put(Types.BLOB, true);
+        typeMappings.put(Types.BOOLEAN, false);
+        typeMappings.put(Types.CHAR, true);
+        typeMappings.put(Types.CLOB, true);
+        //typeMappings.put(Types.DATALINK, false);
+        typeMappings.put(Types.DATE, true);
+        typeMappings.put(Types.DECIMAL, true);
+        typeMappings.put(Types.DISTINCT, true);
+        typeMappings.put(Types.DOUBLE, false);
+        typeMappings.put(Types.FLOAT, false);
+        typeMappings.put(Types.INTEGER, false);
+        typeMappings.put(Types.JAVA_OBJECT, true);
+        typeMappings.put(Types.LONGNVARCHAR, true);
+        typeMappings.put(Types.LONGVARBINARY, true);
+        typeMappings.put(Types.LONGVARCHAR, true);
+        typeMappings.put(Types.NCHAR, true);
+        typeMappings.put(Types.NCLOB, true);
+        typeMappings.put(Types.NULL, true);
+        typeMappings.put(Types.NUMERIC, false);
+        typeMappings.put(Types.NVARCHAR, true);
+        typeMappings.put(Types.OTHER, true);
+        typeMappings.put(Types.REAL, false);
+        typeMappings.put(Types.REF, true);
+        typeMappings.put(Types.REF_CURSOR, true);
+        typeMappings.put(Types.ROWID, false);
+        typeMappings.put(Types.SMALLINT, false);
+        typeMappings.put(Types.SQLXML, true);
+        typeMappings.put(Types.STRUCT, true);
+        typeMappings.put(Types.TIME, true);
+        typeMappings.put(Types.TIME_WITH_TIMEZONE, true);
+        typeMappings.put(Types.TIMESTAMP, true);
+        typeMappings.put(Types.TIMESTAMP_WITH_TIMEZONE, true);
+        typeMappings.put(Types.TINYINT, false);
+        typeMappings.put(Types.VARBINARY, true);
+        typeMappings.put(Types.VARCHAR, true);
     }
 
     public SqlBuilder(SelectStatement stmt, Properties properties) throws Exception {
         this.stmt = stmt;
         this.properties = properties;
-
-//        if (subQueries != null) {
-//            this.subQueries = subQueries;
-//        }
 
         if (stmt.getQueryTemplateDao() != null) {
             this.queryTemplateDao = stmt.getQueryTemplateDao();
@@ -89,26 +151,25 @@ public abstract class SqlBuilder {
         }
 
         // First, get all SelectStatements that are listed in subqueries.  Later we will replace the params in each subquery.
+        // TODO:  this eager loads the subqueries.  It may be beneficial to consider having a class boolean field for lazy loading.
         if (stmt.getSubQueries().size() != 0 && queryTemplateDao != null) {
             this.stmt.getSubQueries().forEach((subQueryId, subQueryCall) -> {
                 String subQueryName = subQueryCall.substring(0, subQueryCall.indexOf("("));
                 SelectStatement queryTemplate = queryTemplateDao.getQueryTemplateByName(subQueryName);
+
                 if (queryTemplate == null) {
                     throw new RuntimeException(String.format("Could not find subquery named %s in SqlBuilder's queryTemplateDao", subQueryName));
                 } else {
-                    this.subQueries2.put(subQueryId, queryTemplate);
+                    this.unbuiltSubQueries.put(subQueryId, queryTemplate);
                 }
             });
         }
 
         if (statementIsValid()) {
-            parseSubqueries();
+            buildSubQueries();
         } else {
             throw new RuntimeException("The statement was not valid");
         }
-//        if (statementIsValid()) {
-//            parseSubqueries();
-//        }
     }
 
     public abstract String buildSql() throws Exception;
@@ -196,9 +257,11 @@ public abstract class SqlBuilder {
         if (criteria.size() != 0) {
             sql.append(" WHERE ");
 
-            for (Criteria crit : criteria) {
-                // clone criteria
-                Criteria criteriaClone = (Criteria) crit.clone();
+            for (Criteria criterion : criteria) {
+                // Clone the criterion in case the criterion is reused - such as in a desktop app.  This method changes
+                // the criterion, so it makes a clone of the criterion and makes changes to the clone so that the original
+                // criterion is unchanged.
+                Criteria criteriaClone = (Criteria) criterion.clone();
 
                 if (criteriaClone.getId() == 0) {
                     criteriaClone.conjunction = null;
@@ -206,26 +269,19 @@ public abstract class SqlBuilder {
 
                 if (criteriaClone.operator.equals(Operator.isNull) || criteriaClone.operator.equals(Operator.isNotNull)) {
                     criteriaClone.filter = null;
-                    sql.append(String.format(" %s ", stringifyCriteria(criteriaClone)));
+                    String criteriaSql = criteriaClone.toSql(beginningDelimiter, endingDelimter);
+                    sql.append(String.format(" %s ", criteriaSql));
                     continue;
                 }
 
-                // Now that we know that the criteria's operator is not 'isNull' or 'isNotNull', we can assume that the
-                // criteria's filter is needed.  Therefore, we should check if the filter is null or an empty string.
-                // If so, throw an exception.
-//                if (criteriaClone.filter == null || criteriaClone.filter.equals("")) {
-//                    throw new BadSqlException("The criteria has a null or empty filter, " +
-//                            "but the operator is not \"IsNull\" or \"IsNotNull\"");
-//                }
-
-                // If the criteria's filter is a SubQuery, then generate the SelectStatement's
-                // parameterized SQL string.
+                // If the criteria's filter is a SubQuery, then generate the SelectStatement's SQL string.
+                // TODO:  Make this easy to understand.  Why is argIsSubQuery() being called twice?
                 if (argIsSubQuery(criteriaClone.filter)) {
-                    // the criteria's filter should be the subquery id that can be retrieved from parsedSubQueries.
+                    // The criteria's filter should be the subquery id that can be retrieved from builtSubQueries.
                     String[] args = criteriaClone.filter.split(",");
                     for (String arg : args) {
                         if (argIsSubQuery(arg)) {
-                            String subquery = parsedSubQueries.get(arg);
+                            String subquery = builtSubQueries.get(arg);
                             criteriaClone.filter = criteriaClone.filter.replace(arg, "(" + subquery + ")");
                         }
                     }
@@ -234,9 +290,8 @@ public abstract class SqlBuilder {
                         criteriaClone.filter = "(" + criteriaClone.filter + ")";
                     }
 
-                    //String subquery = parsedSubQueries.get(criteriaClone.filter);
-                    //criteriaClone.filter = "(" + subquery + ")";
-                    sql.append(stringifyCriteria(criteriaClone)).append(" ");
+                    String criteriaSql = criteriaClone.toSql(beginningDelimiter, endingDelimter);
+                    sql.append(criteriaSql).append(" ");
                     continue;
                 }
 
@@ -247,18 +302,17 @@ public abstract class SqlBuilder {
                     if (shouldHaveQuotes) {
                         wrapFilterInQuotes(criteriaClone);
                     } else {
-                        criteriaClone.filter = "(" + escape(criteriaClone.filter.toString()) + ")";
+                        criteriaClone.filter = "(" + escape(criteriaClone.filter) + ")";
                     }
-//                    sql.append(stringifyCriteria(criteriaClone)).append(" ");
                 } else {
                     if (shouldHaveQuotes) {
-                        criteriaClone.filter = "'" + escape(criteriaClone.filter.toString()) + "'";
+                        criteriaClone.filter = "'" + escape(criteriaClone.filter) + "'";
                     } else {
-                        criteriaClone.filter = escape(criteriaClone.filter.toString());
+                        criteriaClone.filter = escape(criteriaClone.filter);
                     }
-//                    sql.append(stringifyCriteria(criteriaClone)).append(" ");
                 }
-                sql.append(stringifyCriteria(criteriaClone)).append(" ");
+                String criteriaSql = criteriaClone.toSql(beginningDelimiter, endingDelimter);
+                sql.append(criteriaSql).append(" ");
             }
         }
         return sql;
@@ -268,10 +322,7 @@ public abstract class SqlBuilder {
      * Creates the GROUP BY clause of a SELECT SQL statement.
      *
      * @param columns
-     * @return
-     * @throws IllegalArgumentException
-     * @throws EmptyCollectionException
-     * @throws BadSqlException
+     * @return StringBuilder
      */
     protected StringBuilder createGroupByClause(List<String> columns) {
         StringBuilder sql = new StringBuilder(" GROUP BY ");
@@ -291,10 +342,7 @@ public abstract class SqlBuilder {
      *
      * @param columns
      * @param ascending
-     * @return
-     * @throws IllegalArgumentException
-     * @throws EmptyCollectionException
-     * @throws BadSqlException
+     * @return StringBuilder
      */
     protected StringBuilder createOrderByClause(List<String> columns, boolean ascending) {
         StringBuilder sql = new StringBuilder(" ORDER BY ");
@@ -307,7 +355,6 @@ public abstract class SqlBuilder {
         }
 
         sql.delete(sql.length() - 2, sql.length()).append(" ");
-        //return (ascending) ? sql.append(" ASC ").Replace("  ", " ") : sql.Append(" DESC ").Replace("  ", " ");
         return (ascending) ? sql.append(" ASC ") : sql.append(" DESC ");
     }
 
@@ -315,11 +362,9 @@ public abstract class SqlBuilder {
      * Creates the LIMIT clause of a SELECT SQL statement.
      *
      * @param limit
-     * @return
-     * @throws IllegalArgumentException
-     * @throws BadSqlException
+     * @return StringBuilder
      */
-    protected StringBuilder createLimitClause(Long limit) throws IllegalArgumentException, BadSqlException {
+    protected StringBuilder createLimitClause(Long limit) throws IllegalArgumentException {
         return new StringBuilder(String.format(" LIMIT %s ", limit));
     }
 
@@ -327,11 +372,9 @@ public abstract class SqlBuilder {
      * Creates the OFFSET clause of a SELECT SQL statement.
      *
      * @param offset
-     * @return
-     * @throws IllegalArgumentException
-     * @throws BadSqlException
+     * @return StringBuilder
      */
-    protected StringBuilder createOffsetClause(Long offset) throws IllegalArgumentException, BadSqlException {
+    protected StringBuilder createOffsetClause(Long offset) throws IllegalArgumentException {
         return new StringBuilder(String.format(" OFFSET %s ", offset));
     }
 
@@ -345,7 +388,7 @@ public abstract class SqlBuilder {
     protected StringBuilder createSuppressNullsClause(List<String> columns) {
         StringBuilder sql = new StringBuilder();
 
-        for (int i = 0; i < columns.size(); i++) {
+        for (int i=0; i<columns.size(); i++) {
             String[] tableAndColumn = columns.get(i).split("\\.");
             if (i == 0) {
                 sql.append(String.format(" (%s%s%s.%s%s%s IS NOT NULL ",
@@ -366,7 +409,7 @@ public abstract class SqlBuilder {
      *
      * @param table
      * @param columnName
-     * @return
+     * @return int
      * @throws ColumnNameNotFoundException
      */
     private int getColumnDataType(String table, String columnName) throws ColumnNameNotFoundException {
@@ -388,7 +431,7 @@ public abstract class SqlBuilder {
      * On the other hand, the INTEGER Type will return false, because it should NOT be wrapped in single quotes in a WHERE SQL condition.
      *
      * @param columnDataType
-     * @return
+     * @return boolean
      * @throws DataTypeNotFoundException
      */
     private boolean isColumnQuoted(int columnDataType) throws DataTypeNotFoundException {
@@ -407,10 +450,7 @@ public abstract class SqlBuilder {
      * @param criteria
      */
     private void wrapFilterInQuotes(Criteria criteria) {
-        if (criteria.filter instanceof String == false) {
-            throw new RuntimeException("The criteria filter must be of type String when calling this method.");
-        }
-        String[] originalFilters = criteria.filter.toString().split(",");
+        String[] originalFilters = criteria.filter.split(",");
         String[] newFilters = new String[originalFilters.length];
 
         for (int i=0; i<originalFilters.length; i++) {
@@ -418,73 +458,6 @@ public abstract class SqlBuilder {
         }
 
         criteria.filter = "(" + String.join(",", newFilters) + ")";
-    }
-
-    /**
-     * Returns the SQL string of the criteria that is passed into the function.
-     *
-     * For example, it may return the string:  "AND "table1"."column1" = 'test'".
-     *
-     * @param criteria
-     * @return
-     */
-    private String stringifyCriteria(Criteria criteria) {
-        String endParenthesisString = "";
-        if (criteria.endParenthesis != null) {
-            for (Parenthesis paren : criteria.endParenthesis) {
-                endParenthesisString += paren;
-            }
-        }
-
-        String[] tableAndColumn = criteria.column.split("\\.");
-        return String.format(" %s %s%s%s%s.%s%s%s %s %s%s ",
-                ofNullable(criteria.conjunction).orElse(Conjunction.Empty),
-                ofNullable(criteria.frontParenthesis).orElse(Parenthesis.Empty),
-                beginningDelimiter, escape(tableAndColumn[0]), endingDelimter,
-                beginningDelimiter, escape(tableAndColumn[1]), endingDelimter,
-                criteria.operator,
-                ofNullable(criteria.filter).orElse(""),
-                endParenthesisString);
-
-//        String[] tableAndColumn = criteria.column.split("\\.");
-//        //if operator is IN or NOT IN
-//        if (criteria.operator.equals(Operator.in) || criteria.operator.equals(Operator.notIn)) {
-//            // This is the format of the criteria:  " %s %s%s%s%s.%s%s%s %s %s%s "
-//            StringBuilder sb = new StringBuilder();
-//            sb.append(" ").append(ofNullable(criteria.conjunction).orElse(Conjunction.Empty)).append(" ");
-//            sb.append(" ").append(ofNullable(criteria.frontParenthesis).orElse(Parenthesis.Empty)).append(" ");
-//            sb.append(beginningDelimiter).append(escape(tableAndColumn[0])).append(endingDelimter).append(".");
-//            sb.append(beginningDelimiter).append(escape(tableAndColumn[1])).append(endingDelimter);
-//            sb.append(" ").append(criteria.operator).append(" ("); // Opening parenthesis begins the IN or NOT IN list.
-//
-//            String[] filters = criteria.filter.toString().split(",");
-//            for (String filter : filters) {
-//                sb.append(":").append("filter").append(namedParameterCount).append(",");
-//                namedParameterCount++;
-//            }
-//            // Remove trailing comma.
-//            sb.deleteCharAt(sb.length()-1);
-//            sb.append(")"); // Ends the IN or NOT IN list.
-//            sb.append(endParenthesisString);
-//
-//            return sb.toString();
-//        } else {
-//            String filterNamedParameter = (criteria.operator.equals(Operator.isNull) || criteria.operator.equals(Operator.isNotNull)) ? "" : ":filter" + namedParameterCount;
-//
-//            String s = String.format(" %s %s%s%s%s.%s%s%s %s %s%s ",
-//                       ofNullable(criteria.conjunction).orElse(Conjunction.Empty),
-//                       ofNullable(criteria.frontParenthesis).orElse(Parenthesis.Empty),
-//                       beginningDelimiter, escape(tableAndColumn[0]), endingDelimter,
-//                       beginningDelimiter, escape(tableAndColumn[1]), endingDelimter,
-//                       criteria.operator,
-//                       filterNamedParameter,
-//                       //":filter" + namedParameterCount,
-//                       //ofNullable(criteria.filter).orElse(""),
-//                       endParenthesisString);
-//
-//            namedParameterCount++;
-//            return s;
-//        }
     }
 
     /**
@@ -508,10 +481,10 @@ public abstract class SqlBuilder {
             }
         }
 
-        for (Criteria crit : stmt.getCriteria()) {
-            String[] tableAndColumn = crit.column.split("\\.");
+        for (Criteria criterion : stmt.getCriteria()) {
+            String[] tableAndColumn = criterion.column.split("\\.");
             if (tableAndColumn.length != 2) {
-                throw new RuntimeException("A column needs to be in the format [table.column].  The ill-formatted column was " + crit.column);
+                throw new RuntimeException("A column needs to be in the format [table.column].  The ill-formatted column was " + criterion.column);
             }
             String table = tableAndColumn[0];
             String column = tableAndColumn[1];
@@ -524,65 +497,24 @@ public abstract class SqlBuilder {
         this.tableSchemas = stmtTableSchemas;
     }
 
-    /*
-    Example parameterized sql
-
+    /**
+     * This method controls building subqueries.
+     *
+     * The overall flow is that each subquery in this.stmt.subQueries, which contains the
+     * raw query name call and arguments, is retrieved using this.queryTemplateDao and deserialized into a SelectStatement,
+     * which is added to this.unbuiltSubQueries to await being built.
+     *
+     * Then, each subquery in this.unbuiltSubQueries is
+     * built by calling the toSql() method on each subquery because they are each a SelectStatement object.  When a subquery is
+     * built, the resulting SELECT SQL string is added to this.builtSubQueries.
+     *
+     * Lastly, this.builtSubQueries is referenced by the this.createWhereClause() method to create the WHERE clause of the
+     * SELECT SQL string.
+     *
+     * @throws Exception
      */
-
-    protected void parseSubqueries() throws Exception {
-        // First, get all SelectStatements that are listed in subqueries.  Later we will replace the params in each subquery.
-//        Map<String, SelectStatement> queryTemplates = new HashMap<>();
-//        subQueries.values().forEach((subquery) -> {
-//            String subQueryName = subquery.substring(0, subquery.indexOf("("));
-//            SelectStatement queryTemplate = queryTemplateDao.getQueryTemplateByName(subQueryName);
-//            if (queryTemplate == null) {
-//                throw new RuntimeException(String.format("Could not find subquery named %s in queryTemplateDao", subQueryName));
-//            } else {
-//                queryTemplates.put(subQueryName, queryTemplate);
-//            }
-//        });
-
-        while (! allSubQueriesAreParsed()) {
-//            for (Map.Entry<String, String> subQuery : subQueries.entrySet()) {
-//                String subQueryId = subQuery.getKey();
-//                String subQueryName = subQuery.getValue().substring(0, subQuery.getValue().indexOf("("));
-//                String[] subQueryArgs = subQuery.getValue().substring(subQuery.getValue().indexOf("(") + 1, subQuery.getValue().indexOf(")")).split(",");
-//
-//                // If there are no args, then there will be one element in subQueryArgs and it will be an empty string.
-//                if (subQueryArgs.length == 1 && subQueryArgs[0].equals("")) {
-//                    subQueryArgs = new String[0];
-//                }
-//
-//                if (! parsedSubQueries.containsKey(subQueryId)) {
-//                    // run query if subQuery has no args
-//                    if (subQueryArgs.length == 0) {
-//                        //SelectStatement queryTemplate = queryTemplateDao.getQueryTemplateByName(subQueryName);
-//                        SelectStatement queryTemplate = queryTemplates.get(subQueryName);
-//                        //String sql = queryTemplate.toSql(properties);
-//                        parsedSubQueries.put(subQueryId, sql);
-//                    } else { // else subquery has args
-//                        // test if it is a lowest level query by using contains("subquery")
-//                        if (! argsContainSubQuery(subQueryArgs)) {
-//                            String parsedSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
-//                            parsedSubQueries.put(subQueryId, parsedSubQuery);
-//                        } else {
-//                            for (String arg : subQueryArgs) {
-//                                // determine if arg is a subquery
-//                                if (argIsSubQuery(arg)) {
-//                                    if (parsedSubQueries.containsKey(arg)) {
-//                                        // subquery has already been parsed.
-//                                        break;
-//                                    } else {
-//                                        // subquery has NOT already been parsed.
-//                                        String parsedSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
-//                                        parsedSubQueries.put(subQueryId, parsedSubQuery);
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
+    protected void buildSubQueries() throws Exception {
+        while (! allSubQueriesAreBuilt()) {
             for (Map.Entry<String, String> subQuery : this.stmt.getSubQueries().entrySet()) {
                 String subQueryId = subQuery.getKey();
                 String subQueryName = subQuery.getValue().substring(0, subQuery.getValue().indexOf("("));
@@ -593,29 +525,28 @@ public abstract class SqlBuilder {
                     subQueryArgs = new String[0];
                 }
 
-                if (! parsedSubQueries.containsKey(subQueryId)) {
+                if (! builtSubQueries.containsKey(subQueryId)) {
                     // run query if subQuery has no args
                     if (subQueryArgs.length == 0) {
-                        //SelectStatement queryTemplate = queryTemplateDao.getQueryTemplateByName(subQueryName);
-                        SelectStatement queryTemplate = subQueries2.get(subQueryId);
+                        SelectStatement queryTemplate = unbuiltSubQueries.get(subQueryId);
                         String sql = queryTemplate.toSql(properties);
-                        parsedSubQueries.put(subQueryId, sql);
+                        builtSubQueries.put(subQueryId, sql);
                     } else { // else subquery has args
                         // test if it is a lowest level query by using contains("subquery")
                         if (! argsContainSubQuery(subQueryArgs)) {
-                            String parsedSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
-                            parsedSubQueries.put(subQueryId, parsedSubQuery);
+                            String builtSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
+                            builtSubQueries.put(subQueryId, builtSubQuery);
                         } else {
                             for (String arg : subQueryArgs) {
                                 // determine if arg is a subquery
                                 if (argIsSubQuery(arg)) {
-                                    if (parsedSubQueries.containsKey(arg)) {
-                                        // subquery has already been parsed.
+                                    if (builtSubQueries.containsKey(arg)) {
+                                        // subquery has already been built.
                                         break;
                                     } else {
-                                        // subquery has NOT already been parsed.
-                                        String parsedSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
-                                        parsedSubQueries.put(subQueryId, parsedSubQuery);
+                                        // subquery has NOT already been built.
+                                        String builtSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
+                                        builtSubQueries.put(subQueryId, builtSubQuery);
                                     }
                                 }
                             }
@@ -627,9 +558,13 @@ public abstract class SqlBuilder {
         }
     }
 
-    private boolean allSubQueriesAreParsed() {
-        for (String subquery : subQueries2.keySet()) {
-            if (! parsedSubQueries.containsKey(subquery)) {
+    /**
+     * Determines if all subqueries are built.
+     * @return boolean
+     */
+    private boolean allSubQueriesAreBuilt() {
+        for (String subquery : unbuiltSubQueries.keySet()) {
+            if (! builtSubQueries.containsKey(subquery)) {
                 return false;
             }
         }
@@ -641,7 +576,7 @@ public abstract class SqlBuilder {
      * Tests if a String is a subquery qb4j expression.  If the String "subquery" is not at index 0 in the String, then
      * false.  Otherwise, true.
      * @param arg
-     * @return
+     * @return boolean
      */
     private boolean argIsSubQuery(String arg) {
         int begIndexOfSubQuery = arg.toLowerCase().indexOf("subquery");
@@ -649,8 +584,7 @@ public abstract class SqlBuilder {
     }
 
     private String buildSubQuery(String subQueryId, String subQueryName, String[] subQueryArgs) throws Exception {
-        //SelectStatement stmt = queryTemplateDao.getQueryTemplateByName(subQueryName);
-        SelectStatement stmt = subQueries2.get(subQueryId);
+        SelectStatement stmt = unbuiltSubQueries.get(subQueryId);
         if (stmt != null) {
             stmt.setCriteriaArguments(getSubQueryArgs(subQueryArgs));
             stmt.setQueryTemplateDao(this.queryTemplateDao);
@@ -662,13 +596,13 @@ public abstract class SqlBuilder {
         }
     }
 
-//    private void addSqlParameters(Map<String, Object> sqlParameterSource) {
-//        for (String key : sqlParameterSource.keySet()) {
-//            sqlParameterMap.put(key, sqlParameterSource.get(key).toString());
-//            namedParameterCount++;
-//        }
-//    }
-
+    /**
+     * Gets all of the subqueries that match the subQueryArgs.  The resulted Map is intended to be used to set a child
+     * SelectStatement's subqueries property so that SQL can be generated correctly.
+     *
+     * @param subQueryArgs
+     * @return Map<String, String>
+     */
     private Map<String, String> getRelevantSubQueries(String[] subQueryArgs) {
         Map<String, String> relevantSubQueries = new HashMap<>();
         for (String paramAndArg : subQueryArgs) {
@@ -681,15 +615,12 @@ public abstract class SqlBuilder {
         return relevantSubQueries;
     }
 
-//    private Map<String, String> getUnparsedSubQueries() {
-//        Map<String, String> unparsedSubQueries = new HashMap<>();
-//        this.stmt.getSubQueries().keySet().forEach((subQueryId) -> {
-//            if (! parsedSubQueries.keySet().contains(subQueryId)) {
-//                unparsedSubQueries.put(subQueryId, this.stmt.getSubQueries().get(subQueryId));
-//            }
-//        });
-//    }
-
+    /**
+     * Determines if an arg is a subquery.
+     *
+     * @param args
+     * @return boolean
+     */
     private boolean argsContainSubQuery(String[] args) {
         for (String arg : args) {
             if (arg.length() >= 8 && arg.substring(0,8).equals("subquery")) {
@@ -700,9 +631,15 @@ public abstract class SqlBuilder {
         return false;
     }
 
+    /**
+     * Returns a Map of a subquery's arguments with the keys being the parameters and the values being the arguments.
+     *
+     * @param argsArray
+     * @return Map<String, String>
+     * @throws Exception
+     */
     private Map<String, String> getSubQueryArgs(String[] argsArray) throws Exception {
         Map<String, String> args = new HashMap<>();
-        //String[] argsAsArray = argsAsString.substring(argsAsString.indexOf("(") + 1, argsAsString.indexOf(")")).split(",");
         for (String paramNameAndArgString : argsArray) {
             if (! paramNameAndArgString.contains("=")) {
                 String message = String.format("'%s' is not formatted properly.  It should be 'paramName=argument", paramNameAndArgString);
@@ -731,7 +668,7 @@ public abstract class SqlBuilder {
             setTableSchemas();
         }
 
-        // create list of statement's SELECT columns and WHERE columns.
+        // Create list of statement's SELECT columns and WHERE columns.
         List<String> columns = new ArrayList<>(this.stmt.getColumns());
         this.stmt.getCriteria().forEach((criterion) -> columns.add(criterion.getColumn()));
 
@@ -751,12 +688,18 @@ public abstract class SqlBuilder {
 
         }
 
-        // check that statement's table is legit.
+        // Check that statement's table is legit.
         if (! tableSchemas.containsKey(this.stmt.getTable())) return false;
 
         return true;
     }
 
+    /**
+     * Determines if the stmt's criteria are valid.
+     *
+     * @return boolean
+     * @throws Exception
+     */
     private boolean criteriaAreValid() throws Exception {
         for (Criteria criterion : this.stmt.getCriteria()) {
             if (! criterion.isValid()) {
@@ -783,7 +726,7 @@ public abstract class SqlBuilder {
             int columnDataType = getColumnDataType(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
             boolean shouldHaveQuotes = isColumnQuoted(columnDataType);
             if (! shouldHaveQuotes) {
-                if (! SqlCleanser.canParseNonQuotedFilter(criterion.filter.toString(), columnDataType)) {
+                if (! SqlCleanser.canParseNonQuotedFilter(criterion.filter, columnDataType)) {
                     throw new Exception(String.format("The criteria's filter is not an number type, but the column is:  %s", criterion));
                 }
             }
@@ -792,6 +735,12 @@ public abstract class SqlBuilder {
         return true;
     }
 
+    /**
+     * Determines if the stmt is valid.
+     *
+     * @return boolean
+     * @throws Exception
+     */
     private boolean statementIsValid() throws Exception {
         if (this.stmt.getColumns() == null) {
             throw new IllegalArgumentException("Columns parameter is null");
