@@ -186,7 +186,13 @@ public class SqlBuilderTest {
 
             // Run SQL statement randomizer.
             DynamicStatementTests queryTests = new DynamicStatementTests(dbType, props);
-            Map<SelectStatement, String> sqlMap = queryTests.buildSql_randomizer();
+            Map<SelectStatement, String> sqlMap = new HashMap<>();
+            try {
+                sqlMap = queryTests.buildSql_randomizer();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                fail();
+            }
 
             for (SelectStatement selectStatement : sqlMap.keySet()) {
                 String sql = selectStatement.toSql(props);

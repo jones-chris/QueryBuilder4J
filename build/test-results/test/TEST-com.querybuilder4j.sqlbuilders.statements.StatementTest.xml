@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.querybuilder4j.sqlbuilders.statements.StatementTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2019-02-03T03:02:51" hostname="sm7chrisjones" time="0.002">
+<testsuite name="com.querybuilder4j.sqlbuilders.statements.StatementTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2019-02-03T12:42:25" hostname="sm7chrisjones" time="0.001">
   <properties/>
-  <testcase name="addParenthesisToCriteriaTest_EndsWithZeroEndingParenthesis" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.001"/>
+  <testcase name="addParenthesisToCriteriaTest_EndsWithZeroEndingParenthesis" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
   <testcase name="addParenthesisToCriteriaTest_EndsWithOneEndingParenthesis" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
-  <testcase name="addParenthesisToCriteria_EndsWithChildTwoEndingParenthesis" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
+  <testcase name="addParenthesisToCriteria_EndsWithChildTwoEndingParenthesis" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.001"/>
   <testcase name="addParenthesisToCriteriaTest_EndsWithZeroEndingParenthesisButChildCriteria" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
   <system-out><![CDATA[[Conjunction:  AndFront Parenthesis:  Column:  column1Operator:  =Filer:  filter1End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column5Operator:  =Filer:  filter5End Parenthesis:  ]
 [Conjunction:  AndFront Parenthesis:  Column:  column1Operator:  =Filer:  filter1End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column2Operator:  =Filer:  filter2End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column3Operator:  =Filer:  filter3End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column4Operator:  =Filer:  filter4End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column5Operator:  =Filer:  filter5End Parenthesis:  ]
