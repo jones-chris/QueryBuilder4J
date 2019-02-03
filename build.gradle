@@ -24,6 +24,9 @@ repositories {
 // This passes the command line -D argument to gradle, which will make the argument available for the test suite.
 test {
     systemProperty 'testProperties', System.getProperty('testProperties')
+    testLogging {
+        exceptionFormat = 'full'
+    }
 }
 
 dependencies {
