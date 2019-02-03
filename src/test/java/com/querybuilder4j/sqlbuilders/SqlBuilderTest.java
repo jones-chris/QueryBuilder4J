@@ -211,7 +211,7 @@ public class SqlBuilderTest {
     private Map<DatabaseType, Properties> getTestProperties() throws IOException {
         // If the 'testProperties' command line argument does not exist, then run tests using the default:  test-config.properties.
         String testPropertiesFilePath = System.getProperty("testProperties");
-        if (testPropertiesFilePath == null) {
+        if (testPropertiesFilePath == null || testPropertiesFilePath.equals("")) {
             testPropertiesFilePath = "./src/test/resources/test-config.properties";
         }
 
@@ -252,8 +252,11 @@ public class SqlBuilderTest {
                 dbProps.setProperty("driverClass", driverClass.toString());
                 dbProps.setProperty("databaseType", databaseType.toString());
 
-                if (username != null && password != null) {
+                if (username != null) {
                     dbProps.setProperty("username", username.toString());
+                }
+
+                if (password != null) {
                     dbProps.setProperty("password", password.toString());
                 }
 

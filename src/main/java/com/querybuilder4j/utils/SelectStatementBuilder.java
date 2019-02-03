@@ -26,6 +26,12 @@ public class SelectStatementBuilder {
         return stmt;
     }
 
+    public static SelectStatement selectDistinct(List<String> columns) {
+        stmt = new SelectStatement();
+        stmt.setColumns(columns);
+        return stmt;
+    }
+
     public SelectStatement distinct() {
         stmt.setDistinct(true);
         return stmt;

@@ -6,14 +6,11 @@ import com.querybuilder4j.config.*;
 import com.querybuilder4j.exceptions.NoMatchingParameterException;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
 import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import java.util.*;
 
 import static com.querybuilder4j.config.Parenthesis.EndParenthesis;
 import static com.querybuilder4j.config.Parenthesis.FrontParenthesis;
-import static com.querybuilder4j.config.SqlBuilderFactory.buildSqlBuilder;
 
 public class SelectStatement {
     private String name = "";

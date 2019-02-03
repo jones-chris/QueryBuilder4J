@@ -1,8 +1,6 @@
 package com.querybuilder4j;
 
-import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 
-import javax.sql.DataSource;
 import java.sql.*;
 import java.util.Properties;
 
@@ -21,16 +19,6 @@ public class TestUtils {
         return true;
     }
 
-    public static ResultSet multiColumnResultSetBuilder(Properties properties) throws Exception {
-        Connection connection = DriverManager.getConnection(
-                properties.getProperty("url"),
-                properties.getProperty("username"),
-                properties.getProperty("password"));
-
-            DatabaseMetaData metaData = connection.getMetaData();
-            return metaData.getColumns(null, null, "county_spending_detail", "%");
-    }
-
     public static Connection getConnection(Properties properties) throws Exception {
         String url = properties.getProperty("url");
         String username = properties.getProperty("username");
@@ -41,23 +29,6 @@ public class TestUtils {
                 (username != null) ? username : null,
                 (password != null) ? password : null
         );
-    }
-
-    public static DataSource getDataSource(Properties properties) {
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName(properties.get("driverClass").toString());
-        dataSource.setUrl(properties.get("url").toString());
-
-        Object username = properties.get("username");
-        Object password = properties.get("password");
-        if (username != null) {
-            dataSource.setUsername(username.toString());
-        }
-        if (password != null) {
-            dataSource.setPassword(password.toString());
-        }
-
-        return dataSource;
     }
 
     public static int getRandomInt(int minInclusive, int maxExclusive) {

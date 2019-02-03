@@ -21,6 +21,11 @@ repositories {
     mavenCentral()
 }
 
+// This passes the command line -D argument to gradle, which will make the argument available for the test suite.
+test {
+    systemProperty 'testProperties', System.getProperty('testProperties')
+}
+
 dependencies {
     // https://mvnrepository.com/artifact/postgresql/postgresql
     compile group: 'org.postgresql', name: 'postgresql', version: '9.3-1102-jdbc41'
@@ -41,10 +46,10 @@ dependencies {
     compile group: 'com.h2database', name: 'h2', version: '1.4.197'
 
     // https://mvnrepository.com/artifact/org.springframework/spring-orm
-    compile group: 'org.springframework', name: 'spring-orm', version: '5.1.0.RELEASE'
+    //compile group: 'org.springframework', name: 'spring-orm', version: '5.1.0.RELEASE'
 
     // https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-dbcp
-    compile group: 'org.apache.tomcat', name: 'tomcat-dbcp', version: '9.0.12'
+    //compile group: 'org.apache.tomcat', name: 'tomcat-dbcp', version: '9.0.12'
 
     // https://mvnrepository.com/artifact/org.json/json
     compile group: 'org.json', name: 'json', version: '20180130'
