@@ -713,9 +713,12 @@ public abstract class SqlBuilder {
             // Now that we know that the criteria's operator is not 'isNull' or 'isNotNull', we can assume that the
             // criteria's filter is needed.  Therefore, we should check if the filter is null or an empty string.
             // If so, throw an exception.
-            if ((! criterion.operator.equals(Operator.isNull) || ! criterion.operator.equals(Operator.isNotNull)) &&
-                (criterion.filter == null || criterion.filter.equals(""))) {
-                throw new Exception("The criteria has a null or empty filter, but the operator is not \"IsNull\" or \"IsNotNull\"");
+            if (! criterion.operator.equals(Operator.isNull)) {
+                if (! criterion.operator.equals(Operator.isNotNull)) {
+                    if (criterion.filter == null || criterion.filter.equals("")) {
+                        throw new Exception("The criteria has a null or empty filter, but the operator is not \"IsNull\" or \"IsNotNull\"");
+                    }
+                }
             }
 
             if (tableSchemas.isEmpty()) {

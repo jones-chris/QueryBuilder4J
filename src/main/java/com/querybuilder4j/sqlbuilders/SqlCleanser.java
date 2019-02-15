@@ -81,7 +81,7 @@ public class SqlCleanser {
         //todo:  don't pass params and subqueries into sqlIsClean().
         //todo:  also make Criteria's filter field a String again instead of Object since we're not using SubQuery class anymore.
         if (criteria.getFilter() != null) {
-            String[] filterItems = criteria.getFilter().toString().split(",");
+            //tring[] filterItems = criteria.getFilter().split(",");
 
 //            for (String filterItem : filterItems) {
 //                Pattern patternSubQuery = Pattern.compile("^subquery[0-9]+");
@@ -91,11 +91,9 @@ public class SqlCleanser {
 //
 //                // If filter does NOT contain a param or subquery, then check that string is clean using sqlIsClean().
 //                if (! matcherSubQuery.find() && ! matcherParam.find()) {
-                if (! isSubQueryOrParam(criteria.getFilter().toString())) {
-                    if (criteria.getFilter() instanceof String) {
-                        boolean filterIsClean = sqlIsClean(criteria.getFilter().toString());
-                        if (! filterIsClean) return false;
-                    }
+                if (! isSubQueryOrParam(criteria.filter)) {
+                    boolean filterIsClean = sqlIsClean(criteria.getFilter());
+                    if (! filterIsClean) return false;
                 }
 //            }
         }
@@ -122,6 +120,10 @@ public class SqlCleanser {
      * @return boolean
      */
     public static boolean canParseNonQuotedFilter(String s, int sqlType) throws Exception {
+        if (s == null) {
+            return true;
+        }
+
         if (! isSubQueryOrParam(s)) {
             try {
                 if (sqlType == Types.BIGINT || sqlType == Types.DOUBLE || sqlType == Types.NUMERIC || sqlType == Types.ROWID || sqlType == Types.REAL) {

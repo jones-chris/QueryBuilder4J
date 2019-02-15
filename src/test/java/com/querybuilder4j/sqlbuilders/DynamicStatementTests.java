@@ -111,7 +111,7 @@ public class DynamicStatementTests {
             List<Join> joins = new ArrayList<>();
             if (needJoin) {
                 boolean needMultipleJoinColumns = RandomUtils.nextBoolean();
-                Join join = createJoin(Join.JoinType.INNER, needMultipleJoinColumns);
+                Join join = createJoin(Join.JoinType.LEFT_EXCLUDING, needMultipleJoinColumns);
                 joins.add(join);
             }
 
@@ -260,13 +260,24 @@ public class DynamicStatementTests {
         return randomCriteria;
     }
 
-    private Join createJoin(Join.JoinType joinType, boolean shouldHaveMultipleJoinColumns) {
+    private Join createJoin(Join.JoinType joinType1, boolean shouldHaveMultipleJoinColumns) {
 
         final String PARENT_TABLE = "county_spending_detail";
         final String TARGET_TABLE_PERIODS = "periods";
         final String TARGET_TABLE_SERVICE_HIERARCHY = "service_hierarchy";
+        final Join.JoinType[] joinTypes = {
+            Join.JoinType.LEFT_EXCLUDING,
+            //Join.JoinType.FULL_OUTER_EXCLUDING,
+            //Join.JoinType.FULL_OUTER,
+            //Join.JoinType.RIGHT_EXCLUDING,
+            //Join.JoinType.RIGHT,
+            Join.JoinType.LEFT,
+            Join.JoinType.INNER
+        };
 
         Join join = new Join();
+        int randomInt = TestUtils.getRandomInt(0, joinTypes.length - 1);
+        Join.JoinType joinType = joinTypes[randomInt];
         join.setJoinType(joinType);
         join.setParentTable(PARENT_TABLE);
 

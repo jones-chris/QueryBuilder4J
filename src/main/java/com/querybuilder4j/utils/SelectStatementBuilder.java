@@ -79,7 +79,7 @@ public class SelectStatementBuilder {
     public SelectStatement outerJoin(String targetTable,
                                      List<String> parentTableAndColumns,
                                      List<String> targetTableAndColumns) {
-        Join join = createJoin(Join.JoinType.OUTER, stmt.getTable(), targetTable, parentTableAndColumns, targetTableAndColumns);
+        Join join = createJoin(Join.JoinType.FULL_OUTER, stmt.getTable(), targetTable, parentTableAndColumns, targetTableAndColumns);
         stmt.getJoins().add(join);
         return stmt;
     }
@@ -103,7 +103,7 @@ public class SelectStatementBuilder {
     public SelectStatement fullJoin(String targetTable,
                                     List<String> parentTableAndColumns,
                                     List<String> targetTableAndColumns) {
-        Join join = createJoin(Join.JoinType.FULL, stmt.getTable(), targetTable, parentTableAndColumns, targetTableAndColumns);
+        Join join = createJoin(Join.JoinType.FULL_OUTER, stmt.getTable(), targetTable, parentTableAndColumns, targetTableAndColumns);
         stmt.getJoins().add(join);
         return stmt;
     }

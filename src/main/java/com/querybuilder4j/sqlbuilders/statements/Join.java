@@ -13,16 +13,10 @@ public class Join {
     private List<String> targetJoinColumns = new ArrayList<>();
 
     public enum JoinType {
-        INNER {
+        LEFT_EXCLUDING {
             @Override
             public String toString() {
-                return " INNER JOIN ";
-            }
-        },
-        OUTER {
-            @Override
-            public String toString() {
-                return " OUTER JOIN ";
+                return " LEFT JOIN ";
             }
         },
         LEFT {
@@ -31,16 +25,34 @@ public class Join {
                 return " LEFT JOIN ";
             }
         },
-        RIGHT {
+        INNER {
+            @Override
+            public String toString() {
+                return " INNER JOIN ";
+            }
+        },
+        FULL_OUTER {
+            @Override
+            public String toString() {
+                return " FULL OUTER JOIN ";
+            }
+        },
+        FULL_OUTER_EXCLUDING {
+            @Override
+            public String toString() {
+                return " FULL OUTER JOIN ";
+            }
+        },
+        RIGHT_EXCLUDING {
             @Override
             public String toString() {
                 return " RIGHT JOIN ";
             }
         },
-        FULL {
+        RIGHT {
             @Override
             public String toString() {
-                return " FULL OUTER JOIN ";
+                return " RIGHT JOIN ";
             }
         }
     }

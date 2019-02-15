@@ -190,6 +190,7 @@ public class SqlBuilderTest {
             try {
                 sqlMap = queryTests.buildSql_randomizer();
             } catch (Exception ex) {
+                System.out.println(ex.getMessage());
                 ex.printStackTrace();
                 fail();
             }
