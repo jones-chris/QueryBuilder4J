@@ -461,13 +461,15 @@ public class SelectStatement {
             if (i == 0) {
                 parentId = nextId;
                 criterion.setParentId(null);
-                criterion.setConjunction(Conjunction.And);
+                if (! criteria.isEmpty()) {
+                    criterion.setConjunction(Conjunction.And);
+                }
             } else {
                 criterion.setParentId(parentId);
                 criterion.setConjunction(Conjunction.Or);
             }
 
-            criterion.setColumn(table + "." + columns.get(i));
+            criterion.setColumn(columns.get(i));
             criterion.setOperator(Operator.isNull);
             criteria.add(criterion);
         }

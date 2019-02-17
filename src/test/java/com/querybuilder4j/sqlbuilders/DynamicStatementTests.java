@@ -18,7 +18,7 @@ public class DynamicStatementTests {
     private List<String> randomColumns = new ArrayList<>();
     private List<String> randomTables = new ArrayList<>();
     private List<Criteria> randomCriteria = new ArrayList<>();
-    private static final int NUMBER_OF_SQL_STATEMENTS = 50;
+    private static final int NUMBER_OF_SQL_STATEMENTS = 100;
 
 
     public DynamicStatementTests(DatabaseType databaseType, Properties properties) {
@@ -286,19 +286,19 @@ public class DynamicStatementTests {
         if (shouldHaveMultipleJoinColumns) {
             join.setTargetTable(TARGET_TABLE_SERVICE_HIERARCHY);
 
-            parentJoinColumns.add("fiscal_year");
-            targetJoinColumns.add("fiscal_year");
+            parentJoinColumns.add("county_spending_detail.fiscal_year");
+            targetJoinColumns.add("service_hierarchy.fiscal_year");
 
-            parentJoinColumns.add("service");
-            targetJoinColumns.add("service");
+            parentJoinColumns.add("county_spending_detail.service");
+            targetJoinColumns.add("service_hierarchy.service");
 
             join.setParentJoinColumns(parentJoinColumns);
             join.setTargetJoinColumns(targetJoinColumns);
         } else {
             join.setTargetTable(TARGET_TABLE_PERIODS);
 
-            parentJoinColumns.add("fiscal_year_period");
-            targetJoinColumns.add("period");
+            parentJoinColumns.add("county_spending_detail.fiscal_year_period");
+            targetJoinColumns.add("periods.period");
 
             join.setParentJoinColumns(parentJoinColumns);
             join.setTargetJoinColumns(targetJoinColumns);

@@ -228,15 +228,17 @@ public abstract class SqlBuilder {
 
             for (int j=0; j<join.getParentJoinColumns().size(); j++) {
                 String conjunction = (j == 0) ? "ON" : "AND";
+                String[] parentJoinTableAndColumn = join.getParentJoinColumns().get(j).split("\\.");
+                String[] targetJoinTableAndColumn = join.getTargetJoinColumns().get(j).split("\\.");
 
                 //Format string in the form of " [ON/AND] `table1`.`column1` = `table2`.`column2` ", assuming the database
                 // type is MySql.
-                sb.append(String.format(" %s %S%s%s.%s%s%s = %s%s%s.%s%s%s ",
+                sb.append(String.format(" %s %s%s%s.%s%s%s = %s%s%s.%s%s%s ",
                         conjunction,
-                        beginningDelimiter, join.getParentTable(), endingDelimter,
-                        beginningDelimiter, join.getParentJoinColumns().get(j), endingDelimter,
-                        beginningDelimiter, join.getTargetTable(), endingDelimter,
-                        beginningDelimiter, join.getTargetJoinColumns().get(j), endingDelimter));
+                        beginningDelimiter, parentJoinTableAndColumn[0], endingDelimter,
+                        beginningDelimiter, parentJoinTableAndColumn[1], endingDelimter,
+                        beginningDelimiter, targetJoinTableAndColumn[0], endingDelimter,
+                        beginningDelimiter, targetJoinTableAndColumn[1], endingDelimter));
             }
 
         }
