@@ -18,7 +18,7 @@ public class DynamicStatementTests {
     private List<String> randomColumns = new ArrayList<>();
     private List<String> randomTables = new ArrayList<>();
     private List<Criteria> randomCriteria = new ArrayList<>();
-    private static final int NUMBER_OF_SQL_STATEMENTS = 100;
+    private static final int NUMBER_OF_SQL_STATEMENTS = 1000;
 
 
     public DynamicStatementTests(DatabaseType databaseType, Properties properties) {
@@ -213,15 +213,22 @@ public class DynamicStatementTests {
         criteriaNotLike.filter = "%Government";
 
         //in
-        Criteria criteriaIn = new Criteria(8);
-        criteriaIn.parentId = null;
-        criteriaIn.conjunction = And;
-        criteriaIn.column = "county_spending_detail.service";
-        criteriaIn.operator = in;
-        criteriaIn.filter = "Housing and Community Development";
+        Criteria criteriaInFiscalYearPeriod = new Criteria(8);
+        criteriaInFiscalYearPeriod.parentId = null;
+        criteriaInFiscalYearPeriod.conjunction = And;
+        criteriaInFiscalYearPeriod.column = "county_spending_detail.fiscal_year_period";
+        criteriaInFiscalYearPeriod.operator = in;
+        criteriaInFiscalYearPeriod.filter = "3,4";
+
+        Criteria criteriaInService = new Criteria(9);
+        criteriaInService.parentId = null;
+        criteriaInService.conjunction = And;
+        criteriaInService.column = "county_spending_detail.service";
+        criteriaInService.operator = in;
+        criteriaInService.filter = "General Government,Housing and Community Development";
 
         //not in
-        Criteria criteriaNotIn = new Criteria(9);
+        Criteria criteriaNotIn = new Criteria(10);
         criteriaNotIn.parentId = null;
         criteriaNotIn.conjunction = And;
         criteriaNotIn.column = "county_spending_detail.service";
@@ -229,7 +236,7 @@ public class DynamicStatementTests {
         criteriaNotIn.filter = "Housing and Community Development";
 
         //is null
-        Criteria criteriaIsNull = new Criteria(10);
+        Criteria criteriaIsNull = new Criteria(11);
         criteriaIsNull.parentId = null;
         criteriaIsNull.conjunction = And;
         criteriaIsNull.column = "county_spending_detail.service";
@@ -237,7 +244,7 @@ public class DynamicStatementTests {
         criteriaIsNull.filter = "Housing and Community Development";
 
         //is not null
-        Criteria criteriaIsNotNull = new Criteria(11);
+        Criteria criteriaIsNotNull = new Criteria(12);
         criteriaIsNotNull.parentId = null;
         criteriaIsNotNull.conjunction = And;
         criteriaIsNotNull.column = "county_spending_detail.service";
@@ -252,7 +259,8 @@ public class DynamicStatementTests {
         randomCriteria.add(criteriaLessThan);
         randomCriteria.add(criteriaLike);
         randomCriteria.add(criteriaNotLike);
-        randomCriteria.add(criteriaIn);
+        randomCriteria.add(criteriaInFiscalYearPeriod);
+        randomCriteria.add(criteriaInService);
         randomCriteria.add(criteriaNotIn);
         randomCriteria.add(criteriaIsNull);
         randomCriteria.add(criteriaIsNotNull);

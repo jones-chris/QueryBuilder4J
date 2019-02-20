@@ -367,6 +367,10 @@ public abstract class SqlBuilder {
      * @return StringBuilder
      */
     protected StringBuilder createLimitClause(Long limit) throws IllegalArgumentException {
+        if (limit == null) {
+            return new StringBuilder();
+        }
+
         return new StringBuilder(String.format(" LIMIT %s ", limit));
     }
 
@@ -377,6 +381,10 @@ public abstract class SqlBuilder {
      * @return StringBuilder
      */
     protected StringBuilder createOffsetClause(Long offset) throws IllegalArgumentException {
+        if (offset == null) {
+            return new StringBuilder();
+        }
+
         return new StringBuilder(String.format(" OFFSET %s ", offset));
     }
 
@@ -730,10 +738,14 @@ public abstract class SqlBuilder {
             String[] tableAndColumn = criterion.column.split("\\.");
             int columnDataType = getColumnDataType(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
             boolean shouldHaveQuotes = isColumnQuoted(columnDataType);
-            if (! shouldHaveQuotes) {
-                if (! SqlCleanser.canParseNonQuotedFilter(criterion.filter, columnDataType)) {
-                    throw new Exception(String.format("The criteria's filter is not an number type, but the column is:  %s", criterion));
+            if (! shouldHaveQuotes && criterion.filter != null) {
+                String[] filters = criterion.filter.split(",");
+                for (String filter : filters) {
+                    if (! SqlCleanser.canParseNonQuotedFilter(filter, columnDataType)) {
+                        throw new Exception(String.format("The criteria's filter is not an number type, but the column is:  %s", criterion));
+                    }
                 }
+
             }
         }
 

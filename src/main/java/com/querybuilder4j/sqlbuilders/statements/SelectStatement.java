@@ -25,9 +25,9 @@ public class SelectStatement {
     private boolean distinct;
     private boolean groupBy;
     private boolean orderBy;
-    private Long limit = 10L;
+    private Long limit = null;
     private boolean ascending;
-    private Long offset = 0L;
+    private Long offset = null;
     private boolean suppressNulls;
     private Map<String, String> subQueries = new HashMap<>();
     private QueryTemplateDao queryTemplateDao;
@@ -139,7 +139,7 @@ public class SelectStatement {
         return this;
     }
 
-    public long getLimit() {
+    public Long getLimit() {
         return limit;
     }
 
@@ -157,7 +157,7 @@ public class SelectStatement {
         return this;
     }
 
-    public long getOffset() {
+    public Long getOffset() {
         return offset;
     }
 
