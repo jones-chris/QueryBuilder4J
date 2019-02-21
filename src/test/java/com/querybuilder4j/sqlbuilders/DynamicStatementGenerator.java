@@ -12,8 +12,7 @@ import java.util.*;
 import static com.querybuilder4j.config.Conjunction.*;
 import static com.querybuilder4j.config.Operator.*;
 
-public class DynamicStatementTests {
-    private Properties properties;
+public class DynamicStatementGenerator {
     private DatabaseType databaseType;
     private List<String> randomColumns = new ArrayList<>();
     private List<String> randomTables = new ArrayList<>();
@@ -21,9 +20,8 @@ public class DynamicStatementTests {
     private static final int NUMBER_OF_SQL_STATEMENTS = 1000;
 
 
-    public DynamicStatementTests(DatabaseType databaseType, Properties properties) {
+    public DynamicStatementGenerator(DatabaseType databaseType) {
         this.databaseType = databaseType;
-        this.properties = properties;
 
         randomColumns.add("county_spending_detail.department");
         randomColumns.add("county_spending_detail.service");
@@ -32,8 +30,8 @@ public class DynamicStatementTests {
         randomTables.add("county_spending_detail");
     }
 
-    public Map<SelectStatement, String> buildSql_randomizer() throws Exception {
-        Map<SelectStatement, String> results = new HashMap<>();
+    public List<SelectStatement> createRandomSelectStatements() throws Exception {
+        List<SelectStatement> results = new ArrayList<>();
         randomCriteria = getCriteriaSet();
 
         //i is the number of sql statements to output.
@@ -111,7 +109,7 @@ public class DynamicStatementTests {
             List<Join> joins = new ArrayList<>();
             if (needJoin) {
                 boolean needMultipleJoinColumns = RandomUtils.nextBoolean();
-                Join join = createJoin(Join.JoinType.LEFT_EXCLUDING, needMultipleJoinColumns);
+                Join join = createJoin(needMultipleJoinColumns);
                 joins.add(join);
             }
 
@@ -135,9 +133,7 @@ public class DynamicStatementTests {
             stmt.setLimit(limit);
             stmt.setOffset(offset);
 
-            //SqlBuilder sqlBuilder = SqlBuilderFactory.buildSqlBuilder(databaseType, stmt, null, properties, null);
-            //results.put(stmt, sqlBuilder.buildSql(stmt));
-            results.put(stmt, stmt.toSql(properties));
+            results.add(stmt);
         }
 
         return results;
@@ -268,31 +264,46 @@ public class DynamicStatementTests {
         return randomCriteria;
     }
 
-    private Join createJoin(Join.JoinType joinType1, boolean shouldHaveMultipleJoinColumns) {
-
-        final String PARENT_TABLE = "county_spending_detail";
-        final String TARGET_TABLE_PERIODS = "periods";
-        final String TARGET_TABLE_SERVICE_HIERARCHY = "service_hierarchy";
+    private Join createJoin(boolean shouldHaveMultipleJoinColumns) {
+        final String parentTable = "county_spending_detail";
+        final String targetTablePeriods = "periods";
+        final String targetTableServiceHierarchy = "service_hierarchy";
+        final Join.JoinType[] joinTypesForSqlite = {
+            Join.JoinType.LEFT_EXCLUDING,
+            Join.JoinType.LEFT,
+            Join.JoinType.INNER
+        };
         final Join.JoinType[] joinTypes = {
             Join.JoinType.LEFT_EXCLUDING,
-            //Join.JoinType.FULL_OUTER_EXCLUDING,
-            //Join.JoinType.FULL_OUTER,
-            //Join.JoinType.RIGHT_EXCLUDING,
-            //Join.JoinType.RIGHT,
+            Join.JoinType.FULL_OUTER_EXCLUDING,
+            Join.JoinType.FULL_OUTER,
+            Join.JoinType.RIGHT_EXCLUDING,
+            Join.JoinType.RIGHT,
             Join.JoinType.LEFT,
             Join.JoinType.INNER
         };
 
         Join join = new Join();
-        int randomInt = TestUtils.getRandomInt(0, joinTypes.length - 1);
-        Join.JoinType joinType = joinTypes[randomInt];
+        int randomInt;
+        if (databaseType.equals(DatabaseType.Sqlite)) {
+            randomInt = TestUtils.getRandomInt(0, joinTypesForSqlite.length - 1);
+        } else {
+            randomInt = TestUtils.getRandomInt(0, joinTypes.length - 1);
+        }
+
+        Join.JoinType joinType;
+        if (databaseType.equals(DatabaseType.Sqlite)) {
+            joinType = joinTypesForSqlite[randomInt];
+        } else {
+            joinType = joinTypes[randomInt];
+        }
         join.setJoinType(joinType);
-        join.setParentTable(PARENT_TABLE);
+        join.setParentTable(parentTable);
 
         List<String> parentJoinColumns = new ArrayList<>();
         List<String> targetJoinColumns = new ArrayList<>();
         if (shouldHaveMultipleJoinColumns) {
-            join.setTargetTable(TARGET_TABLE_SERVICE_HIERARCHY);
+            join.setTargetTable(targetTableServiceHierarchy);
 
             parentJoinColumns.add("county_spending_detail.fiscal_year");
             targetJoinColumns.add("service_hierarchy.fiscal_year");
@@ -303,7 +314,7 @@ public class DynamicStatementTests {
             join.setParentJoinColumns(parentJoinColumns);
             join.setTargetJoinColumns(targetJoinColumns);
         } else {
-            join.setTargetTable(TARGET_TABLE_PERIODS);
+            join.setTargetTable(targetTablePeriods);
 
             parentJoinColumns.add("county_spending_detail.fiscal_year_period");
             targetJoinColumns.add("periods.period");
@@ -313,7 +324,6 @@ public class DynamicStatementTests {
         }
 
         return join;
-
     }
 
 }

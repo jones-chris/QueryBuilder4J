@@ -1,42 +1,20 @@
 package com.querybuilder4j.sqlbuilders;
 
-import com.google.gson.Gson;
 import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.config.Operator;
 import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class QueryTemplateDaoImpl implements QueryTemplateDao {
 
-//    private final String queryTemplate = "{\n" +
-//            "  \"ascending\": false,\n" +
-//            "  \"columns\": [\n" +
-//            "    \"county_spending_detail.fiscal_year_period\",\n" +
-//            "    \"county_spending_detail.fiscal_year\",\n" +
-//            "    \"county_spending_detail.service\",\n" +
-//            "    \"county_spending_detail.amount\"\n" +
-//            "  ],\n" +
-//            "  \"criteria\": [],\n" +
-//            "  \"distinct\": true,\n" +
-//            "  \"groupBy\": false,\n" +
-//            "  \"joins\": [],\n" +
-//            "  \"limit\": 5,\n" +
-//            "  \"name\": \"sample_query\",\n" +
-//            "  \"offset\": 5,\n" +
-//            "  \"orderBy\": false,\n" +
-//            "  \"suppressNulls\": false,\n" +
-//            "  \"table\": \"county_spending_detail\"\n" +
-//            "}";
     private Map<String, SelectStatement> queries = new HashMap<>();
 
     @Override
     public SelectStatement getQueryTemplateByName(String name) {
-        //return new Gson().fromJson(queryTemplate, SelectStatement.class);
         if (queries.size() == 0) {
             addQueries();
         }
