@@ -6,8 +6,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import static com.querybuilder4j.config.Conjunction.And;
 import static com.querybuilder4j.config.Operator.equalTo;

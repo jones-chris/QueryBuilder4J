@@ -51,14 +51,6 @@ public class Criteria implements Cloneable, Comparable {
         this.conjunction = conjunction;
     }
 
-    public Parenthesis getFrontParenthesis() {
-        return frontParenthesis;
-    }
-
-    public void setFrontParenthesis(Parenthesis frontParenthesis) {
-        this.frontParenthesis = frontParenthesis;
-    }
-
     public String getColumn() {
         return column;
     }
@@ -82,15 +74,7 @@ public class Criteria implements Cloneable, Comparable {
     public void setFilter(String filter) {
         this.filter = filter;
     }
-
-    public List<Parenthesis> getEndParenthesis() {
-        return endParenthesis;
-    }
-
-    public void setEndParenthesis(List<Parenthesis> endParenthesis) {
-        this.endParenthesis = endParenthesis;
-    }
-
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -17,11 +17,12 @@ public class DynamicStatementGenerator {
     private List<String> randomColumns = new ArrayList<>();
     private List<String> randomTables = new ArrayList<>();
     private List<Criteria> randomCriteria = new ArrayList<>();
-    private static final int NUMBER_OF_SQL_STATEMENTS = 1000;
+    private int numberOfSelectStatements;
 
 
-    public DynamicStatementGenerator(DatabaseType databaseType) {
+    public DynamicStatementGenerator(DatabaseType databaseType, int numberOfSelectStatements) {
         this.databaseType = databaseType;
+        this.numberOfSelectStatements = numberOfSelectStatements;
 
         randomColumns.add("county_spending_detail.department");
         randomColumns.add("county_spending_detail.service");
@@ -35,7 +36,7 @@ public class DynamicStatementGenerator {
         randomCriteria = getCriteriaSet();
 
         //i is the number of sql statements to output.
-        for (int i=0; i<NUMBER_OF_SQL_STATEMENTS; i++) {
+        for (int i=0; i<numberOfSelectStatements; i++) {
             randomCriteria = getCriteriaSet();
 
             //get columns

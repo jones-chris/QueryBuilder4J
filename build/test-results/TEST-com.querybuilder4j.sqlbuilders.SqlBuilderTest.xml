@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.querybuilder4j.sqlbuilders.SqlBuilderTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2019-02-20T03:59:23" hostname="sm7chrisjones" time="3.799">
+  <properties/>
+  <testcase name="runDynamicStatementTests" classname="com.querybuilder4j.sqlbuilders.SqlBuilderTest" time="3.783"/>
+  <testcase name="runSubQuery_oneRegularArgOneSubQuery" classname="com.querybuilder4j.sqlbuilders.SqlBuilderTest" time="0.006"/>
+  <testcase name="runSubQuery_oneRegularArg" classname="com.querybuilder4j.sqlbuilders.SqlBuilderTest" time="0.002"/>
+  <testcase name="runSubQuery_noArgs" classname="com.querybuilder4j.sqlbuilders.SqlBuilderTest" time="0.003"/>
+  <testcase name="runSubQuery_oneSubQueryArg" classname="com.querybuilder4j.sqlbuilders.SqlBuilderTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

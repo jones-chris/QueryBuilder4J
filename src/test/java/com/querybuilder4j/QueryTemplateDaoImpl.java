@@ -1,4 +1,4 @@
-package com.querybuilder4j.sqlbuilders;
+package com.querybuilder4j;
 
 import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.config.Operator;

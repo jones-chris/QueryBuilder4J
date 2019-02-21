@@ -601,7 +601,7 @@ public abstract class SqlBuilder {
             stmt.setSubQueries(getRelevantSubQueries(subQueryArgs));
             return stmt.toSql(properties);
         } else {
-            String message = String.format("Could not find statement object in database with name:  %s", subQueryName);
+            String message = String.format("Could not find statement object with name:  %s", subQueryName);
             throw new Exception(message);
         }
     }
