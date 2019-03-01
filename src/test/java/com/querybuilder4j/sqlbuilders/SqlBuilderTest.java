@@ -1,5 +1,9 @@
 package com.querybuilder4j.sqlbuilders;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.querybuilder4j.QueryTemplateDaoImpl;
 import com.querybuilder4j.TestUtils;
 import com.querybuilder4j.config.Conjunction;
 import com.querybuilder4j.config.DatabaseType;
@@ -9,6 +13,7 @@ import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.*;
@@ -19,57 +24,96 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 public class SqlBuilderTest {
-    private static SqlBuilder sqlBuilder;
     private static QueryTemplateDao queryTemplateDao = new QueryTemplateDaoImpl();
-
+    private static Map<DatabaseType, Properties> testProperties = new HashMap<>();
+    private static Map<DatabaseType, List<SelectStatement>> dynamicSelectStatements = new HashMap<>();
+    private static List<String> staticSelectStatementsJSON = new ArrayList<>();
+    private static final int NUMBER_OF_SELECT_STATEMENTS_TO_GENERATE = 1000;
+    private static final String STATIC_TEST_FILE_PATH = "./src/test/resources/static-select-statement-json";
 
     public SqlBuilderTest() { }
 
-    @Before
-    public void setUp() throws Exception {
-        
+    /**
+     * This method runs just once before any tests are run.  This method gets the properties for each database type so
+     * that tests can be run against each database detailed in the properties.
+     *
+     * It also randomly generates SelectStatements for each database type.
+     *
+     * @throws Exception
+     */
+    @BeforeClass
+    public static void SetUpOnceBeforeAnyTestsAreRun() throws Exception {
+        testProperties = getTestProperties();
+
+        // Create randomly generated/dynamic SelectStatements.
+        for (DatabaseType dbType : testProperties.keySet()) {
+            DynamicStatementGenerator dynamicStatementGenerator = new DynamicStatementGenerator(dbType,
+                    NUMBER_OF_SELECT_STATEMENTS_TO_GENERATE);
+            List<SelectStatement> selectStatements = dynamicStatementGenerator.createRandomSelectStatements();
+            dynamicSelectStatements.put(dbType, selectStatements);
+        }
+
+        // Load static SelectStatements JSON for regression testing.
+        File staticTestDirectory = new File(STATIC_TEST_FILE_PATH);
+        for (File file : staticTestDirectory.listFiles()) {
+            FileReader fileReader = new FileReader(file);
+            JsonElement jsonElement = new JsonParser().parse(fileReader);
+            staticSelectStatementsJSON.add(jsonElement.toString());
+        }
     }
 
+    /**
+     * This method runs before each test method is run.
+     *
+     * @throws Exception
+     */
+    @Before
+    public void setUp() throws Exception {
+
+    }
+
+    /**
+     * This method runs after each test method is run.
+     *
+     * @throws Exception
+     */
     @After
     public void tearDown() throws Exception {
 
     }
 
-//    @Test
-//    @SuppressWarnings("unchecked")
-//    public void runStaticStatementTests() throws Exception {
-//
-//        // run each public method that returns a Map and test that generated SQL String is run against the database without errors.
-//        Method[] methods = StaticStatementTests.class.getMethods();
-//        for (Method method : methods) {
-//            if (method.getGenericReturnType().getTypeName().equals("java.util.HashMap<java.lang.Object, java.lang.Object>") &&
-//                    Modifier.isPublic(method.getModifiers()) &&
-//                    method.getDeclaringClass().equals(StaticStatementTests.class)) {
-//                Connection conn = null;
-//                try {
-//                    Map<Object, Object> results = (Map<Object, Object>) method.invoke(new StaticStatementTests(), null);
-//                    DatabaseType dbType = ((SelectStatement) results.get("stmt")).getDatabaseType();
-//                    Properties props = Constants.dbProperties.get(dbType);
-//                    conn = TestUtils.getConnection(props);
-//                    String sql = (String) results.get("sql");
-//                    conn.createStatement().executeQuery(sql);
-//
-//                    //If this line is reached, then we know the SQL statement was accepted by the database, which is what
-//                    //  we are testing.
-//                    assertTrue(true);
-//                } catch (Exception ex) {
-//                    ex.printStackTrace();
-//                    fail();
-//                } finally {
-//                    if (conn != null) {
-//                        conn.close();
-//                    }
-//                }
-//            }
-//        }
-//
-//    }
+    /**
+     *
+     * @throws Exception
+     */
+    @Test
+    public void runStaticStatementTests() throws Exception {
+        Gson gson = new Gson();
+        for (String selectStatementJSON : staticSelectStatementsJSON) {
+            SelectStatement selectStatement = gson.fromJson(selectStatementJSON, SelectStatement.class);
 
+            // Run the SelectStatement against each database in testProperties.
+            for (DatabaseType dbType : testProperties.keySet()) {
+                selectStatement.setDatabaseType(dbType);
+                Properties props = testProperties.get(dbType);
+                String sql = "If you see this then the SelectStatement has not been built into a SQL string yet";
+                try {
+                    buildAndRunQuery(selectStatement, props);
+                } catch (Exception ex) {
+                    throw createdDetailedQb4jException(selectStatement, sql, ex);
+                }
+            }
+
+        }
+
+        // After all SelectStatements are run, pass the test.
+        assertTrue(true);
+    }
+
+    /**
+     *
+     * @throws Exception
+     */
     @Test
     public void runSubQuery_noArgs() throws Exception {
         // create root statement
@@ -86,14 +130,20 @@ public class SqlBuilderTest {
         rootStmt.getSubQueries().put("subquery0", "getDepartmentsIn2014()");
         rootStmt.setQueryTemplateDao(queryTemplateDao);
 
-        // Call toSql()
+        // Get properties.
         Properties props = getTestProperties().get(DatabaseType.Sqlite);
-        String sql = rootStmt.toSql(props);
 
         // Test that SQL runs successfully against database.
-        testIfSqlExecutesSuccessfully(sql, rootStmt, props);
+        buildAndRunQuery(rootStmt, props);
+
+        // After the SelectStatement is run, pass the test.
+        assertTrue(true);
     }
 
+    /**
+     *
+     * @throws Exception
+     */
     @Test
     public void runSubQuery_oneRegularArg() throws Exception {
         // create root statement
@@ -110,14 +160,20 @@ public class SqlBuilderTest {
         rootStmt.getSubQueries().put("subquery0", "getDepartmentsByYear(year=2014)");
         rootStmt.setQueryTemplateDao(queryTemplateDao);
 
-        // Call toSql()
+        // Get properties.
         Properties props = getTestProperties().get(DatabaseType.Sqlite);
-        String sql = rootStmt.toSql(props);
 
         // Test that SQL runs successfully against database.
-        testIfSqlExecutesSuccessfully(sql, rootStmt, props);
+        buildAndRunQuery(rootStmt, props);
+
+        // After the SelectStatement is run, pass the test.
+        assertTrue(true);
     }
 
+    /**
+     *
+     * @throws Exception
+     */
     @Test
     public void runSubQuery_oneSubQueryArg() throws Exception {
         // Create root statement
@@ -135,14 +191,20 @@ public class SqlBuilderTest {
         rootStmt.getSubQueries().put("subquery1", "get2014FiscalYear()");
         rootStmt.setQueryTemplateDao(queryTemplateDao);
 
-        // Call toSql()
+        // Get properties.
         Properties props = getTestProperties().get(DatabaseType.Sqlite);
-        String sql = rootStmt.toSql(props);
 
         // Test that SQL runs successfully against database.
-        testIfSqlExecutesSuccessfully(sql, rootStmt, props);
+        buildAndRunQuery(rootStmt, props);
+
+        // After the SelectStatement is run, pass the test.
+        assertTrue(true);
     }
 
+    /**
+     *
+     * @throws Exception
+     */
     @Test
     public void runSubQuery_oneRegularArgOneSubQuery() throws Exception {
         // Create root statement
@@ -169,53 +231,81 @@ public class SqlBuilderTest {
         rootStmt.getSubQueries().put("subquery1", "get2014FiscalYear()");
         rootStmt.setQueryTemplateDao(queryTemplateDao);
 
-        // Call toSql()
+        // Get properties.
         Properties props = getTestProperties().get(DatabaseType.Sqlite);
-        String sql = rootStmt.toSql(props);
 
         // Test that SQL runs successfully against database.
-        testIfSqlExecutesSuccessfully(sql, rootStmt, props);
+        buildAndRunQuery(rootStmt, props);
+
+        // After the SelectStatement is run, pass the test.
+        assertTrue(true);
     }
 
-
+    /**
+     * Builds the dynamic/randomly-generated SelectStatements into SQL strings and then runs them each against the
+     * database using the database information in the Properties object.
+     *
+     * @throws Exception
+     */
     @Test
     public void runDynamicStatementTests() throws Exception {
-        Map<DatabaseType, Properties> testProperties = getTestProperties();
         for (DatabaseType dbType : testProperties.keySet()) {
             Properties props = testProperties.get(dbType);
-
-            // Run SQL statement randomizer.
-            DynamicStatementTests queryTests = new DynamicStatementTests(dbType, props);
-            Map<SelectStatement, String> sqlMap = new HashMap<>();
-            try {
-                sqlMap = queryTests.buildSql_randomizer();
-            } catch (Exception ex) {
-                System.out.println(ex.getMessage());
-                ex.printStackTrace();
-                fail();
-            }
-
-            for (SelectStatement selectStatement : sqlMap.keySet()) {
-                String sql = selectStatement.toSql(props);
-                testIfSqlExecutesSuccessfully(sql, selectStatement, props);
+            List<SelectStatement> selectStatements = dynamicSelectStatements.get(dbType);
+            for (SelectStatement selectStatement : selectStatements) {
+                buildAndRunQuery(selectStatement, props);
             }
         }
+
+        // After all SelectStatements are run, pass the test.
+        assertTrue(true);
     }
 
-    private void testIfSqlExecutesSuccessfully(String sql, SelectStatement selectStatement, Properties props) {
+    /**
+     * Creates an Exception with a detailed message while also preserving the Throwable ex parameter that is passed to
+     * the function.
+     *
+     * The sql parameter will be null if the SelectStatement could not be built into a SQL string.  The sql parameter will
+     * NOT be null if the SelectStatement could be built into a SQL string, but it failed to run successfully against the
+     * database.
+     *
+     * @param selectStatement
+     * @param sql
+     * @param ex
+     * @return
+     */
+    private Exception createdDetailedQb4jException(SelectStatement selectStatement, String sql, Throwable ex) {
+        String exceptionMessage = "Select Statement Object:  " + selectStatement.toString() + "\n" +
+                                  "Generated SQL:  " + sql + "\n";
+        return new Exception(exceptionMessage, ex);
+    }
+
+    /**
+     * Builds and runs the SelectStatement against the database in the props parameter.
+     *
+     * @param selectStatement
+     * @param props
+     * @throws Exception
+     */
+    private void buildAndRunQuery(SelectStatement selectStatement, Properties props) throws Exception {
+        String sql = "If you see this then the SelectStatement has not been built into a SQL string yet";
         try (Connection conn = TestUtils.getConnection(props);
              Statement stmt = conn.createStatement()) {
 
+            sql = selectStatement.toSql(props);
             stmt.executeQuery(sql);
-            assertTrue(true);
         } catch (Exception ex) {
-            System.out.println("Select Statement Object:  " + selectStatement.toString() + "\n");
-            System.out.println("Generated SQL:  " + sql + "\n");
-            fail();
+            throw createdDetailedQb4jException(selectStatement, sql, ex);
         }
     }
 
-    private Map<DatabaseType, Properties> getTestProperties() throws IOException {
+    /**
+     * Gets the Properties file containing the database connection information that will be used to execute SQL strings.
+     *
+     * @return
+     * @throws IOException
+     */
+    private static Map<DatabaseType, Properties> getTestProperties() throws IOException {
         // If the 'testProperties' command line argument does not exist, then run tests using the default:  test-config.properties.
         String testPropertiesFilePath = System.getProperty("testProperties");
         if (testPropertiesFilePath == null || testPropertiesFilePath.equals("")) {

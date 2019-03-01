@@ -281,27 +281,6 @@ public class SelectStatement {
         return false;
     }
 
-//    public void prepStatementToBecomeSQL() throws Exception {
-//        Collections.sort(this.criteria);
-//        clearParenthesisFromCriteria();
-//        addParenthesisToCriteria();
-//        replaceParameters();
-//    }
-
-//    /**
-//     * Call this before using a SqlBuilder class to build a SQL statement from a SelectStatement.
-//     */
-//    public void prepareStatement() {
-//        try {
-//            Collections.sort(this.criteria);
-//            clearParenthesisFromCriteria();
-//            addParenthesisToCriteria();
-//            replaceParameters();
-//        } catch (Exception e) {
-//            throw new RuntimeException(e.getMessage());
-//        }
-//    }
-
     public String toSql(Properties properties) {
         try {
             databaseType = Enum.valueOf(DatabaseType.class, properties.getProperty("databaseType"));
@@ -349,45 +328,6 @@ public class SelectStatement {
     public String toString() {
         Gson gson = new Gson();
         return gson.toJson(this);
-//        StringBuilder sb = new StringBuilder("");
-//
-//        sb.append(String.format("Name:  %s | ", name));
-//
-//        sb.append(String.format("Database Type:  %s | ", databaseType));
-//
-//        columns.forEach(col -> sb.append(String.format("Column:  %s | ", col)));
-//
-//        sb.append(String.format("Table:  %s | ", table));
-//
-//        sb.append("Criteria:  ");
-//        criteria.forEach(crit -> {
-//            sb.append(String.format("Id:  %d ", crit.getId()));
-//            sb.append(String.format("ParentId:  %d ", crit.getParentId()));
-//            sb.append(String.format("Conjunction:  %s ", crit.getConjunction()));
-//            sb.append(String.format("Front Parenthesis:  %s ", crit.getFrontParenthesis()));
-//            sb.append(String.format("Column:  %s ", crit.getColumn()));
-//            sb.append(String.format("Operator:  %s ", crit.getOperator()));
-//            sb.append(String.format("Filter:  %s ", crit.getFilter()));
-//            sb.append("End Parenthesis:  ");
-//            crit.endParenthesis.forEach(paren -> sb.append(paren));
-//            sb.append(" | ");
-//        });
-//
-//        sb.append(String.format("Distinct:  %s | ", distinct));
-//
-//        sb.append(String.format("Group By:  %s | ", groupBy));
-//
-//        sb.append(String.format("Order By:  %s | ", orderBy));
-//
-//        sb.append(String.format("Limit:  %d | ", limit));
-//
-//        sb.append(String.format("Ascending:  %s | ", ascending));
-//
-//        sb.append(String.format("Offset:  %d | ", offset));
-//
-//        sb.append(String.format("Suppress Nulls:  %s | ", suppressNulls));
-//
-//        return sb.toString();
     }
 
     private void replaceParameters() throws NoMatchingParameterException {

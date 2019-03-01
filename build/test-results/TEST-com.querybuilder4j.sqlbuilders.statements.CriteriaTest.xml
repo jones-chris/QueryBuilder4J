@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.querybuilder4j.sqlbuilders.statements.CriteriaTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2019-02-20T03:59:27" hostname="sm7chrisjones" time="0.002">
+  <properties/>
+  <testcase name="compareTo" classname="com.querybuilder4j.sqlbuilders.statements.CriteriaTest" time="0.001"/>
+  <testcase name="equals" classname="com.querybuilder4j.sqlbuilders.statements.CriteriaTest" time="0.0"/>
+  <testcase name="isValid_ColumnAndOperatorAreNullReturnsFalse" classname="com.querybuilder4j.sqlbuilders.statements.CriteriaTest" time="0.0"/>
+  <testcase name="isValid_OperatorIsNullReturnsFalse" classname="com.querybuilder4j.sqlbuilders.statements.CriteriaTest" time="0.0"/>
+  <testcase name="isValid_ColumnIsNullReturnsFalse" classname="com.querybuilder4j.sqlbuilders.statements.CriteriaTest" time="0.0"/>
+  <testcase name="isValid_ColumnAndOperatorAreNotNullReturnsTrue" classname="com.querybuilder4j.sqlbuilders.statements.CriteriaTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

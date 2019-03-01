@@ -1,7 +1,6 @@
 package com.querybuilder4j.sqlbuilders.statements;
 
 import com.querybuilder4j.config.Operator;
-import com.querybuilder4j.config.Parenthesis;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,7 +8,6 @@ import org.junit.Test;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static com.querybuilder4j.TestUtils.charsMatch;
 import static com.querybuilder4j.config.Conjunction.*;
 import static com.querybuilder4j.config.Operator.*;
 import static org.junit.Assert.*;
