@@ -129,4 +129,4 @@ public ResponseEntity<String> getQueryResults(SelectStatement selectStatement) {
 }
 ```
 
-This effectively allows qb4j to act in a similar way to an API gateway would - requests are sent to an application using qb4j, qb4j binds the request's data to a ```SelectStatement``` object, and developers can write code to change or check the object before building a SQL string from it.
+This effectively allows qb4j to act in a similar way to an API gateway - requests are sent to an application using qb4j, qb4j binds the request's data to a ```SelectStatement``` object, and developers can write code to change or check the object before building a SQL string from it.
