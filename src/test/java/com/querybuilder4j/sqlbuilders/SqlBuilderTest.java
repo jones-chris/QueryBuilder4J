@@ -1,6 +1,5 @@
 package com.querybuilder4j.sqlbuilders;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.querybuilder4j.QueryTemplateDaoImpl;
@@ -11,6 +10,7 @@ import com.querybuilder4j.config.Operator;
 import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -88,9 +88,11 @@ public class SqlBuilderTest {
      */
     @Test
     public void runStaticStatementTests() throws Exception {
-        Gson gson = new Gson();
         for (String selectStatementJSON : staticSelectStatementsJSON) {
-            SelectStatement selectStatement = gson.fromJson(selectStatementJSON, SelectStatement.class);
+//            Gson gson = new Gson();
+//            SelectStatement selectStatement = gson.fromJson(selectStatementJSON, SelectStatement.class);
+            ObjectMapper mapper = new ObjectMapper();
+            SelectStatement selectStatement = mapper.readValue(selectStatementJSON, SelectStatement.class);
 
             // Run the SelectStatement against each database in testProperties.
             for (DatabaseType dbType : testProperties.keySet()) {
@@ -100,7 +102,7 @@ public class SqlBuilderTest {
                 try {
                     buildAndRunQuery(selectStatement, props);
                 } catch (Exception ex) {
-                    throw createdDetailedQb4jException(selectStatement, sql, ex);
+                    throw createDetailedQb4jException(selectStatement, sql, ex);
                 }
             }
 
@@ -122,12 +124,13 @@ public class SqlBuilderTest {
         criteria.setConjunction(Conjunction.And);
         criteria.setColumn("county_spending_detail.department");
         criteria.setOperator(Operator.in);
-        criteria.setFilter("subquery0");
+        criteria.setFilter("$0");
+//        criteria.setFilter("$getDepartmentsIn2014()");
         SelectStatement rootStmt = new SelectStatement(DatabaseType.Sqlite);
         rootStmt.getColumns().add("county_spending_detail.amount");
         rootStmt.setTable("county_spending_detail");
         rootStmt.getCriteria().add(criteria);
-        rootStmt.getSubQueries().put("subquery0", "getDepartmentsIn2014()");
+        rootStmt.getSubQueries().put("$0", "getDepartmentsIn2014()");
         rootStmt.setQueryTemplateDao(queryTemplateDao);
 
         // Get properties.
@@ -152,12 +155,13 @@ public class SqlBuilderTest {
         criteria.setConjunction(Conjunction.And);
         criteria.setColumn("county_spending_detail.department");
         criteria.setOperator(Operator.in);
-        criteria.setFilter("subquery0");
+//        criteria.setFilter("$getDepartmentsByYear(year=2014)");
+        criteria.setFilter("$0");
         SelectStatement rootStmt = new SelectStatement(DatabaseType.Sqlite);
         rootStmt.getColumns().add("county_spending_detail.amount");
         rootStmt.setTable("county_spending_detail");
         rootStmt.getCriteria().add(criteria);
-        rootStmt.getSubQueries().put("subquery0", "getDepartmentsByYear(year=2014)");
+        rootStmt.getSubQueries().put("$0", "getDepartmentsByYear(year=2014)");
         rootStmt.setQueryTemplateDao(queryTemplateDao);
 
         // Get properties.
@@ -182,13 +186,14 @@ public class SqlBuilderTest {
         criteria.setConjunction(Conjunction.And);
         criteria.setColumn("county_spending_detail.department");
         criteria.setOperator(Operator.in);
-        criteria.setFilter("subquery0");
+        criteria.setFilter("$0");
+//        criteria.setFilter("$getDepartmentsByYear(year=$get2014FiscalYear())");
         SelectStatement rootStmt = new SelectStatement(DatabaseType.Sqlite);
         rootStmt.getColumns().add("county_spending_detail.amount");
         rootStmt.setTable("county_spending_detail");
         rootStmt.getCriteria().add(criteria);
-        rootStmt.getSubQueries().put("subquery0", "getDepartmentsByYear(year=subquery1)");
-        rootStmt.getSubQueries().put("subquery1", "get2014FiscalYear()");
+        rootStmt.getSubQueries().put("$0", "getDepartmentsByYear(year=$1)");
+        rootStmt.getSubQueries().put("$1", "get2014FiscalYear()");
         rootStmt.setQueryTemplateDao(queryTemplateDao);
 
         // Get properties.
@@ -213,22 +218,24 @@ public class SqlBuilderTest {
         criteria.setConjunction(Conjunction.And);
         criteria.setColumn("county_spending_detail.department");
         criteria.setOperator(Operator.in);
-        criteria.setFilter("subquery0");
+        criteria.setFilter("$0");
+//        criteria.setFilter("$getDepartmentsByMultipleYears(year1=$get2014FiscalYear();year2=2017)");
 
         Criteria criteria1 = new Criteria();
         criteria1.setId(1);
         criteria1.setConjunction(Conjunction.And);
         criteria1.setColumn("county_spending_detail.department");
         criteria1.setOperator(Operator.in);
-        criteria1.setFilter("subquery1");
+        criteria1.setFilter("$1");
+//        criteria.setFilter("$get2014FiscalYear()");
 
         SelectStatement rootStmt = new SelectStatement(DatabaseType.Sqlite);
         rootStmt.getColumns().add("county_spending_detail.amount");
         rootStmt.setTable("county_spending_detail");
         rootStmt.getCriteria().add(criteria);
         rootStmt.getCriteria().add(criteria1);
-        rootStmt.getSubQueries().put("subquery0", "getDepartmentsByMultipleYears(year1=subquery1,year2=2017)");
-        rootStmt.getSubQueries().put("subquery1", "get2014FiscalYear()");
+        rootStmt.getSubQueries().put("$0", "getDepartmentsByMultipleYears(year1=$1,year2=2017)");
+        rootStmt.getSubQueries().put("$1", "get2014FiscalYear()");
         rootStmt.setQueryTemplateDao(queryTemplateDao);
 
         // Get properties.
@@ -274,7 +281,7 @@ public class SqlBuilderTest {
      * @param ex
      * @return
      */
-    private Exception createdDetailedQb4jException(SelectStatement selectStatement, String sql, Throwable ex) {
+    private Exception createDetailedQb4jException(SelectStatement selectStatement, String sql, Throwable ex) {
         String exceptionMessage = "Select Statement Object:  " + selectStatement.toString() + "\n" +
                                   "Generated SQL:  " + sql + "\n";
         return new Exception(exceptionMessage, ex);
@@ -293,9 +300,10 @@ public class SqlBuilderTest {
              Statement stmt = conn.createStatement()) {
 
             sql = selectStatement.toSql(props);
+            System.out.println(sql); //todo:  remove?
             stmt.executeQuery(sql);
         } catch (Exception ex) {
-            throw createdDetailedQb4jException(selectStatement, sql, ex);
+            throw createDetailedQb4jException(selectStatement, sql, ex);
         }
     }
 

@@ -37,8 +37,29 @@ SQL injenction is a valid concern whenever user input is used in SQL statements.
 
 *NOTE  qb4j will do it’s best to prevent SQL injection, but should not be your only defense.  Please read [further](https://www.owasp.org/index.php/SQL_Injection) about SQL injection and how to defend against it.*
 
-// what validation is run.
-// fully qualified columns in the format – “table_name.column_name”
+**How Does Qb4j Attempt to Prevent SQL Injection?**
+
+Qb4j attempts to prevent SQL injection with the following strategies:
+
+1) All columns must be qualified with the table name in the format "table_name.column_name" and must exist in the target database.
+
+2) All components of the WHERE clause (conjunction, parenthesis, operator), except for the column and filter are Java enum classes.
+
+The first strategy ensures that the user's table and column input exists in the target database before querying on that target database.  This effectively prevents SQL injection attempts using table and column input. 
+
+The second strategy ensures that a ```WHERE``` clause's conjunction, parenthesis, and operator match one of the expected Java enum class values.  If the user's input does not match, then an exception is thrown.
+
+The only place that a SQL injection attempt is possible is a ```WHERE``` clause's filter.  The filter is a String that contains the user's criteria.  For example, if a ```WHERE``` clause was ```AND year = 2019```, then the filter is ```2019```.  Qb4j uses the following strategies to prevent SQL injection in the WHERE clause's filter:
+
+1) Reserved ANSI SQL keywords are searched for and, if found, an exception is thrown.
+
+2) Special characters are escaped, such as ```'```.
+
+3) Textual data types, such as ```VARCHAR``` and ```TEXT```, are wrapped in single quotes.  This prevents SQL injection when a textual data column is chosen for a ```WHERE``` clause.
+
+4) Numeric data types, such as ```INTEGER```, ```BOOLEAN```, and ```FLOAT```, are attempted to be parsed into their respective Java class.  If the parsing fails, then an exception is thrown.  This prevents users from using a numeric data column, which would not be wrapped in single quotes, as the target for a SQL injection attack.  See the ```canParseNonQuotedFilter``` method in the [SqlCleanser](https://github.com/jones-chris/QueryBuilder4J/blob/master/src/main/java/com/querybuilder4j/sqlbuilders/SqlCleanser.java) class for more details.
+
+All of these strategies are implemented in the [SqlCleanser](https://github.com/jones-chris/QueryBuilder4J/blob/master/src/main/java/com/querybuilder4j/sqlbuilders/SqlCleanser.java) class.
 
 **Show Me The Code!!!**
 
@@ -72,6 +93,40 @@ Let's assume for a moment that the JAR is available and you've downloaded it fro
 
 That's it!  Notice that Spring will take care of instantiating the SelectStatement object, which encapsulates all of the data the user submitted in the request.  All we have to do to get the SQL string from the SelectStatement is call ```toSql(props)``` where ```props``` is a Properties file containing database connection information, such as URL, username, password, database type (PostgreSQL, MySQL, etc), JDBC driver class name, or any other necessary information to connect to your database.
 
-// can handle any number of WHERE criteria 
+**Qb4j as a SQL Gateway**
 
-// API to easily access parts of the SELECT SQL statement as well as a builder to build SELECT SQL statements programmatically
+Qb4j encapsulates a SELECT SQL statement's data in a single object, the [SelectStatement](https://github.com/jones-chris/QueryBuilder4J/blob/master/src/main/java/com/querybuilder4j/sqlbuilders/statements/SelectStatement.java).  Having all the data encapsulated in one object allows developers to write code that "fine tunes" a user's query before a SQL string is built.  For example, let's say that you want to apply a limit on the query results.  You could do the following:
+
+```Java
+@RequestMapping(value = "/query", method = RequestMethod.POST)
+@ResponseBody
+public ResponseEntity<String> getQueryResults(SelectStatement selectStatement) {
+    if (selectStatement.getLimit() > 100000) {
+        selectStatement.setLimit(100000);
+    }
+    
+    String sql = selectStatement.toSql(props);
+    
+    ...Do some other stuff before sending the response...
+}
+```
+
+In addition, this encapsulation allows developers to easily write their own SQL checks/cleansers for added security or business logic.  Below is an example of what that might look like:
+
+```Java
+@RequestMapping(value = "/query", method = RequestMethod.POST)
+@ResponseBody
+public ResponseEntity<String> getQueryResults(SelectStatement selectStatement) {
+    selectStatement.getCriteria().forEach((criterion) -> {
+        if (! myCustomSqlCleanser.isCleanSql(criterion.filter)) {
+            throw new RuntimeException("Hey!  This is dirty SQL!!!  How dare you!!!");
+        }
+    });
+    
+    String sql = selectStatement.toSql(props);
+    
+    ...Do some other stuff before sending the response...
+}
+```
+
+This effectively allows qb4j to act in a similar way to an API gateway - requests are sent to an application using qb4j, qb4j binds the request's data to a ```SelectStatement``` object, and developers can write code to change or check the object before building a SQL string from it.

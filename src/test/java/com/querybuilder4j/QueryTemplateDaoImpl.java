@@ -31,6 +31,7 @@ public class QueryTemplateDaoImpl implements QueryTemplateDao {
         criteria.setFilter("2014");
 
         SelectStatement getDepartmentsIn2014 = new SelectStatement(DatabaseType.Sqlite);
+        getDepartmentsIn2014.setName("getDepartmentsIn2014");
         getDepartmentsIn2014.getColumns().add("county_spending_detail.department");
         getDepartmentsIn2014.setTable("county_spending_detail");
         getDepartmentsIn2014.getCriteria().add(criteria);
@@ -41,7 +42,7 @@ public class QueryTemplateDaoImpl implements QueryTemplateDao {
         criteria1.setId(0);
         criteria1.setColumn("county_spending_detail.fiscal_year");
         criteria1.setOperator(Operator.equalTo);
-        criteria1.setFilter("$param:year");
+        criteria1.setFilter("@year");
 
         SelectStatement getDepartmentsByYear = new SelectStatement(DatabaseType.Sqlite);
         getDepartmentsByYear.getColumns().add("county_spending_detail.department");
@@ -68,7 +69,7 @@ public class QueryTemplateDaoImpl implements QueryTemplateDao {
         criteria3.setId(0);
         criteria3.setColumn("county_spending_detail.fiscal_year");
         criteria3.setOperator(Operator.in);
-        criteria3.setFilter("$param:year1,$param:year2");
+        criteria3.setFilter("@year1,@year2");
 
         SelectStatement getDepartmentsByMultipleYears = new SelectStatement(DatabaseType.Sqlite);
         getDepartmentsByMultipleYears.getColumns().add("county_spending_detail.department");

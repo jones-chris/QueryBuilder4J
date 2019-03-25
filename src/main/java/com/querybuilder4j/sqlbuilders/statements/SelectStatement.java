@@ -4,9 +4,12 @@ package com.querybuilder4j.sqlbuilders.statements;
 import com.google.gson.Gson;
 import com.querybuilder4j.config.*;
 import com.querybuilder4j.exceptions.NoMatchingParameterException;
+import com.querybuilder4j.exceptions.WrongNumberArgsException;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
 import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
+import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.IOException;
 import java.util.*;
 
 import static com.querybuilder4j.config.Parenthesis.EndParenthesis;
@@ -16,6 +19,7 @@ import static com.querybuilder4j.sqlbuilders.statements.Join.JoinType.RIGHT_EXCL
 import static com.querybuilder4j.sqlbuilders.statements.Join.JoinType.FULL_OUTER_EXCLUDING;
 
 public class SelectStatement {
+//    private Integer id;
     private String name = "";
     private DatabaseType databaseType;
     private List<String> columns = new ArrayList<>();
@@ -46,6 +50,14 @@ public class SelectStatement {
 
 
     public SelectStatement() {}
+
+//    public Integer getId() {
+//        return id;
+//    }
+//
+//    public void setId(Integer id) {
+//        this.id = id;
+//    }
 
     public SelectStatement(DatabaseType databaseType) {
         this.databaseType = databaseType;
@@ -116,72 +128,139 @@ public class SelectStatement {
         return distinct;
     }
 
-    public SelectStatement setDistinct(boolean distinct) {
+    public void setDistinct(boolean distinct) {
         this.distinct = distinct;
-        return this;
     }
 
     public boolean isGroupBy() {
         return groupBy;
     }
 
-    public SelectStatement setGroupBy(boolean groupBy) {
+    public void setGroupBy(boolean groupBy) {
         this.groupBy = groupBy;
-        return this;
     }
 
     public boolean isOrderBy() {
         return orderBy;
     }
 
-    public SelectStatement setOrderBy(boolean orderBy) {
+    public void setOrderBy(boolean orderBy) {
         this.orderBy = orderBy;
-        return this;
     }
 
     public Long getLimit() {
         return limit;
     }
 
-    public SelectStatement setLimit(long limit) {
-        this.limit = limit;
-        return this;
-    }
+//    public SelectStatement setLimit(long limit) {
+//        this.limit = limit;
+//        return this;
+//    }
 
     public boolean isAscending() {
         return ascending;
     }
 
-    public SelectStatement setAscending(boolean ascending) {
+    public void setAscending(boolean ascending) {
         this.ascending = ascending;
-        return this;
     }
 
     public Long getOffset() {
         return offset;
     }
 
-    public SelectStatement setOffset(long offset) {
-        this.offset = offset;
-        return this;
-    }
+//    public SelectStatement setOffset(long offset) {
+//        this.offset = offset;
+//        return this;
+//    }
 
     public boolean isSuppressNulls() {
         return suppressNulls;
     }
 
-    public SelectStatement setSuppressNulls(boolean suppressNulls) {
+    public void setSuppressNulls(boolean suppressNulls) {
         this.suppressNulls = suppressNulls;
-        return this;
     }
 
     public Map<String, String> getSubQueries() {
         return subQueries;
     }
 
+    /**
+     * One of two setters for subQueries field.  It's not recommended that developers use this because the parameter-less
+     * setter will set subQueries automatically if subQuery calls are hand-written into the a criterion's filter.
+     * @param subQueries
+     */
     public void setSubQueries(Map<String, String> subQueries) {
         this.subQueries = subQueries;
     }
+
+    /**
+     * Automatically sets the subQueries field assuming that the subQuery calls are hand-written into a criterion's filter.
+     * If you want to set the subQueries field manually, use the setter that takes a Map<String, String>.
+     */
+//    private void setSubqueries() {
+//        if (criteria.size() != 0 && queryTemplateDao != null) {
+//            criteria.forEach((criterion) -> {
+//                String[] filters = criterion.filter.split(",");
+//                for (String filter : filters) {
+//                    if (SqlBuilder.argIsSubQuery(filter)) {
+//                        LinkedList<Integer> begSubQueryIndeces = new LinkedList<>();
+//                        LinkedList<Integer> endSubQueryIndeces = new LinkedList<>();
+//                        char[] filterChars = filter.toCharArray();
+//
+//                        for (int i=0; i<filterChars.length; i++) {
+//                            if (filterChars[i] == '$') {
+//                                begSubQueryIndeces.add(i);
+//                            } else if (filterChars[i] == ')') {
+//                                endSubQueryIndeces.add(i);
+//                            }
+//                        }
+//
+//                        if (begSubQueryIndeces.size() == endSubQueryIndeces.size()) {
+//                            // It's okay to make the while condition based on only one of the LinkedLists because we know at this
+//                            // point that both LinkedLists are equal sizes.
+//                            String newFilter = filter;
+//                            while(begSubQueryIndeces.size() != 0) {
+//                                String subQueryId = "$" + subQueries.size();
+//
+//                                // Remove the last begSubQueryIndex and first endSubQueryIndex, which represent the indeces
+//                                // of a subQueryCall in filter.  This strategy works from the innermost subQuery to the outermost.
+//                                int begSubQueryIndex = begSubQueryIndeces.removeLast();
+//                                int endSubQueryIndex = endSubQueryIndeces.removeFirst();
+//
+//                                // now, get the subQueryCall from filter (which does not change)
+//                                String subQueryCall = newFilter.substring(begSubQueryIndex + 1, endSubQueryIndex + 1); // remove +1 from begSubQueryIndex?
+//
+//                                // now, look in newFilter (which changes) and replace that subQueryCall with the subQueryId
+//                                newFilter = newFilter.replace("$" + subQueryCall, subQueryId);
+//
+//                                // now, add the subQueryId and subQueryCall to subQueries.
+//                                subQueries.put(subQueryId, subQueryCall);
+//
+//                                for (int i=0; i<begSubQueryIndeces.size(); i++) {
+//                                    int begElement = begSubQueryIndeces.get(i);
+//                                    if (begElement > begSubQueryIndex) {
+//                                        int newElement = begElement - (subQueryCall.length());
+//                                        begSubQueryIndeces.set(i, newElement);
+//                                    }
+//
+//                                    int endElement = endSubQueryIndeces.get(i);
+//                                    if (endElement > endSubQueryIndex) {
+//                                        int newElement = endElement - (subQueryCall.length()-1);
+//                                        endSubQueryIndeces.set(i, newElement);
+//                                    }
+//                                }
+//                            }
+//                            criterion.filter = newFilter;
+//                        } else {
+//                            //todo:  throw an exception because subQuery call is malformed.
+//                        }
+//                    }
+//                }
+//            });
+//        }
+//    }
 
     public QueryTemplateDao getQueryTemplateDao() {
         return queryTemplateDao;
@@ -288,11 +367,13 @@ public class SelectStatement {
             Collections.sort(this.criteria);
             clearParenthesisFromCriteria();
             addParenthesisToCriteria();
+            // If subQueries has not been set (it will have a 0 size, if that's the case), then set subQueries.
+//            if (subQueries.size() == 0) { setSubqueries(); }
             replaceParameters();
-            SqlBuilder sqlBuilder = SqlBuilderFactory.buildSqlBuilder(databaseType, this, properties);
-            return sqlBuilder.buildSql();
+            SqlBuilder sqlBuilder = SqlBuilderFactory.buildSqlBuilder(databaseType, this, properties); // subQueries get built here.
+            return sqlBuilder.buildSql(); // root query gets built here.
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e);  // Todo:  pass exception into RunTimeException constructor instead of just the message for better error descriptions.
         }
     }
 
@@ -326,21 +407,58 @@ public class SelectStatement {
 
     @Override
     public String toString() {
-        Gson gson = new Gson();
-        return gson.toJson(this);
+//        Gson gson = new Gson();
+//        return gson.toJson(this);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(this);
+        } catch (IOException ex) {
+            return "";
+        }
+
+        //return "hello";
     }
 
-    private void replaceParameters() throws NoMatchingParameterException {
+    /**
+     * Checks that there is an equal number of parameters in the criteria (not the criteriaParameters field) and
+     * criteriaArguments.  After doing so, it attempts to replace the parameters in the criteria (again, not the
+     * criteriaParameters field) with the relevant value from criteriaArguments.
+     *
+     * @throws NoMatchingParameterException if the parameter cannot be found as a key in criteriaArguments.
+     * @throws WrongNumberArgsException if the number of criteria parameters (not the criteriaParameters field) is not the
+     * same as the number of criteriaArguments.
+     */
+    private void replaceParameters() throws NoMatchingParameterException, WrongNumberArgsException {
+        // Throw exception if there are parameters in the criteria, but not the same number of criteria arguments.
+//        int numOfParams = 0;
+//        for (Criteria criterion : criteria) {
+//            if (criterion.filter != null) {
+//                String[] splitFilters = criterion.filter.split(",");
+//                for (String splitFilter : splitFilters) {
+//                    if (splitFilter.length() >= 7 && (splitFilter.substring(0, 7).equals("$param:") || splitFilter.substring(0, 8).equals("subquery"))) {
+//                        numOfParams++;
+//                    }
+//                }
+//            }
+//
+//        }
+//        if (numOfParams != criteriaArguments.size()) {
+//            String message = String.format("There are %d parameters in the statement's criteria, but %d criteria arguments.  " +
+//                    "There should be the same number of parameters and arguments.  Object:  %S", numOfParams, criteriaArguments.size(), this.toString());
+//            throw new WrongNumberArgsException(message);
+//        }
+
+        // Now that we know there are equal number of parameters and arguments, try replacing the parameters with arguments.
         if (criteriaArguments.size() != 0) {
             for (Criteria criterion : criteria) {
 
-                String filter = criterion.filter.toString();
+                String filter = criterion.filter;
                 String[] splitFilters = filter.split(",");
                 List<String> resultFilters = new ArrayList<>();
 
                 for (String splitFilter : splitFilters) {
-                    if (splitFilter.length() >= 7 && splitFilter.substring(0, 7).equals("$param:")) {
-                        String paramName = splitFilter.substring(7);
+                    if (splitFilter.length() >= 1 && splitFilter.substring(0, 1).equals("@")) {
+                        String paramName = splitFilter.substring(1);
                         String paramValue = criteriaArguments.get(paramName);
                         if (paramValue != null) {
                             resultFilters.add(paramValue);

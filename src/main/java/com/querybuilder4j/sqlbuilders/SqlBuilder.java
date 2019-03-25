@@ -164,6 +164,27 @@ public abstract class SqlBuilder {
                 }
             });
         }
+//        if (stmt.getCriteria().size() != 0 && queryTemplateDao != null) {
+//            this.stmt.getCriteria().forEach((criterion) -> {
+//                // Split on , or ( or ).
+//                String[] filters = criterion.filter.split("[,()]");
+//                for (String filter : filters) {
+//                    if (argIsSubQuery(filter)) {
+//                        SelectStatement queryTemplate = queryTemplateDao.getQueryTemplateByName(filter);
+//
+//                        if (queryTemplate == null) {
+//                            throw new RuntimeException(String.format("Could not find subquery named, %s, in SqlBuilder's queryTemplateDao", filter));
+//                        }
+//
+//                        // Substitute subQueryId for the place that the subquery is called in the criterion's filter.
+//                        String subQueryId = "$" + unbuiltSubQueries.size();
+//                        this.unbuiltSubQueries.put(subQueryId, queryTemplate);
+//                        String textToReplace =
+//                        criterion.filter = criterion.filter.replace(filter, subQueryId);
+//                    }
+//                }
+//            });
+//        }
 
         if (statementIsValid()) {
             buildSubQueries();
@@ -288,6 +309,7 @@ public abstract class SqlBuilder {
                         }
                     }
 
+                    // todo:  this should not wrap filter if the filter is a subQuery because it duplicates line 308 above which already wraps subQuery in parenthesis.
                     if (criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) {
                         criteriaClone.filter = "(" + criteriaClone.filter + ")";
                     }
@@ -583,14 +605,14 @@ public abstract class SqlBuilder {
     }
 
     /**
-     * Tests if a String is a subquery qb4j expression.  If the String "subquery" is not at index 0 in the String, then
+     * Tests if a String is a '$', which is the subquery qb4j expression.  If the String "$" is not at index 0 in the String, then
      * false.  Otherwise, true.
      * @param arg
      * @return boolean
      */
-    private boolean argIsSubQuery(String arg) {
-        int begIndexOfSubQuery = arg.toLowerCase().indexOf("subquery");
-        return begIndexOfSubQuery > -1;
+    public static boolean argIsSubQuery(String arg) {
+        int begIndexOfSubQuery = arg.toLowerCase().indexOf("$");
+        return begIndexOfSubQuery == 0;
     }
 
     private String buildSubQuery(String subQueryId, String subQueryName, String[] subQueryArgs) throws Exception {
@@ -711,6 +733,8 @@ public abstract class SqlBuilder {
      * @throws Exception
      */
     private boolean criteriaAreValid() throws Exception {
+        if (tableSchemas.isEmpty()) { setTableSchemas(); }
+
         for (Criteria criterion : this.stmt.getCriteria()) {
             if (! criterion.isValid()) {
                 return false;
@@ -727,26 +751,45 @@ public abstract class SqlBuilder {
                 if (! criterion.operator.equals(Operator.isNotNull)) {
                     if (criterion.filter == null || criterion.filter.equals("")) {
                         throw new Exception("The criteria has a null or empty filter, but the operator is not \"IsNull\" or \"IsNotNull\"");
+                    } else {
+//                        if (tableSchemas.isEmpty()) { setTableSchemas(); }
+
+                        String[] tableAndColumn = criterion.column.split("\\.");
+                        int columnDataType = getColumnDataType(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
+                        boolean shouldHaveQuotes = isColumnQuoted(columnDataType);
+                        if (! shouldHaveQuotes && (criterion.operator.equals(Operator.like) || criterion.operator.equals(Operator.notLike))) {
+                            throw new Exception("Like/Not Like WHERE clauses are not supported for non-quoted columns yet.  " +
+                                    "Please use greater than or less than operators.");
+                        }
+
+                        if (! shouldHaveQuotes && criterion.filter != null) {
+                            String[] filters = criterion.filter.split(",");
+                            for (String filter : filters) {
+                                if (! SqlCleanser.canParseNonQuotedFilter(filter, columnDataType)) {
+                                    throw new Exception(String.format("The criteria's filter is not an number type, but the column is:  %s", criterion));
+                                }
+                            }
+                        }
                     }
                 }
             }
 
-            if (tableSchemas.isEmpty()) {
-                setTableSchemas();
-            }
+//            if (tableSchemas.isEmpty()) {
+//                setTableSchemas();
+//            }
 
-            String[] tableAndColumn = criterion.column.split("\\.");
-            int columnDataType = getColumnDataType(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
-            boolean shouldHaveQuotes = isColumnQuoted(columnDataType);
-            if (! shouldHaveQuotes && criterion.filter != null) {
-                String[] filters = criterion.filter.split(",");
-                for (String filter : filters) {
-                    if (! SqlCleanser.canParseNonQuotedFilter(filter, columnDataType)) {
-                        throw new Exception(String.format("The criteria's filter is not an number type, but the column is:  %s", criterion));
-                    }
-                }
-
-            }
+//            String[] tableAndColumn = criterion.column.split("\\.");
+//            int columnDataType = getColumnDataType(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
+//            boolean shouldHaveQuotes = isColumnQuoted(columnDataType);
+//            if (! shouldHaveQuotes && criterion.filter != null) {
+//                String[] filters = criterion.filter.split(",");
+//                for (String filter : filters) {
+//                    if (! SqlCleanser.canParseNonQuotedFilter(filter, columnDataType)) {
+//                        throw new Exception(String.format("The criteria's filter is not an number type, but the column is:  %s", criterion));
+//                    }
+//                }
+//
+//            }
         }
 
         return true;

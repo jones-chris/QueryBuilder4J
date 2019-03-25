@@ -33,11 +33,11 @@ public class DynamicStatementGenerator {
 
     public List<SelectStatement> createRandomSelectStatements() throws Exception {
         List<SelectStatement> results = new ArrayList<>();
-        randomCriteria = getCriteriaSet();
+        getCriteriaSet();
 
         //i is the number of sql statements to output.
         for (int i=0; i<numberOfSelectStatements; i++) {
-            randomCriteria = getCriteriaSet();
+            getCriteriaSet();
 
             //get columns
             boolean getSingleColumn = RandomUtils.nextBoolean();
@@ -73,7 +73,7 @@ public class DynamicStatementGenerator {
                 eligibleParentIds.add(0);
 
                 for (int j=1; j<numOfCriteria; j++) {
-                    randomCriteria = getCriteriaSet();
+                    getCriteriaSet();
                     int randomIndex = RandomUtils.nextInt(randomCriteria.size());
                     Criteria criteriaClone = (Criteria) randomCriteria.get(randomIndex).clone();
                     criteriaClone.setId(j); // set criteria's id sequentially so that sqlBuilder logic works.  The object is a clone, so it will not overwrite the object it's cloned from.
@@ -140,129 +140,226 @@ public class DynamicStatementGenerator {
         return results;
     }
 
-    private List<Criteria> getCriteriaSet() {
+    private void getCriteriaSet() {
         //wipe old items in randomCriteria
         randomCriteria = new ArrayList<>();
 
-        //criteria
-        //equal to
-        Criteria criteriaEqualTo = new Criteria(0);
-        criteriaEqualTo.parentId = null;
-        criteriaEqualTo.conjunction = And;
-        criteriaEqualTo.column = "county_spending_detail.service";
-        criteriaEqualTo.operator = equalTo;
-        criteriaEqualTo.filter = "General Government";
+        //quoted column - equal to
+        Criteria quotedColumn_criteriaEqualTo = new Criteria(0);
+        quotedColumn_criteriaEqualTo.parentId = null;
+        quotedColumn_criteriaEqualTo.conjunction = And;
+        quotedColumn_criteriaEqualTo.column = "county_spending_detail.service";
+        quotedColumn_criteriaEqualTo.operator = equalTo;
+        quotedColumn_criteriaEqualTo.filter = "General Government";
+        randomCriteria.add(quotedColumn_criteriaEqualTo);
 
-        //not equal to
-        Criteria criteriaNotEqualTo = new Criteria(1);
-        criteriaNotEqualTo.parentId = null;
-        criteriaNotEqualTo.conjunction = And;
-        criteriaNotEqualTo.column = "county_spending_detail.service";
-        criteriaNotEqualTo.operator = notEqualTo;
-        criteriaNotEqualTo.filter = "General Government";
+        //quoted column - not equal to
+        Criteria quotedColumn_criteriaNotEqualTo = new Criteria(1);
+        quotedColumn_criteriaNotEqualTo.parentId = null;
+        quotedColumn_criteriaNotEqualTo.conjunction = And;
+        quotedColumn_criteriaNotEqualTo.column = "county_spending_detail.service";
+        quotedColumn_criteriaNotEqualTo.operator = notEqualTo;
+        quotedColumn_criteriaNotEqualTo.filter = "General Government";
+        randomCriteria.add(quotedColumn_criteriaNotEqualTo);
 
-        //greater than or equals
-        Criteria criteriaGreaterThanOrEquals = new Criteria(2);
-        criteriaGreaterThanOrEquals.parentId = null;
-        criteriaGreaterThanOrEquals.conjunction = And;
-        criteriaGreaterThanOrEquals.column = "county_spending_detail.service";
-        criteriaGreaterThanOrEquals.operator = greaterThanOrEquals;
-        criteriaGreaterThanOrEquals.filter = "General Government";
+        //quoted column - greater than or equals
+        Criteria quotedColumn_criteriaGreaterThanOrEquals = new Criteria(2);
+        quotedColumn_criteriaGreaterThanOrEquals.parentId = null;
+        quotedColumn_criteriaGreaterThanOrEquals.conjunction = And;
+        quotedColumn_criteriaGreaterThanOrEquals.column = "county_spending_detail.service";
+        quotedColumn_criteriaGreaterThanOrEquals.operator = greaterThanOrEquals;
+        quotedColumn_criteriaGreaterThanOrEquals.filter = "General Government";
+        randomCriteria.add(quotedColumn_criteriaGreaterThanOrEquals);
 
-        //less than or equals
-        Criteria criteriaLessThanOrEquals = new Criteria(3);
-        criteriaLessThanOrEquals.parentId = null;
-        criteriaLessThanOrEquals.conjunction = And;
-        criteriaLessThanOrEquals.column = "county_spending_detail.service";
-        criteriaLessThanOrEquals.operator = lessThanOrEquals;
-        criteriaLessThanOrEquals.filter = "General Government";
+        //quoted column - less than or equals
+        Criteria quotedColumn_criteriaLessThanOrEquals = new Criteria(3);
+        quotedColumn_criteriaLessThanOrEquals.parentId = null;
+        quotedColumn_criteriaLessThanOrEquals.conjunction = And;
+        quotedColumn_criteriaLessThanOrEquals.column = "county_spending_detail.service";
+        quotedColumn_criteriaLessThanOrEquals.operator = lessThanOrEquals;
+        quotedColumn_criteriaLessThanOrEquals.filter = "General Government";
+        randomCriteria.add(quotedColumn_criteriaLessThanOrEquals);
 
-        //greater than
-        Criteria criteriaGreaterThan = new Criteria(4);
-        criteriaGreaterThan.parentId = null;
-        criteriaGreaterThan.conjunction = And;
-        criteriaGreaterThan.column = "county_spending_detail.service";
-        criteriaGreaterThan.operator = greaterThan;
-        criteriaGreaterThan.filter = "General Government";
+        //quoted column - greater than
+        Criteria quotedColumn_criteriaGreaterThan = new Criteria(4);
+        quotedColumn_criteriaGreaterThan.parentId = null;
+        quotedColumn_criteriaGreaterThan.conjunction = And;
+        quotedColumn_criteriaGreaterThan.column = "county_spending_detail.service";
+        quotedColumn_criteriaGreaterThan.operator = greaterThan;
+        quotedColumn_criteriaGreaterThan.filter = "General Government";
+        randomCriteria.add(quotedColumn_criteriaGreaterThan);
 
-        //less than
-        Criteria criteriaLessThan = new Criteria(5);
-        criteriaLessThan.parentId = null;
-        criteriaLessThan.conjunction = And;
-        criteriaLessThan.column = "county_spending_detail.service";
-        criteriaLessThan.operator = lessThan;
-        criteriaLessThan.filter = "General Government";
+        //quoted column - less than
+        Criteria quotedColumn_criteriaLessThan = new Criteria(5);
+        quotedColumn_criteriaLessThan.parentId = null;
+        quotedColumn_criteriaLessThan.conjunction = And;
+        quotedColumn_criteriaLessThan.column = "county_spending_detail.service";
+        quotedColumn_criteriaLessThan.operator = lessThan;
+        quotedColumn_criteriaLessThan.filter = "General Government";
+        randomCriteria.add(quotedColumn_criteriaLessThan);
 
-        //like
-        Criteria criteriaLike = new Criteria(6);
-        criteriaLike.parentId = null;
-        criteriaLike.conjunction = And;
-        criteriaLike.column = "county_spending_detail.service";
-        criteriaLike.operator = like;
-        criteriaLike.filter = "General%";
+        //quoted column - like
+        Criteria quotedColumn_criteriaLike = new Criteria(6);
+        quotedColumn_criteriaLike.parentId = null;
+        quotedColumn_criteriaLike.conjunction = And;
+        quotedColumn_criteriaLike.column = "county_spending_detail.service";
+        quotedColumn_criteriaLike.operator = like;
+        quotedColumn_criteriaLike.filter = "General%";
+        randomCriteria.add(quotedColumn_criteriaLike);
 
-        //not like
-        Criteria criteriaNotLike = new Criteria(7);
-        criteriaNotLike.parentId = null;
-        criteriaNotLike.conjunction = And;
-        criteriaNotLike.column = "county_spending_detail.service";
-        criteriaNotLike.operator = notLike;
-        criteriaNotLike.filter = "%Government";
+        //quoted column - not like
+        Criteria quotedColumn_criteriaNotLike = new Criteria(7);
+        quotedColumn_criteriaNotLike.parentId = null;
+        quotedColumn_criteriaNotLike.conjunction = And;
+        quotedColumn_criteriaNotLike.column = "county_spending_detail.service";
+        quotedColumn_criteriaNotLike.operator = notLike;
+        quotedColumn_criteriaNotLike.filter = "%Government";
+        randomCriteria.add(quotedColumn_criteriaNotLike);
 
-        //in
-        Criteria criteriaInFiscalYearPeriod = new Criteria(8);
-        criteriaInFiscalYearPeriod.parentId = null;
-        criteriaInFiscalYearPeriod.conjunction = And;
-        criteriaInFiscalYearPeriod.column = "county_spending_detail.fiscal_year_period";
-        criteriaInFiscalYearPeriod.operator = in;
-        criteriaInFiscalYearPeriod.filter = "3,4";
+        //quoted column - in
+        Criteria quotedColumn_criteriaIn = new Criteria(8);
+        quotedColumn_criteriaIn.parentId = null;
+        quotedColumn_criteriaIn.conjunction = And;
+        quotedColumn_criteriaIn.column = "county_spending_detail.service";
+        quotedColumn_criteriaIn.operator = in;
+        quotedColumn_criteriaIn.filter = "General Government,Housing and Community Development";
+        randomCriteria.add(quotedColumn_criteriaIn);
 
-        Criteria criteriaInService = new Criteria(9);
-        criteriaInService.parentId = null;
-        criteriaInService.conjunction = And;
-        criteriaInService.column = "county_spending_detail.service";
-        criteriaInService.operator = in;
-        criteriaInService.filter = "General Government,Housing and Community Development";
+        //quoted column - not in
+        Criteria quotedColumn_criteriaNotIn = new Criteria(9);
+        quotedColumn_criteriaNotIn.parentId = null;
+        quotedColumn_criteriaNotIn.conjunction = And;
+        quotedColumn_criteriaNotIn.column = "county_spending_detail.service";
+        quotedColumn_criteriaNotIn.operator = notIn;
+        quotedColumn_criteriaNotIn.filter = "Housing and Community Development";
+        randomCriteria.add(quotedColumn_criteriaNotIn);
 
-        //not in
-        Criteria criteriaNotIn = new Criteria(10);
-        criteriaNotIn.parentId = null;
-        criteriaNotIn.conjunction = And;
-        criteriaNotIn.column = "county_spending_detail.service";
-        criteriaNotIn.operator = notIn;
-        criteriaNotIn.filter = "Housing and Community Development";
+        //quoted column - is null
+        Criteria quotedColumn_criteriaIsNull = new Criteria(10);
+        quotedColumn_criteriaIsNull.parentId = null;
+        quotedColumn_criteriaIsNull.conjunction = And;
+        quotedColumn_criteriaIsNull.column = "county_spending_detail.service";
+        quotedColumn_criteriaIsNull.operator = isNull;
+        quotedColumn_criteriaIsNull.filter = "Housing and Community Development";
+        randomCriteria.add(quotedColumn_criteriaIsNull);
 
-        //is null
-        Criteria criteriaIsNull = new Criteria(11);
-        criteriaIsNull.parentId = null;
-        criteriaIsNull.conjunction = And;
-        criteriaIsNull.column = "county_spending_detail.service";
-        criteriaIsNull.operator = isNull;
-        criteriaIsNull.filter = "Housing and Community Development";
+        //quoted column - is not null
+        Criteria quotedColumn_criteriaIsNotNull = new Criteria(11);
+        quotedColumn_criteriaIsNotNull.parentId = null;
+        quotedColumn_criteriaIsNotNull.conjunction = And;
+        quotedColumn_criteriaIsNotNull.column = "county_spending_detail.service";
+        quotedColumn_criteriaIsNotNull.operator = isNotNull;
+        quotedColumn_criteriaIsNotNull.filter = "Housing and Community Development";
+        randomCriteria.add(quotedColumn_criteriaIsNotNull);
 
-        //is not null
-        Criteria criteriaIsNotNull = new Criteria(12);
-        criteriaIsNotNull.parentId = null;
-        criteriaIsNotNull.conjunction = And;
-        criteriaIsNotNull.column = "county_spending_detail.service";
-        criteriaIsNotNull.operator = isNotNull;
-        criteriaIsNotNull.filter = "Housing and Community Development";
+        //nonquoted column - equal to
+        Criteria nonQuotedColumn_criteriaEqualTo = new Criteria(0);
+        nonQuotedColumn_criteriaEqualTo.parentId = null;
+        nonQuotedColumn_criteriaEqualTo.conjunction = And;
+        nonQuotedColumn_criteriaEqualTo.column = "county_spending_detail.service";
+        nonQuotedColumn_criteriaEqualTo.operator = equalTo;
+        nonQuotedColumn_criteriaEqualTo.filter = "General Government";
+        randomCriteria.add(nonQuotedColumn_criteriaEqualTo);
 
-        randomCriteria.add(criteriaEqualTo);
-        randomCriteria.add(criteriaNotEqualTo);
-        randomCriteria.add(criteriaGreaterThanOrEquals);
-        randomCriteria.add(criteriaLessThanOrEquals);
-        randomCriteria.add(criteriaGreaterThan);
-        randomCriteria.add(criteriaLessThan);
-        randomCriteria.add(criteriaLike);
-        randomCriteria.add(criteriaNotLike);
-        randomCriteria.add(criteriaInFiscalYearPeriod);
-        randomCriteria.add(criteriaInService);
-        randomCriteria.add(criteriaNotIn);
-        randomCriteria.add(criteriaIsNull);
-        randomCriteria.add(criteriaIsNotNull);
+        //nonquoted column - not equal to
+        Criteria nonQuotedColumn_criteriaNotEqualTo = new Criteria(1);
+        nonQuotedColumn_criteriaNotEqualTo.parentId = null;
+        nonQuotedColumn_criteriaNotEqualTo.conjunction = And;
+        nonQuotedColumn_criteriaNotEqualTo.column = "county_spending_detail.fiscal_year_period";
+        nonQuotedColumn_criteriaNotEqualTo.operator = notEqualTo;
+        nonQuotedColumn_criteriaNotEqualTo.filter = "1";
+        randomCriteria.add(nonQuotedColumn_criteriaNotEqualTo);
 
-        return randomCriteria;
+        //nonquoted column - greater than or equals
+        Criteria nonQuotedColumn_criteriaGreaterThanOrEquals = new Criteria(2);
+        nonQuotedColumn_criteriaGreaterThanOrEquals.parentId = null;
+        nonQuotedColumn_criteriaGreaterThanOrEquals.conjunction = And;
+        nonQuotedColumn_criteriaGreaterThanOrEquals.column = "county_spending_detail.fiscal_year_period";
+        nonQuotedColumn_criteriaGreaterThanOrEquals.operator = greaterThanOrEquals;
+        nonQuotedColumn_criteriaGreaterThanOrEquals.filter = "1";
+        randomCriteria.add(nonQuotedColumn_criteriaGreaterThanOrEquals);
+
+        //nonquoted column - less than or equals
+        Criteria nonQuotedColumn_criteriaLessThanOrEquals = new Criteria(3);
+        nonQuotedColumn_criteriaLessThanOrEquals.parentId = null;
+        nonQuotedColumn_criteriaLessThanOrEquals.conjunction = And;
+        nonQuotedColumn_criteriaLessThanOrEquals.column = "county_spending_detail.fiscal_year_period";
+        nonQuotedColumn_criteriaLessThanOrEquals.operator = lessThanOrEquals;
+        nonQuotedColumn_criteriaLessThanOrEquals.filter = "1";
+        randomCriteria.add(nonQuotedColumn_criteriaLessThanOrEquals);
+
+        //nonquoted column - greater than
+        Criteria nonQuotedColumn_criteriaGreaterThan = new Criteria(4);
+        nonQuotedColumn_criteriaGreaterThan.parentId = null;
+        nonQuotedColumn_criteriaGreaterThan.conjunction = And;
+        nonQuotedColumn_criteriaGreaterThan.column = "county_spending_detail.fiscal_year_period";
+        nonQuotedColumn_criteriaGreaterThan.operator = greaterThan;
+        nonQuotedColumn_criteriaGreaterThan.filter = "1";
+        randomCriteria.add(nonQuotedColumn_criteriaGreaterThan);
+
+        //nonquoted column - less than
+        Criteria nonQuotedColumn_criteriaLessThan = new Criteria(5);
+        nonQuotedColumn_criteriaLessThan.parentId = null;
+        nonQuotedColumn_criteriaLessThan.conjunction = And;
+        nonQuotedColumn_criteriaLessThan.column = "county_spending_detail.fiscal_year_period";
+        nonQuotedColumn_criteriaLessThan.operator = lessThan;
+        nonQuotedColumn_criteriaLessThan.filter = "1";
+        randomCriteria.add(nonQuotedColumn_criteriaLessThan);
+
+        //nonquoted column - like
+        // todo:  add support for like/not like for nonquoted columns.
+//        Criteria nonQuotedColumn_criteriaLike = new Criteria(6);
+//        nonQuotedColumn_criteriaLike.parentId = null;
+//        nonQuotedColumn_criteriaLike.conjunction = And;
+//        nonQuotedColumn_criteriaLike.column = "county_spending_detail.fiscal_year_period";
+//        nonQuotedColumn_criteriaLike.operator = like;
+//        nonQuotedColumn_criteriaLike.filter = "1%";
+//        randomCriteria.add(nonQuotedColumn_criteriaLike);
+
+        //nonquoted column - not like
+//        Criteria nonQuotedColumn_criteriaNotLike = new Criteria(7);
+//        nonQuotedColumn_criteriaNotLike.parentId = null;
+//        nonQuotedColumn_criteriaNotLike.conjunction = And;
+//        nonQuotedColumn_criteriaNotLike.column = "county_spending_detail.fiscal_year_period";
+//        nonQuotedColumn_criteriaNotLike.operator = notLike;
+//        nonQuotedColumn_criteriaNotLike.filter = "%1";
+//        randomCriteria.add(nonQuotedColumn_criteriaNotLike);
+
+        //nonquoted column - in
+        Criteria nonQuotedColumn_criteriaIn = new Criteria(8);
+        nonQuotedColumn_criteriaIn.parentId = null;
+        nonQuotedColumn_criteriaIn.conjunction = And;
+        nonQuotedColumn_criteriaIn.column = "county_spending_detail.fiscal_year_period";
+        nonQuotedColumn_criteriaIn.operator = in;
+        nonQuotedColumn_criteriaIn.filter = "1,2";
+        randomCriteria.add(nonQuotedColumn_criteriaIn);
+
+        //nonquoted column - not in
+        Criteria nonQuotedColumn_criteriaNotIn = new Criteria(9);
+        nonQuotedColumn_criteriaNotIn.parentId = null;
+        nonQuotedColumn_criteriaNotIn.conjunction = And;
+        nonQuotedColumn_criteriaNotIn.column = "county_spending_detail.fiscal_year_period";
+        nonQuotedColumn_criteriaNotIn.operator = notIn;
+        nonQuotedColumn_criteriaNotIn.filter = "1,2";
+        randomCriteria.add(nonQuotedColumn_criteriaNotIn);
+
+        //nonquoted column - is null
+        Criteria nonQuotedColumn_criteriaIsNull = new Criteria(10);
+        nonQuotedColumn_criteriaIsNull.parentId = null;
+        nonQuotedColumn_criteriaIsNull.conjunction = And;
+        nonQuotedColumn_criteriaIsNull.column = "county_spending_detail.fiscal_year_period";
+        nonQuotedColumn_criteriaIsNull.operator = isNull;
+        nonQuotedColumn_criteriaIsNull.filter = "1";
+        randomCriteria.add(nonQuotedColumn_criteriaIsNull);
+
+        //quoted column - is not null
+        Criteria nonQuotedColumn_criteriaIsNotNull = new Criteria(11);
+        nonQuotedColumn_criteriaIsNotNull.parentId = null;
+        nonQuotedColumn_criteriaIsNotNull.conjunction = And;
+        nonQuotedColumn_criteriaIsNotNull.column = "county_spending_detail.fiscal_year_period";
+        nonQuotedColumn_criteriaIsNotNull.operator = isNotNull;
+        nonQuotedColumn_criteriaIsNotNull.filter = "1";
+        randomCriteria.add(nonQuotedColumn_criteriaIsNotNull);
     }
 
     private Join createJoin(boolean shouldHaveMultipleJoinColumns) {

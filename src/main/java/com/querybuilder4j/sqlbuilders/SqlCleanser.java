@@ -150,11 +150,11 @@ public class SqlCleanser {
     }
 
     private static boolean isSubQueryOrParam(String s) {
-        Pattern patternSubQuery = Pattern.compile("^subquery[0-9]+");
-        Pattern patternParam = Pattern.compile("^\\$param:");
-        Matcher matcherSubQuery = patternSubQuery.matcher(s);
-        Matcher matcherParam = patternParam.matcher(s);
+        if (s.length() == 0) {
+            return true;
+        }
 
-        return matcherSubQuery.find() || matcherParam.find();
+        char firstChar = s.charAt(0);
+        return (firstChar == '$' || firstChar == '@');
     }
 }
