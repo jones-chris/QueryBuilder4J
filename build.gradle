@@ -3,6 +3,7 @@ group 'QueryBuilder4J'
 version ''
 
 apply plugin: 'java'
+//apply plugin: 'maven-publish'
 
 sourceCompatibility = 1.8
 
@@ -21,6 +22,37 @@ repositories {
     mavenCentral()
 }
 
+//publishing {
+//    publications {
+//        mavenJava(MavenPublication) {
+//            pom {
+//                name = 'QueryBuilder4J'
+//                description = ''
+//                url = 'https://github.com/jones-chris/QueryBuilder4J'
+//
+//                licenses {
+//                    license {
+//                        name = 'The Apache License, Version 2.0'
+//                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+//                    }
+//                }
+//                developers {
+//                    developer {
+//                        id = 'jones-chris'
+//                        name = 'Chris Jones'
+//                        email = 'christopheralan88@gmail.com'
+//                    }
+//                }
+//                scm {
+//                    connection = 'scm:git:git:https://github.com/jones-chris/QueryBuilder4J.git'
+////                    developerConnection = 'scm:git:ssh://example.com/my-library.git'
+//                    url = 'https://github.com/jones-chris/QueryBuilder4J'
+//                }
+//            }
+//        }
+//    }
+//}
+
 // This passes the command line -D argument to gradle, which will make the argument available for the test suite.
 test {
     systemProperty 'testProperties', System.getProperty('testProperties')
@@ -32,36 +64,35 @@ test {
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/postgresql/postgresql
-    compile group: 'org.postgresql', name: 'postgresql', version: '9.3-1102-jdbc41'
-
-    // https://mvnrepository.com/artifact/mysql/mysql-connector-java
-    compile group: 'mysql', name: 'mysql-connector-java', version: '6.0.6'
-
-    // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
-    compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.21.0.1'
-
-    // https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc
-    compile group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '6.1.0.jre8'
-
-    // https://mvnrepository.com/artifact/com.h2database/h2
-    compile group: 'com.h2database', name: 'h2', version: '1.4.197'
-
     // https://mvnrepository.com/artifact/org.springframework/spring-orm
     //compile group: 'org.springframework', name: 'spring-orm', version: '5.1.0.RELEASE'
 
     // https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-dbcp
     //compile group: 'org.apache.tomcat', name: 'tomcat-dbcp', version: '9.0.12'
 
-    // https://mvnrepository.com/artifact/org.json/json
-    compile group: 'org.json', name: 'json', version: '20180130'
-
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
     compile group: 'com.google.code.gson', name: 'gson', version: '2.8.2'
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.8'
+    //compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.8'
 
+    // https://mvnrepository.com/artifact/postgresql/postgresql
+    testCompile group: 'org.postgresql', name: 'postgresql', version: '9.3-1102-jdbc41'
+
+    // https://mvnrepository.com/artifact/mysql/mysql-connector-java
+    testCompile group: 'mysql', name: 'mysql-connector-java', version: '6.0.6'
+
+    // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
+    testCompile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.21.0.1'
+
+    // https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc
+    testCompile group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '6.1.0.jre8'
+
+    // https://mvnrepository.com/artifact/com.h2database/h2
+    testCompile group: 'com.h2database', name: 'h2', version: '1.4.197'
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
+
+    // https://mvnrepository.com/artifact/org.mockito/mockito-all
+    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
 }
