@@ -41,49 +41,49 @@ public enum Operator {
 
     like {
         public String toString() {
-            return "like";
+            return "LIKE";
         }
     },
 
     notLike {
         public String toString() {
-            return "not like";
+            return "NOT LIKE";
         }
     },
 
     in {
         public String toString() {
-            return "in";
+            return "IN";
         }
     },
 
     notIn {
         public String toString() {
-            return "not in";
+            return "NOT IN";
         }
     },
 
     isNull {
         public String toString() {
-            return "is null";
+            return "IS NULL";
         }
     },
 
     isNotNull {
         public String toString() {
-            return "is not null";
+            return "IS NOT NULL";
         }
     },
 
     between {
         public String toString() {
-            return "between";
+            return "BETWEEN";
         }
     },
 
     notBetween {
         public String toString() {
-            return "not between";
+            return "NOT BETWEEN";
         }
     }
 }

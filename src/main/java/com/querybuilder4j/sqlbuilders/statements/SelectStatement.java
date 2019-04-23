@@ -201,12 +201,12 @@ public class SelectStatement {
     protected void setSubqueries() throws IllegalArgumentException {
         if (criteria.size() != 0 && queryTemplateDao != null) {
             criteria.forEach((criterion) -> {
-                String[] filters = criterion.filter.split(",");
-                for (String filter : filters) {
-                    if (SqlBuilder.argIsSubQuery(filter)) {
+//                String[] filters = criterion.filter.split(",");
+//                for (String filter : filters) {
+                    if (SqlBuilder.argIsSubQuery(criterion.filter)) {
                         LinkedList<Integer> begSubQueryIndeces = new LinkedList<>();
                         LinkedList<Integer> endSubQueryIndeces = new LinkedList<>();
-                        char[] filterChars = filter.toCharArray();
+                        char[] filterChars = criterion.filter.toCharArray();
 
                         for (int i=0; i<filterChars.length; i++) {
                             if (filterChars[i] == '$') {
@@ -221,7 +221,7 @@ public class SelectStatement {
                         if (begSubQueryIndeces.size() == endSubQueryIndeces.size()) {
                             // It's okay to make the while condition based on only one of the LinkedLists because we know at this
                             // point that both LinkedLists are equal sizes.
-                            String newFilter = new String(filter);
+                            String newFilter = new String(criterion.filter);
                             while (begSubQueryIndeces.size() != 0) {
                                 String subQueryId = "$" + subQueries.size();
 
@@ -261,7 +261,7 @@ public class SelectStatement {
                                 endSubQueryIndeces.remove(new Integer(endSubQueryIndex));
 
                                 // Now, get the subQueryCall from filter (which does not change)
-                                String subQueryCall = newFilter.substring(begSubQueryIndex + 1, endSubQueryIndex + 1); // remove +1 from begSubQueryIndex?
+                                String subQueryCall = newFilter.substring(begSubQueryIndex + 1, endSubQueryIndex + 1);
 
                                 // Now, look in newFilter (which changes) and replace that subQueryCall with the subQueryId
                                 newFilter = newFilter.replace("$" + subQueryCall, subQueryId);
@@ -288,7 +288,7 @@ public class SelectStatement {
                             throw new IllegalArgumentException("SubQuery is malformed");
                         }
                     }
-                }
+//                }
             });
         }
     }
@@ -458,10 +458,8 @@ public class SelectStatement {
      * criteriaParameters field) with the relevant value from criteriaArguments.
      *
      * @throws NoMatchingParameterException if the parameter cannot be found as a key in criteriaArguments.
-     * @throws WrongNumberArgsException if the number of criteria parameters (not the criteriaParameters field) is not the
-     * same as the number of criteriaArguments.
      */
-    private void replaceParameters() throws NoMatchingParameterException, WrongNumberArgsException {
+    private void replaceParameters() throws NoMatchingParameterException {
         // Throw exception if there are parameters in the criteria, but not the same number of criteria arguments.
 //        int numOfParams = 0;
 //        for (Criteria criterion : criteria) {
@@ -519,20 +517,20 @@ public class SelectStatement {
             for (Join join : joins) {
                 Join.JoinType joinType = join.getJoinType();
                 if (joinType.equals(LEFT_EXCLUDING)) {
-                    addCriteriaForExcludingJoin(join.getTargetTable(), join.getTargetJoinColumns());
+                    addCriteriaForExcludingJoin(join.getTargetJoinColumns());
                 } else if (joinType.equals(RIGHT_EXCLUDING)) {
-                    addCriteriaForExcludingJoin(join.getTargetTable(), join.getParentJoinColumns());
+                    addCriteriaForExcludingJoin(join.getParentJoinColumns());
                 } else if (joinType.equals(FULL_OUTER_EXCLUDING)) {
                     List<String> allJoinColumnns = new ArrayList<>();
                     allJoinColumnns.addAll(join.getParentJoinColumns());
                     allJoinColumnns.addAll(join.getTargetJoinColumns());
-                    addCriteriaForExcludingJoin(join.getTargetTable(), allJoinColumnns);
+                    addCriteriaForExcludingJoin(allJoinColumnns);
                 }
             }
         }
     }
 
-    private void addCriteriaForExcludingJoin(String table, List<String> columns) {
+    private void addCriteriaForExcludingJoin(List<String> columns) {
         // Get max id
         int maxId = 0;
         for (Criteria criterion : criteria) {

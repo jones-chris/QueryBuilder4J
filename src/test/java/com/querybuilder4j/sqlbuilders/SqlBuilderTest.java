@@ -5,11 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.querybuilder4j.QueryTemplateDaoImpl;
 import com.querybuilder4j.TestUtils;
-import com.querybuilder4j.config.Conjunction;
 import com.querybuilder4j.config.DatabaseType;
-import com.querybuilder4j.config.Operator;
 import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
-import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 import com.querybuilder4j.utils.SelectStatementFactory;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -121,26 +118,18 @@ public class SqlBuilderTest {
      */
     @Test
     public void runSubQuery_noArgs() throws Exception {
-        // create root statement
-        Criteria criteria = new Criteria();
-        criteria.setId(0);
-        criteria.setConjunction(Conjunction.And);
-        criteria.setColumn("county_spending_detail.department");
-        criteria.setOperator(in);
-        criteria.setFilter("$0");
-//        criteria.setFilter("$getDepartmentsIn2014()");
-        SelectStatement rootStmt = new SelectStatement(DatabaseType.Sqlite);
-        rootStmt.getColumns().add("county_spending_detail.amount");
-        rootStmt.setTable("county_spending_detail");
-        rootStmt.getCriteria().add(criteria);
-        rootStmt.getSubQueries().put("$0", "getDepartmentsIn2014()");
-        rootStmt.setQueryTemplateDao(queryTemplateDao);
+        SelectStatement stmt = new SelectStatementFactory()
+                .select("county_spending_detail.amount")
+                .from("county_spending_detail")
+                .where("county_spending_detail.department", in, "$getDepartmentsIn2014()")
+                .setQueryTemplateDao(queryTemplateDao)
+                .getSelectStatement(DatabaseType.Sqlite);
 
         // Get properties.
         Properties props = getTestProperties().get(DatabaseType.Sqlite);
 
         // Test that SQL runs successfully against database.
-        buildAndRunQuery(rootStmt, props);
+        buildAndRunQuery(stmt, props);
 
         // After the SelectStatement is run, pass the test.
         assertTrue(true);
@@ -152,26 +141,18 @@ public class SqlBuilderTest {
      */
     @Test
     public void runSubQuery_oneRegularArg() throws Exception {
-        // create root statement
-        Criteria criteria = new Criteria();
-        criteria.setId(0);
-        criteria.setConjunction(Conjunction.And);
-        criteria.setColumn("county_spending_detail.department");
-        criteria.setOperator(in);
-//        criteria.setFilter("$getDepartmentsByYear(year=2014)");
-        criteria.setFilter("$0");
-        SelectStatement rootStmt = new SelectStatement(DatabaseType.Sqlite);
-        rootStmt.getColumns().add("county_spending_detail.amount");
-        rootStmt.setTable("county_spending_detail");
-        rootStmt.getCriteria().add(criteria);
-        rootStmt.getSubQueries().put("$0", "getDepartmentsByYear(year=2014)");
-        rootStmt.setQueryTemplateDao(queryTemplateDao);
+        SelectStatement stmt = new SelectStatementFactory()
+                .select("county_spending_detail.department")
+                .from("county_spending_detail")
+                .where("county_spending_detail.department", in, "$getDepartmentsByYear(year=2014)")
+                .setQueryTemplateDao(queryTemplateDao)
+                .getSelectStatement(DatabaseType.Sqlite);
 
         // Get properties.
         Properties props = getTestProperties().get(DatabaseType.Sqlite);
 
         // Test that SQL runs successfully against database.
-        buildAndRunQuery(rootStmt, props);
+        buildAndRunQuery(stmt, props);
 
         // After the SelectStatement is run, pass the test.
         assertTrue(true);
@@ -183,27 +164,18 @@ public class SqlBuilderTest {
      */
     @Test
     public void runSubQuery_oneSubQueryArg() throws Exception {
-        // Create root statement
-        Criteria criteria = new Criteria();
-        criteria.setId(0);
-        criteria.setConjunction(Conjunction.And);
-        criteria.setColumn("county_spending_detail.department");
-        criteria.setOperator(in);
-        criteria.setFilter("$0");
-//        criteria.setFilter("$getDepartmentsByYear(year=$get2014FiscalYear())");
-        SelectStatement rootStmt = new SelectStatement(DatabaseType.Sqlite);
-        rootStmt.getColumns().add("county_spending_detail.amount");
-        rootStmt.setTable("county_spending_detail");
-        rootStmt.getCriteria().add(criteria);
-        rootStmt.getSubQueries().put("$0", "getDepartmentsByYear(year=$1)");
-        rootStmt.getSubQueries().put("$1", "get2014FiscalYear()");
-        rootStmt.setQueryTemplateDao(queryTemplateDao);
+        SelectStatement stmt = new SelectStatementFactory()
+                .select("county_spending_detail.amount")
+                .from("county_spending_detail")
+                .where("county_spending_detail.department", in, "$getDepartmentsByYear(year=$get2014FiscalYear())")
+                .setQueryTemplateDao(queryTemplateDao)
+                .getSelectStatement(DatabaseType.Sqlite);
 
         // Get properties.
         Properties props = getTestProperties().get(DatabaseType.Sqlite);
 
         // Test that SQL runs successfully against database.
-        buildAndRunQuery(rootStmt, props);
+        buildAndRunQuery(stmt, props);
 
         // After the SelectStatement is run, pass the test.
         assertTrue(true);
@@ -215,31 +187,6 @@ public class SqlBuilderTest {
      */
     @Test
     public void runSubQuery_oneRegularArgOneSubQuery() throws Exception {
-        // Create root statement
-//        Criteria criteria = new Criteria();
-//        criteria.setId(0);
-//        criteria.setConjunction(Conjunction.And);
-//        criteria.setColumn("county_spending_detail.department");
-//        criteria.setOperator(Operator.in);
-//        criteria.setFilter("$0");
-////        criteria.setFilter("$getDepartmentsByMultipleYears(year1=$get2014FiscalYear();year2=2017)");
-//
-//        Criteria criteria1 = new Criteria();
-//        criteria1.setId(1);
-//        criteria1.setConjunction(Conjunction.And);
-//        criteria1.setColumn("county_spending_detail.department");
-//        criteria1.setOperator(Operator.in);
-//        criteria1.setFilter("$1");
-////        criteria.setFilter("$get2014FiscalYear()");
-//
-//        SelectStatement rootStmt = new SelectStatement(DatabaseType.Sqlite);
-//        rootStmt.getColumns().add("county_spending_detail.amount");
-//        rootStmt.setTable("county_spending_detail");
-//        rootStmt.getCriteria().add(criteria);
-//        rootStmt.getCriteria().add(criteria1);
-//        rootStmt.getSubQueries().put("$0", "getDepartmentsByMultipleYears(year1=$1,year2=2017)");
-//        rootStmt.getSubQueries().put("$1", "get2014FiscalYear()");
-//        rootStmt.setQueryTemplateDao(queryTemplateDao);
         SelectStatement stmt = new SelectStatementFactory()
                 .select("county_spending_detail.amount")
                 .from("county_spending_detail")

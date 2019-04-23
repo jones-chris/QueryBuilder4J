@@ -43,7 +43,6 @@ public abstract class SqlBuilder {
      */
     protected char endingDelimter;
 
-
     /**
      * A Map with the values being the stmt's table columns and the values being their JDBC types.
      */
@@ -550,7 +549,7 @@ public abstract class SqlBuilder {
             for (Map.Entry<String, String> subQuery : this.stmt.getSubQueries().entrySet()) {
                 String subQueryId = subQuery.getKey();
                 String subQueryName = subQuery.getValue().substring(0, subQuery.getValue().indexOf("("));
-                String[] subQueryArgs = subQuery.getValue().substring(subQuery.getValue().indexOf("(") + 1, subQuery.getValue().indexOf(")")).split(",");
+                String[] subQueryArgs = subQuery.getValue().substring(subQuery.getValue().indexOf("(") + 1, subQuery.getValue().indexOf(")")).split(";");
 
                 // If there are no args, then there will be one element in subQueryArgs and it will be an empty string.
                 if (subQueryArgs.length == 1 && subQueryArgs[0].equals("")) {
