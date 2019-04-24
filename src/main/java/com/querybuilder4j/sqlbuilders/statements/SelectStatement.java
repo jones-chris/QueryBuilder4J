@@ -399,9 +399,12 @@ public class SelectStatement {
             Collections.sort(this.criteria);
             clearParenthesisFromCriteria();
             addParenthesisToCriteria();
-            // If subQueries has not been set (it will have a 0 size, if that's the case), then set subQueries.
-//            if (subQueries.size() == 0) { setSubqueries(); }
-            setSubqueries();
+
+            // If subQueries has not been set (if this is the case, it will have a 0 size), then set subQueries.
+            // This is done because if this SelectStatement is a subquery, then it will already have subQueries and we
+            // don't want to change them.
+            if (subQueries.size() == 0) { setSubqueries(); }
+
             replaceParameters();
             SqlBuilder sqlBuilder = SqlBuilderFactory.buildSqlBuilder(databaseType, this, properties); // subQueries get built here.
             return sqlBuilder.buildSql(); // root query gets built here.

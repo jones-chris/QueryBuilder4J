@@ -6,8 +6,7 @@ import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class QueryTemplateDaoImpl implements QueryTemplateDao {
 
@@ -20,6 +19,22 @@ public class QueryTemplateDaoImpl implements QueryTemplateDao {
         }
 
         return queries.get(name);
+    }
+
+    @Override
+    public boolean save(String primaryKey, String json) {
+        return true;
+    }
+
+    @Override
+    public List<String> getNames(Integer limit, Integer offset, boolean ascending) throws Exception {
+        if (queries.size() == 0) {
+            addQueries();
+        }
+
+        List<String> names = new ArrayList<>();
+        names.addAll(queries.keySet());
+        return names;
     }
 
     private void addQueries() {

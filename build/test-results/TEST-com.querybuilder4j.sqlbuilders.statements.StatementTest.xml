@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.querybuilder4j.sqlbuilders.statements.StatementTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2019-02-20T03:59:27" hostname="sm7chrisjones" time="0.001">
+<testsuite name="com.querybuilder4j.sqlbuilders.statements.StatementTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2019-04-24T03:20:38" hostname="sm7chrisjones" time="0.077">
   <properties/>
+  <testcase name="setSubqueries_oneArgSubQuery" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.075"/>
+  <testcase name="setSubqueries_subQueryWithTwoNestedSubQueriesOnDifferentLevels" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
   <testcase name="addParenthesisToCriteriaTest_EndsWithZeroEndingParenthesis" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
+  <testcase name="setSubqueries_twoArgSubQuery" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
   <testcase name="addParenthesisToCriteriaTest_EndsWithOneEndingParenthesis" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
   <testcase name="addParenthesisToCriteria_EndsWithChildTwoEndingParenthesis" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
+  <testcase name="setSubqueries_subQueryWithTwoNestedSubQueriesOnSameLevel" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
+  <testcase name="setSubqueries_subQueryWithTwoNestedSubQueriesOnDifferentLevelsWithOneArg" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
   <testcase name="addParenthesisToCriteriaTest_EndsWithZeroEndingParenthesisButChildCriteria" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
-  <system-out><![CDATA[[Conjunction:  AndFront Parenthesis:  Column:  column1Operator:  =Filer:  filter1End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column5Operator:  =Filer:  filter5End Parenthesis:  ]
-[Conjunction:  AndFront Parenthesis:  Column:  column1Operator:  =Filer:  filter1End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column2Operator:  =Filer:  filter2End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column3Operator:  =Filer:  filter3End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column4Operator:  =Filer:  filter4End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column5Operator:  =Filer:  filter5End Parenthesis:  ]
-[Conjunction:  AndFront Parenthesis:  Column:  column1Operator:  =Filer:  filter1End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column2Operator:  =Filer:  filter2End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column3Operator:  =Filer:  filter3End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column4Operator:  =Filer:  filter4End Parenthesis:  ]
-[Conjunction:  AndFront Parenthesis:  Column:  column1Operator:  =Filer:  filter1End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column2Operator:  =Filer:  filter2End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column3Operator:  =Filer:  filter3End Parenthesis:  , Conjunction:  AndFront Parenthesis:  Column:  column4Operator:  =Filer:  filter4End Parenthesis:  ]
+  <testcase name="setSubqueries_noArgSubQuery" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
+  <testcase name="setSubqueries_subQueryWithOneNestedSubQuery" classname="com.querybuilder4j.sqlbuilders.statements.StatementTest" time="0.0"/>
+  <system-out><![CDATA[[Conjunction:  ANDFront Parenthesis:  Column:  column1Operator:  =Filer:  filter1End Parenthesis:  , Conjunction:  ANDFront Parenthesis:  Column:  column5Operator:  =Filer:  filter5End Parenthesis:  ]
+[Conjunction:  ANDFront Parenthesis:  Column:  column1Operator:  =Filer:  filter1End Parenthesis:  , Conjunction:  ANDFront Parenthesis:  Column:  column2Operator:  =Filer:  filter2End Parenthesis:  , Conjunction:  ANDFront Parenthesis:  Column:  column3Operator:  =Filer:  filter3End Parenthesis:  , Conjunction:  ANDFront Parenthesis:  Column:  column4Operator:  =Filer:  filter4End Parenthesis:  , Conjunction:  ANDFront Parenthesis:  Column:  column5Operator:  =Filer:  filter5End Parenthesis:  ]
+[Conjunction:  ANDFront Parenthesis:  Column:  column1Operator:  =Filer:  filter1End Parenthesis:  , Conjunction:  ANDFront Parenthesis:  Column:  column2Operator:  =Filer:  filter2End Parenthesis:  , Conjunction:  ANDFront Parenthesis:  Column:  column3Operator:  =Filer:  filter3End Parenthesis:  , Conjunction:  ANDFront Parenthesis:  Column:  column4Operator:  =Filer:  filter4End Parenthesis:  ]
+[Conjunction:  ANDFront Parenthesis:  Column:  column1Operator:  =Filer:  filter1End Parenthesis:  , Conjunction:  ANDFront Parenthesis:  Column:  column2Operator:  =Filer:  filter2End Parenthesis:  , Conjunction:  ANDFront Parenthesis:  Column:  column3Operator:  =Filer:  filter3End Parenthesis:  , Conjunction:  ANDFront Parenthesis:  Column:  column4Operator:  =Filer:  filter4End Parenthesis:  ]
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
