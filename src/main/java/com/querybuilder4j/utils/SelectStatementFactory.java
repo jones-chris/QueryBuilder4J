@@ -3,6 +3,7 @@ package com.querybuilder4j.utils;
 import com.querybuilder4j.config.Conjunction;
 import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.config.Operator;
+import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.Join;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
@@ -65,12 +66,12 @@ public class SelectStatementFactory {
         return this;
     }
 
-    public SelectStatementFactory and(String tableAndColumn, Operator operator, String filter, int parentId) {
+    public SelectStatementFactory and(String tableAndColumn, Operator operator, String filter, Integer parentId) {
         createCriteria(Conjunction.And, tableAndColumn, operator, filter, parentId);
         return this;
     }
 
-    public SelectStatementFactory or(String tableAndColumn, Operator operator, String filter, int parentId) {
+    public SelectStatementFactory or(String tableAndColumn, Operator operator, String filter, Integer parentId) {
         createCriteria(Conjunction.Or, tableAndColumn, operator, filter, parentId);
         return this;
     }
@@ -125,6 +126,11 @@ public class SelectStatementFactory {
         return this;
     }
 
+    public SelectStatementFactory setQueryTemplateDao(QueryTemplateDao queryTemplateDao) {
+        stmt.setQueryTemplateDao(queryTemplateDao);
+        return this;
+    }
+
     private void createJoin(Join.JoinType joinType,
                             String parentTable,
                             String targetTable,
@@ -140,7 +146,7 @@ public class SelectStatementFactory {
     }
 
     private void createCriteria(Conjunction conjunction, String tableAndColumn, Operator operator,
-                                    String filter, int parentId) {
+                                    String filter, Integer parentId) {
         Criteria criterion = new Criteria();
         criterion.setConjunction(conjunction);
         criterion.setColumn(tableAndColumn);

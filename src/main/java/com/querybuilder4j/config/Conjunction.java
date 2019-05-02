@@ -5,13 +5,13 @@ public enum Conjunction {
     And {
         @Override
         public String toString() {
-            return "And";
+            return "AND";
         }
     },
     Or {
         @Override
         public String toString() {
-            return "Or";
+            return "OR";
         }
     },
     Empty {

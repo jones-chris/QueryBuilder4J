@@ -43,7 +43,6 @@ public abstract class SqlBuilder {
      */
     protected char endingDelimter;
 
-
     /**
      * A Map with the values being the stmt's table columns and the values being their JDBC types.
      */
@@ -299,44 +298,66 @@ public abstract class SqlBuilder {
 
                 // If the criteria's filter is a SubQuery, then generate the SelectStatement's SQL string.
                 // TODO:  Make this easy to understand.  Why is argIsSubQuery() being called twice?
-                if (argIsSubQuery(criteriaClone.filter)) {
-                    // The criteria's filter should be the subquery id that can be retrieved from builtSubQueries.
-                    String[] args = criteriaClone.filter.split(",");
-                    for (String arg : args) {
-                        if (argIsSubQuery(arg)) {
-                            String subquery = builtSubQueries.get(arg);
-                            criteriaClone.filter = criteriaClone.filter.replace(arg, "(" + subquery + ")");
-                        }
-                    }
-
-                    // todo:  this should not wrap filter if the filter is a subQuery because it duplicates line 308 above which already wraps subQuery in parenthesis.
-                    if (criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) {
-                        criteriaClone.filter = "(" + criteriaClone.filter + ")";
-                    }
-
-                    String criteriaSql = criteriaClone.toSql(beginningDelimiter, endingDelimter);
-                    sql.append(criteriaSql).append(" ");
-                    continue;
-                }
-
+//                if (argIsSubQuery(criteriaClone.filter)) {
                 String[] tableAndColumn = criteriaClone.column.split("\\.");
                 int columnDataType = getColumnDataType(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
                 boolean shouldHaveQuotes = isColumnQuoted(columnDataType);
-                if (criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) {
-                    if (shouldHaveQuotes) {
-                        wrapFilterInQuotes(criteriaClone);
+
+                // The criteria's filter should be the subquery id that can be retrieved from builtSubQueries.
+                String[] args = criteriaClone.filter.split(",");
+                String[] newArgs = args.clone();
+//                for (String arg : args) {
+                for (int i=0; i<args.length; i++) {
+                    String arg = args[i];
+
+                    if (argIsSubQuery(arg)) {
+                        String subquery = builtSubQueries.get(arg); //todo:  add null check - if can't find subquery, then throw exception?  Or would subquery have to be there?
+//                        criteriaClone.filter = criteriaClone.filter.replace(arg, "(" + subquery + ")");
+                        newArgs[i] = "(" + subquery + ")";
                     } else {
-                        criteriaClone.filter = "(" + escape(criteriaClone.filter) + ")";
-                    }
-                } else {
-                    if (shouldHaveQuotes) {
-                        criteriaClone.filter = "'" + escape(criteriaClone.filter) + "'";
-                    } else {
-                        criteriaClone.filter = escape(criteriaClone.filter);
+
+                        arg = escape(arg);
+                        if (shouldHaveQuotes) {
+                            arg = "'" + escape(arg) + "'";
+                        }
+                        newArgs[i] = arg;
+
+//                        if (criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) {
+//                            if (shouldHaveQuotes) {
+//                                wrapFilterInQuotes(criteriaClone);
+//                            } else {
+//                                criteriaClone.filter = "(" + escape(criteriaClone.filter) + ")";
+//                            }
+//                        } else {
+//                            if (shouldHaveQuotes) {
+//                                criteriaClone.filter = "'" + escape(criteriaClone.filter) + "'";
+//                            } else {
+//                                criteriaClone.filter = escape(criteriaClone.filter);
+//                            }
+//                        }
                     }
                 }
-                String criteriaSql = criteriaClone.toSql(beginningDelimiter, endingDelimter);
-                sql.append(criteriaSql).append(" ");
+
+                criteriaClone.filter = String.join(",", newArgs);
+
+                if ((criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) &&
+                    (criteriaClone.filter.charAt(0) != '(' || criteriaClone.filter.charAt(criteriaClone.filter.length()-1) != ')')) {
+                    criteriaClone.filter = "(" + criteriaClone.filter + ")";
+                }
+
+                    // todo:  this should not wrap filter if the filter is a subQuery because it duplicates line 308 above which already wraps subQuery in parenthesis.
+                    // todo:  remove these lines?
+//                    if (criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) {
+//                        criteriaClone.filter = "(" + criteriaClone.filter + ")";
+//                    }
+
+                    String criteriaSql = criteriaClone.toSql(beginningDelimiter, endingDelimter);
+                    sql.append(criteriaSql).append(" ");
+//                    continue;
+//                }
+
+//                String criteriaSql = criteriaClone.toSql(beginningDelimiter, endingDelimter);
+//                sql.append(criteriaSql).append(" ");
             }
         }
         return sql;
@@ -550,7 +571,7 @@ public abstract class SqlBuilder {
             for (Map.Entry<String, String> subQuery : this.stmt.getSubQueries().entrySet()) {
                 String subQueryId = subQuery.getKey();
                 String subQueryName = subQuery.getValue().substring(0, subQuery.getValue().indexOf("("));
-                String[] subQueryArgs = subQuery.getValue().substring(subQuery.getValue().indexOf("(") + 1, subQuery.getValue().indexOf(")")).split(",");
+                String[] subQueryArgs = subQuery.getValue().substring(subQuery.getValue().indexOf("(") + 1, subQuery.getValue().indexOf(")")).split(";");
 
                 // If there are no args, then there will be one element in subQueryArgs and it will be an empty string.
                 if (subQueryArgs.length == 1 && subQueryArgs[0].equals("")) {
@@ -773,23 +794,6 @@ public abstract class SqlBuilder {
                     }
                 }
             }
-
-//            if (tableSchemas.isEmpty()) {
-//                setTableSchemas();
-//            }
-
-//            String[] tableAndColumn = criterion.column.split("\\.");
-//            int columnDataType = getColumnDataType(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
-//            boolean shouldHaveQuotes = isColumnQuoted(columnDataType);
-//            if (! shouldHaveQuotes && criterion.filter != null) {
-//                String[] filters = criterion.filter.split(",");
-//                for (String filter : filters) {
-//                    if (! SqlCleanser.canParseNonQuotedFilter(filter, columnDataType)) {
-//                        throw new Exception(String.format("The criteria's filter is not an number type, but the column is:  %s", criterion));
-//                    }
-//                }
-//
-//            }
         }
 
         return true;
