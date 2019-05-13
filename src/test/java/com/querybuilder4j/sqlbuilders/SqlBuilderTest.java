@@ -6,10 +6,8 @@ import com.google.gson.JsonParser;
 import com.querybuilder4j.QueryTemplateDaoImpl;
 import com.querybuilder4j.TestUtils;
 import com.querybuilder4j.config.DatabaseType;
-import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 import com.querybuilder4j.utils.SelectStatementFactory;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,7 +22,6 @@ import static com.querybuilder4j.config.Operator.in;
 import static org.junit.Assert.*;
 
 public class SqlBuilderTest {
-    private static QueryTemplateDao queryTemplateDao = new QueryTemplateDaoImpl();
     private static Map<DatabaseType, Properties> testProperties = new HashMap<>();
     private static Map<DatabaseType, List<SelectStatement>> dynamicSelectStatements = new HashMap<>();
     private static List<String> staticSelectStatementsJSON = new ArrayList<>();
@@ -42,7 +39,7 @@ public class SqlBuilderTest {
      * @throws Exception
      */
     @BeforeClass
-    public static void SetUpOnceBeforeAnyTestsAreRun() throws Exception {
+    public static void setUpOnceBeforeAnyTestsAreRun() throws Exception {
         testProperties = getTestProperties();
 
         // Create randomly generated/dynamic SelectStatements.
@@ -57,6 +54,7 @@ public class SqlBuilderTest {
         File staticTestDirectory = new File(STATIC_TEST_FILE_PATH);
         for (File file : staticTestDirectory.listFiles()) {
             FileReader fileReader = new FileReader(file);
+            System.out.println("Loading file at this path:  " + file.toString());
             JsonElement jsonElement = new JsonParser().parse(fileReader);
             staticSelectStatementsJSON.add(jsonElement.toString());
         }
@@ -91,8 +89,7 @@ public class SqlBuilderTest {
         for (String selectStatementJSON : staticSelectStatementsJSON) {
             Gson gson = new Gson();
             SelectStatement selectStatement = gson.fromJson(selectStatementJSON, SelectStatement.class);
-//            ObjectMapper mapper = new ObjectMapper();
-//            SelectStatement selectStatement = mapper.readValue(selectStatementJSON, SelectStatement.class);
+            selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl());
 
             // Run the SelectStatement against each database in testProperties.
             for (DatabaseType dbType : testProperties.keySet()) {
@@ -122,7 +119,7 @@ public class SqlBuilderTest {
                 .select("county_spending_detail.amount")
                 .from("county_spending_detail")
                 .where("county_spending_detail.department", in, "$getDepartmentsIn2014()")
-                .setQueryTemplateDao(queryTemplateDao)
+                .setQueryTemplateDao(new QueryTemplateDaoImpl())
                 .getSelectStatement(DatabaseType.Sqlite);
 
         // Get properties.
@@ -145,7 +142,7 @@ public class SqlBuilderTest {
                 .select("county_spending_detail.department")
                 .from("county_spending_detail")
                 .where("county_spending_detail.department", in, "$getDepartmentsByYear(year=2014)")
-                .setQueryTemplateDao(queryTemplateDao)
+                .setQueryTemplateDao(new QueryTemplateDaoImpl())
                 .getSelectStatement(DatabaseType.Sqlite);
 
         // Get properties.
@@ -168,7 +165,7 @@ public class SqlBuilderTest {
                 .select("county_spending_detail.amount")
                 .from("county_spending_detail")
                 .where("county_spending_detail.department", in, "$getDepartmentsByYear(year=$get2014FiscalYear())")
-                .setQueryTemplateDao(queryTemplateDao)
+                .setQueryTemplateDao(new QueryTemplateDaoImpl())
                 .getSelectStatement(DatabaseType.Sqlite);
 
         // Get properties.
@@ -192,7 +189,7 @@ public class SqlBuilderTest {
                 .from("county_spending_detail")
                 .where("county_spending_detail.department", in, "$getDepartmentsByMultipleYears(year1=$get2014FiscalYear();year2=2017)")
                 .and("county_spending_detail.department", in, "$get2014FiscalYear()", null)
-                .setQueryTemplateDao(queryTemplateDao)
+                .setQueryTemplateDao(new QueryTemplateDaoImpl())
                 .getSelectStatement(DatabaseType.Sqlite);
 
         // Get properties.

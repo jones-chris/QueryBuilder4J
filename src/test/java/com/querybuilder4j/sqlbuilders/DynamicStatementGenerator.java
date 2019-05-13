@@ -1,7 +1,9 @@
 package com.querybuilder4j.sqlbuilders;
 
+import com.querybuilder4j.QueryTemplateDaoImpl;
 import com.querybuilder4j.TestUtils;
 import com.querybuilder4j.config.DatabaseType;
+import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.Join;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
@@ -18,6 +20,7 @@ public class DynamicStatementGenerator {
     private List<String> randomTables = new ArrayList<>();
     private List<Criteria> randomCriteria = new ArrayList<>();
     private int numberOfSelectStatements;
+    private QueryTemplateDao queryTemplateDao = new QueryTemplateDaoImpl();
 
 
     public DynamicStatementGenerator(DatabaseType databaseType, int numberOfSelectStatements) {
@@ -133,6 +136,7 @@ public class DynamicStatementGenerator {
             stmt.setAscending(isAscending);
             stmt.setLimit(limit);
             stmt.setOffset(offset);
+            stmt.setQueryTemplateDao(queryTemplateDao);
 
             results.add(stmt);
         }
@@ -234,26 +238,62 @@ public class DynamicStatementGenerator {
         quotedColumn_criteriaNotIn.filter = "Housing and Community Development";
         randomCriteria.add(quotedColumn_criteriaNotIn);
 
-        //quoted column - is null
-        Criteria quotedColumn_criteriaIsNull = new Criteria(10);
-        quotedColumn_criteriaIsNull.parentId = null;
-        quotedColumn_criteriaIsNull.conjunction = And;
-        quotedColumn_criteriaIsNull.column = "county_spending_detail.service";
-        quotedColumn_criteriaIsNull.operator = isNull;
-        quotedColumn_criteriaIsNull.filter = "Housing and Community Development";
-        randomCriteria.add(quotedColumn_criteriaIsNull);
+        //quoted column - is null without null filter
+        Criteria quotedColumn_criteriaIsNullWithoutNullFilter = new Criteria(10);
+        quotedColumn_criteriaIsNullWithoutNullFilter.parentId = null;
+        quotedColumn_criteriaIsNullWithoutNullFilter.conjunction = And;
+        quotedColumn_criteriaIsNullWithoutNullFilter.column = "county_spending_detail.service";
+        quotedColumn_criteriaIsNullWithoutNullFilter.operator = isNull;
+        quotedColumn_criteriaIsNullWithoutNullFilter.filter = "Housing and Community Development";
+        randomCriteria.add(quotedColumn_criteriaIsNullWithoutNullFilter);
 
-        //quoted column - is not null
-        Criteria quotedColumn_criteriaIsNotNull = new Criteria(11);
-        quotedColumn_criteriaIsNotNull.parentId = null;
-        quotedColumn_criteriaIsNotNull.conjunction = And;
-        quotedColumn_criteriaIsNotNull.column = "county_spending_detail.service";
-        quotedColumn_criteriaIsNotNull.operator = isNotNull;
-        quotedColumn_criteriaIsNotNull.filter = "Housing and Community Development";
-        randomCriteria.add(quotedColumn_criteriaIsNotNull);
+        //quoted column - is null with null filter
+        Criteria quotedColumn_criteriaIsNullWithNullFilter = new Criteria(11);
+        quotedColumn_criteriaIsNullWithNullFilter.parentId = null;
+        quotedColumn_criteriaIsNullWithNullFilter.conjunction = And;
+        quotedColumn_criteriaIsNullWithNullFilter.column = "county_spending_detail.service";
+        quotedColumn_criteriaIsNullWithNullFilter.operator = isNull;
+        quotedColumn_criteriaIsNullWithNullFilter.filter = null;
+        randomCriteria.add(quotedColumn_criteriaIsNullWithNullFilter);
+
+        //quoted column - is null with empty string filter
+        Criteria quotedColumn_criteriaIsNullWithEmptyStringFilter = new Criteria(12);
+        quotedColumn_criteriaIsNullWithEmptyStringFilter.parentId = null;
+        quotedColumn_criteriaIsNullWithEmptyStringFilter.conjunction = And;
+        quotedColumn_criteriaIsNullWithEmptyStringFilter.column = "county_spending_detail.service";
+        quotedColumn_criteriaIsNullWithEmptyStringFilter.operator = isNull;
+        quotedColumn_criteriaIsNullWithEmptyStringFilter.filter = "";
+        randomCriteria.add(quotedColumn_criteriaIsNullWithEmptyStringFilter);
+
+        //quoted column - is not null without null filter
+        Criteria quotedColumn_criteriaIsNotNullWithoutNullFilter = new Criteria(13);
+        quotedColumn_criteriaIsNotNullWithoutNullFilter.parentId = null;
+        quotedColumn_criteriaIsNotNullWithoutNullFilter.conjunction = And;
+        quotedColumn_criteriaIsNotNullWithoutNullFilter.column = "county_spending_detail.service";
+        quotedColumn_criteriaIsNotNullWithoutNullFilter.operator = isNotNull;
+        quotedColumn_criteriaIsNotNullWithoutNullFilter.filter = "Housing and Community Development";
+        randomCriteria.add(quotedColumn_criteriaIsNotNullWithoutNullFilter);
+
+        //quoted column - is not null with null filter
+        Criteria quotedColumn_criteriaIsNotNullWithNullFilter = new Criteria(14);
+        quotedColumn_criteriaIsNotNullWithNullFilter.parentId = null;
+        quotedColumn_criteriaIsNotNullWithNullFilter.conjunction = And;
+        quotedColumn_criteriaIsNotNullWithNullFilter.column = "county_spending_detail.service";
+        quotedColumn_criteriaIsNotNullWithNullFilter.operator = isNotNull;
+        quotedColumn_criteriaIsNotNullWithNullFilter.filter = null;
+        randomCriteria.add(quotedColumn_criteriaIsNotNullWithNullFilter);
+
+        //quoted column - is not null with empty string filter
+        Criteria quotedColumn_criteriaIsNotNullWithEmptyStringFilter = new Criteria(15);
+        quotedColumn_criteriaIsNotNullWithEmptyStringFilter.parentId = null;
+        quotedColumn_criteriaIsNotNullWithEmptyStringFilter.conjunction = And;
+        quotedColumn_criteriaIsNotNullWithEmptyStringFilter.column = "county_spending_detail.service";
+        quotedColumn_criteriaIsNotNullWithEmptyStringFilter.operator = isNotNull;
+        quotedColumn_criteriaIsNotNullWithEmptyStringFilter.filter = "";
+        randomCriteria.add(quotedColumn_criteriaIsNotNullWithEmptyStringFilter);
 
         //nonquoted column - equal to
-        Criteria nonQuotedColumn_criteriaEqualTo = new Criteria(0);
+        Criteria nonQuotedColumn_criteriaEqualTo = new Criteria(16);
         nonQuotedColumn_criteriaEqualTo.parentId = null;
         nonQuotedColumn_criteriaEqualTo.conjunction = And;
         nonQuotedColumn_criteriaEqualTo.column = "county_spending_detail.service";
@@ -262,7 +302,7 @@ public class DynamicStatementGenerator {
         randomCriteria.add(nonQuotedColumn_criteriaEqualTo);
 
         //nonquoted column - not equal to
-        Criteria nonQuotedColumn_criteriaNotEqualTo = new Criteria(1);
+        Criteria nonQuotedColumn_criteriaNotEqualTo = new Criteria(17);
         nonQuotedColumn_criteriaNotEqualTo.parentId = null;
         nonQuotedColumn_criteriaNotEqualTo.conjunction = And;
         nonQuotedColumn_criteriaNotEqualTo.column = "county_spending_detail.fiscal_year_period";
@@ -271,7 +311,7 @@ public class DynamicStatementGenerator {
         randomCriteria.add(nonQuotedColumn_criteriaNotEqualTo);
 
         //nonquoted column - greater than or equals
-        Criteria nonQuotedColumn_criteriaGreaterThanOrEquals = new Criteria(2);
+        Criteria nonQuotedColumn_criteriaGreaterThanOrEquals = new Criteria(18);
         nonQuotedColumn_criteriaGreaterThanOrEquals.parentId = null;
         nonQuotedColumn_criteriaGreaterThanOrEquals.conjunction = And;
         nonQuotedColumn_criteriaGreaterThanOrEquals.column = "county_spending_detail.fiscal_year_period";
@@ -280,7 +320,7 @@ public class DynamicStatementGenerator {
         randomCriteria.add(nonQuotedColumn_criteriaGreaterThanOrEquals);
 
         //nonquoted column - less than or equals
-        Criteria nonQuotedColumn_criteriaLessThanOrEquals = new Criteria(3);
+        Criteria nonQuotedColumn_criteriaLessThanOrEquals = new Criteria(19);
         nonQuotedColumn_criteriaLessThanOrEquals.parentId = null;
         nonQuotedColumn_criteriaLessThanOrEquals.conjunction = And;
         nonQuotedColumn_criteriaLessThanOrEquals.column = "county_spending_detail.fiscal_year_period";
@@ -289,7 +329,7 @@ public class DynamicStatementGenerator {
         randomCriteria.add(nonQuotedColumn_criteriaLessThanOrEquals);
 
         //nonquoted column - greater than
-        Criteria nonQuotedColumn_criteriaGreaterThan = new Criteria(4);
+        Criteria nonQuotedColumn_criteriaGreaterThan = new Criteria(10);
         nonQuotedColumn_criteriaGreaterThan.parentId = null;
         nonQuotedColumn_criteriaGreaterThan.conjunction = And;
         nonQuotedColumn_criteriaGreaterThan.column = "county_spending_detail.fiscal_year_period";
@@ -298,7 +338,7 @@ public class DynamicStatementGenerator {
         randomCriteria.add(nonQuotedColumn_criteriaGreaterThan);
 
         //nonquoted column - less than
-        Criteria nonQuotedColumn_criteriaLessThan = new Criteria(5);
+        Criteria nonQuotedColumn_criteriaLessThan = new Criteria(21);
         nonQuotedColumn_criteriaLessThan.parentId = null;
         nonQuotedColumn_criteriaLessThan.conjunction = And;
         nonQuotedColumn_criteriaLessThan.column = "county_spending_detail.fiscal_year_period";
@@ -326,7 +366,7 @@ public class DynamicStatementGenerator {
 //        randomCriteria.add(nonQuotedColumn_criteriaNotLike);
 
         //nonquoted column - in
-        Criteria nonQuotedColumn_criteriaIn = new Criteria(8);
+        Criteria nonQuotedColumn_criteriaIn = new Criteria(22);
         nonQuotedColumn_criteriaIn.parentId = null;
         nonQuotedColumn_criteriaIn.conjunction = And;
         nonQuotedColumn_criteriaIn.column = "county_spending_detail.fiscal_year_period";
@@ -335,7 +375,7 @@ public class DynamicStatementGenerator {
         randomCriteria.add(nonQuotedColumn_criteriaIn);
 
         //nonquoted column - not in
-        Criteria nonQuotedColumn_criteriaNotIn = new Criteria(9);
+        Criteria nonQuotedColumn_criteriaNotIn = new Criteria(23);
         nonQuotedColumn_criteriaNotIn.parentId = null;
         nonQuotedColumn_criteriaNotIn.conjunction = And;
         nonQuotedColumn_criteriaNotIn.column = "county_spending_detail.fiscal_year_period";
@@ -344,7 +384,7 @@ public class DynamicStatementGenerator {
         randomCriteria.add(nonQuotedColumn_criteriaNotIn);
 
         //nonquoted column - is null
-        Criteria nonQuotedColumn_criteriaIsNull = new Criteria(10);
+        Criteria nonQuotedColumn_criteriaIsNull = new Criteria(24);
         nonQuotedColumn_criteriaIsNull.parentId = null;
         nonQuotedColumn_criteriaIsNull.conjunction = And;
         nonQuotedColumn_criteriaIsNull.column = "county_spending_detail.fiscal_year_period";
@@ -352,14 +392,50 @@ public class DynamicStatementGenerator {
         nonQuotedColumn_criteriaIsNull.filter = "1";
         randomCriteria.add(nonQuotedColumn_criteriaIsNull);
 
+        //nonquoted column - is null with null filter
+        Criteria nonQuotedColumn_criteriaIsNullWithNullFilter = new Criteria(25);
+        nonQuotedColumn_criteriaIsNullWithNullFilter.parentId = null;
+        nonQuotedColumn_criteriaIsNullWithNullFilter.conjunction = And;
+        nonQuotedColumn_criteriaIsNullWithNullFilter.column = "county_spending_detail.fiscal_year_period";
+        nonQuotedColumn_criteriaIsNullWithNullFilter.operator = isNull;
+        nonQuotedColumn_criteriaIsNullWithNullFilter.filter = null;
+        randomCriteria.add(nonQuotedColumn_criteriaIsNullWithNullFilter);
+
+        //nonquoted column - is null with empty string filter
+        Criteria nonQuotedColumn_criteriaIsNullWithEmptyStringFilter = new Criteria(26);
+        nonQuotedColumn_criteriaIsNullWithEmptyStringFilter.parentId = null;
+        nonQuotedColumn_criteriaIsNullWithEmptyStringFilter.conjunction = And;
+        nonQuotedColumn_criteriaIsNullWithEmptyStringFilter.column = "county_spending_detail.fiscal_year_period";
+        nonQuotedColumn_criteriaIsNullWithEmptyStringFilter.operator = isNull;
+        nonQuotedColumn_criteriaIsNullWithEmptyStringFilter.filter = "";
+        randomCriteria.add(nonQuotedColumn_criteriaIsNullWithEmptyStringFilter);
+
         //quoted column - is not null
-        Criteria nonQuotedColumn_criteriaIsNotNull = new Criteria(11);
+        Criteria nonQuotedColumn_criteriaIsNotNull = new Criteria(27);
         nonQuotedColumn_criteriaIsNotNull.parentId = null;
         nonQuotedColumn_criteriaIsNotNull.conjunction = And;
         nonQuotedColumn_criteriaIsNotNull.column = "county_spending_detail.fiscal_year_period";
         nonQuotedColumn_criteriaIsNotNull.operator = isNotNull;
         nonQuotedColumn_criteriaIsNotNull.filter = "1";
         randomCriteria.add(nonQuotedColumn_criteriaIsNotNull);
+
+        //quoted column - is not null with null filter
+        Criteria nonQuotedColumn_criteriaIsNotNullWithNullFilter = new Criteria(28);
+        nonQuotedColumn_criteriaIsNotNullWithNullFilter.parentId = null;
+        nonQuotedColumn_criteriaIsNotNullWithNullFilter.conjunction = And;
+        nonQuotedColumn_criteriaIsNotNullWithNullFilter.column = "county_spending_detail.fiscal_year_period";
+        nonQuotedColumn_criteriaIsNotNullWithNullFilter.operator = isNotNull;
+        nonQuotedColumn_criteriaIsNotNullWithNullFilter.filter = null;
+        randomCriteria.add(nonQuotedColumn_criteriaIsNotNullWithNullFilter);
+
+        //quoted column - is not null with empty string filter
+        Criteria nonQuotedColumn_criteriaIsNotNullWithEmptyStringFilter = new Criteria(29);
+        nonQuotedColumn_criteriaIsNotNullWithEmptyStringFilter.parentId = null;
+        nonQuotedColumn_criteriaIsNotNullWithEmptyStringFilter.conjunction = And;
+        nonQuotedColumn_criteriaIsNotNullWithEmptyStringFilter.column = "county_spending_detail.fiscal_year_period";
+        nonQuotedColumn_criteriaIsNotNullWithEmptyStringFilter.operator = isNotNull;
+        nonQuotedColumn_criteriaIsNotNullWithEmptyStringFilter.filter = "";
+        randomCriteria.add(nonQuotedColumn_criteriaIsNotNullWithEmptyStringFilter);
     }
 
     private Join createJoin(boolean shouldHaveMultipleJoinColumns) {

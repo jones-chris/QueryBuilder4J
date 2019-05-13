@@ -10,7 +10,7 @@
       "conjunction": "And",
       "column": "county_spending_detail.department",
       "operator": "in",
-      "filter": "$get_depts_by_year(year\\u003d2017),Human Resources",
+      "filter": "$getDepartmentsByMultipleYears(year1=2017;year2=2018),Human Resources",
       "endParenthesis": []
     }
   ],

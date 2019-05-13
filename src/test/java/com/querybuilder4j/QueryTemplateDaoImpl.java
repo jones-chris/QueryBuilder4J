@@ -6,7 +6,10 @@ import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
 import com.querybuilder4j.sqlbuilders.statements.Criteria;
 import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
 
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 public class QueryTemplateDaoImpl implements QueryTemplateDao {
 
@@ -32,9 +35,7 @@ public class QueryTemplateDaoImpl implements QueryTemplateDao {
             addQueries();
         }
 
-        List<String> names = new ArrayList<>();
-        names.addAll(queries.keySet());
-        return names;
+        return new ArrayList<>(queries.keySet());
     }
 
     private void addQueries() {
