@@ -24,9 +24,9 @@ import static org.junit.Assert.*;
 public class SqlBuilderTest {
     private static Map<DatabaseType, Properties> testProperties = new HashMap<>();
     private static Map<DatabaseType, List<SelectStatement>> dynamicSelectStatements = new HashMap<>();
-    private static List<String> staticSelectStatementsJSON = new ArrayList<>();
-    private static final int NUMBER_OF_SELECT_STATEMENTS_TO_GENERATE = 1000;
-    private static final String STATIC_TEST_FILE_PATH = "./src/test/resources/static-select-statement-json";
+    private static List<SelectStatement> staticSelectStatementsJSON = new ArrayList<>();
+    private static final int NUMBER_OF_SELECT_STATEMENTS_TO_GENERATE = 200;
+    private static final String STATIC_TEST_FILE_PATH = "./src/test/resources/static-select-statement-json/%s";
 
     public SqlBuilderTest() { }
 
@@ -50,13 +50,31 @@ public class SqlBuilderTest {
             dynamicSelectStatements.put(dbType, selectStatements);
         }
 
-        // Load static SelectStatements JSON for regression testing.
-        File staticTestDirectory = new File(STATIC_TEST_FILE_PATH);
+        // Get static SelectStatements JSON by database type.
+        Gson gson = new Gson();
+        for (DatabaseType dbType : testProperties.keySet()) {
+            File dbTypeTestDirectory = new File(String.format(STATIC_TEST_FILE_PATH, dbType.toString().toLowerCase()));
+            for (File file : dbTypeTestDirectory.listFiles()) {
+                FileReader fileReader = new FileReader(file);
+                System.out.println("Loading file at this path:  " + file.toString());
+                JsonElement jsonElement = new JsonParser().parse(fileReader);
+                SelectStatement selectStatement = gson.fromJson(jsonElement, SelectStatement.class);
+                selectStatement.setDatabaseType(dbType);
+                selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl());
+                staticSelectStatementsJSON.add(selectStatement);
+            }
+        }
+
+        // Load static SelectStatements JSON to be run by all database types.
+        File staticTestDirectory = new File(String.format(STATIC_TEST_FILE_PATH, "all-db"));
         for (File file : staticTestDirectory.listFiles()) {
             FileReader fileReader = new FileReader(file);
             System.out.println("Loading file at this path:  " + file.toString());
             JsonElement jsonElement = new JsonParser().parse(fileReader);
-            staticSelectStatementsJSON.add(jsonElement.toString());
+            SelectStatement selectStatement = gson.fromJson(jsonElement, SelectStatement.class);
+            selectStatement.setDatabaseType(DatabaseType.Sqlite);
+            selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl());
+            staticSelectStatementsJSON.add(selectStatement);
         }
     }
 
@@ -86,21 +104,13 @@ public class SqlBuilderTest {
      */
     @Test
     public void runStaticStatementTests() throws Exception {
-        for (String selectStatementJSON : staticSelectStatementsJSON) {
-            Gson gson = new Gson();
-            SelectStatement selectStatement = gson.fromJson(selectStatementJSON, SelectStatement.class);
-            selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl());
-
-            // Run the SelectStatement against each database in testProperties.
-            for (DatabaseType dbType : testProperties.keySet()) {
-                selectStatement.setDatabaseType(dbType);
-                Properties props = testProperties.get(dbType);
-                String sql = "If you see this then the SelectStatement has not been built into a SQL string yet";
-                try {
-                    buildAndRunQuery(selectStatement, props);
-                } catch (Exception ex) {
-                    throw createDetailedQb4jException(selectStatement, sql, ex);
-                }
+        for (SelectStatement selectStatement : staticSelectStatementsJSON) {
+            Properties props = testProperties.get(selectStatement.getDatabaseType());
+            String sql = "If you see this then the SelectStatement has not been built into a SQL string yet";
+            try {
+                buildAndRunQuery(selectStatement, props);
+            } catch (Exception ex) {
+                throw createDetailedQb4jException(selectStatement, sql, ex);
             }
 
         }
