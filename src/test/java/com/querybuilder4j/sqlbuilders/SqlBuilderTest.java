@@ -23,9 +23,8 @@ import static org.junit.Assert.*;
 
 public class SqlBuilderTest {
     private static Map<DatabaseType, Properties> testProperties = new HashMap<>();
-    private static Map<DatabaseType, List<SelectStatement>> dynamicSelectStatements = new HashMap<>();
-    private static List<SelectStatement> staticSelectStatementsJSON = new ArrayList<>();
-    private static final int NUMBER_OF_SELECT_STATEMENTS_TO_GENERATE = 200;
+    private static Map<DatabaseType, List<SelectStatement>> selectStatementsByDatabase = new HashMap<>();
+    private static final int NUMBER_OF_SELECT_STATEMENTS_TO_GENERATE = 100;
     private static final String STATIC_TEST_FILE_PATH = "./src/test/resources/static-select-statement-json/%s";
 
     public SqlBuilderTest() { }
@@ -46,22 +45,29 @@ public class SqlBuilderTest {
         for (DatabaseType dbType : testProperties.keySet()) {
             DynamicStatementGenerator dynamicStatementGenerator = new DynamicStatementGenerator(dbType,
                     NUMBER_OF_SELECT_STATEMENTS_TO_GENERATE);
-            List<SelectStatement> selectStatements = dynamicStatementGenerator.createRandomSelectStatements();
-            dynamicSelectStatements.put(dbType, selectStatements);
+            List<SelectStatement> dynamicSelectStatements = dynamicStatementGenerator.createRandomSelectStatements();
+            selectStatementsByDatabase.put(dbType, dynamicSelectStatements);
         }
 
         // Get static SelectStatements JSON by database type.
         Gson gson = new Gson();
-        for (DatabaseType dbType : testProperties.keySet()) {
-            File dbTypeTestDirectory = new File(String.format(STATIC_TEST_FILE_PATH, dbType.toString().toLowerCase()));
-            for (File file : dbTypeTestDirectory.listFiles()) {
-                FileReader fileReader = new FileReader(file);
-                System.out.println("Loading file at this path:  " + file.toString());
-                JsonElement jsonElement = new JsonParser().parse(fileReader);
-                SelectStatement selectStatement = gson.fromJson(jsonElement, SelectStatement.class);
-                selectStatement.setDatabaseType(dbType);
-                selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl());
-                staticSelectStatementsJSON.add(selectStatement);
+        Set<String> dirs = new HashSet<>();
+
+        testProperties.keySet().forEach((dbType) -> dirs.add(dbType.toString().toLowerCase()));
+        for (String dir : dirs) {
+            File dbTypeTestDirectory = new File(String.format(STATIC_TEST_FILE_PATH, dir));
+            File[] jsonFiles = dbTypeTestDirectory.listFiles();
+            if (jsonFiles != null) {
+                for (File file : jsonFiles) {
+                    FileReader fileReader = new FileReader(file);
+                    System.out.println("Loading file at this path:  " + file.toString());
+                    JsonElement jsonElement = new JsonParser().parse(fileReader);
+                    SelectStatement selectStatement = gson.fromJson(jsonElement, SelectStatement.class);
+                    selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl());
+
+                    // Add selectStatement based on selectStatement's database type.
+                    selectStatementsByDatabase.get(selectStatement.getDatabaseType()).add(selectStatement);
+                }
             }
         }
 
@@ -71,10 +77,16 @@ public class SqlBuilderTest {
             FileReader fileReader = new FileReader(file);
             System.out.println("Loading file at this path:  " + file.toString());
             JsonElement jsonElement = new JsonParser().parse(fileReader);
-            SelectStatement selectStatement = gson.fromJson(jsonElement, SelectStatement.class);
-            selectStatement.setDatabaseType(DatabaseType.Sqlite);
-            selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl());
-            staticSelectStatementsJSON.add(selectStatement);
+
+            // Add the the SelectStatement for each database type in properties file, so that it is tested for each database type.
+            for (DatabaseType dbType : testProperties.keySet()) {
+                SelectStatement selectStatement = gson.fromJson(jsonElement, SelectStatement.class);
+                selectStatement.setDatabaseType(dbType);
+                selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl());
+
+                // Add selectStatement based on selectStatement's database type.
+                selectStatementsByDatabase.get(selectStatement.getDatabaseType()).add(selectStatement);
+            }
         }
     }
 
@@ -98,26 +110,27 @@ public class SqlBuilderTest {
 
     }
 
-    /**
-     *
-     * @throws Exception
-     */
-    @Test
-    public void runStaticStatementTests() throws Exception {
-        for (SelectStatement selectStatement : staticSelectStatementsJSON) {
-            Properties props = testProperties.get(selectStatement.getDatabaseType());
-            String sql = "If you see this then the SelectStatement has not been built into a SQL string yet";
-            try {
-                buildAndRunQuery(selectStatement, props);
-            } catch (Exception ex) {
-                throw createDetailedQb4jException(selectStatement, sql, ex);
-            }
-
-        }
-
-        // After all SelectStatements are run, pass the test.
-        assertTrue(true);
-    }
+//    /**
+//     *
+//     * @throws Exception
+//     */
+//    @Test
+//    public void runStaticStatementTests() throws Exception {
+//        for (DatabaseType dbType : selectStatements.keySet()) {
+//            List<SelectStatement> selectStatements = selectStatements.get(dbType);
+//            Properties props = testProperties.get(selectStatement.getDatabaseType());
+//            String sql = "If you see this then the SelectStatement has not been built into a SQL string yet";
+//            try {
+//                buildAndRunQuery(selectStatement, props);
+//            } catch (Exception ex) {
+//                throw createDetailedQb4jException(selectStatement, sql, ex);
+//            }
+//
+//        }
+//
+//        // After all SelectStatements are run, pass the test.
+//        assertTrue(true);
+//    }
 
     /**
      *
@@ -206,7 +219,6 @@ public class SqlBuilderTest {
         Properties props = getTestProperties().get(DatabaseType.Sqlite);
 
         // Test that SQL runs successfully against database.
-//        buildAndRunQuery(rootStmt, props);
         buildAndRunQuery(stmt, props);
 
         // After the SelectStatement is run, pass the test.
@@ -221,9 +233,9 @@ public class SqlBuilderTest {
      */
     @Test
     public void runDynamicStatementTests() throws Exception {
-        for (DatabaseType dbType : testProperties.keySet()) {
+        for (DatabaseType dbType : selectStatementsByDatabase.keySet()) {
             Properties props = testProperties.get(dbType);
-            List<SelectStatement> selectStatements = dynamicSelectStatements.get(dbType);
+            List<SelectStatement> selectStatements = selectStatementsByDatabase.get(dbType);
             for (SelectStatement selectStatement : selectStatements) {
                 buildAndRunQuery(selectStatement, props);
             }
@@ -265,7 +277,10 @@ public class SqlBuilderTest {
              Statement stmt = conn.createStatement()) {
 
             sql = selectStatement.toSql(props);
-            System.out.println(sql); //todo:  remove?
+            System.out.println(String.format("Running the SQL generated from the SelectStatement, %s, against %s:  %s",
+                    (selectStatement.getName().equals("")) ? "!No Name!" : selectStatement.getName(),
+                    props.getProperty("databaseType"),
+                    sql));
             stmt.executeQuery(sql);
         } catch (Exception ex) {
             throw createDetailedQb4jException(selectStatement, sql, ex);

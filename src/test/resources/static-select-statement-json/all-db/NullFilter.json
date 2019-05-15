@@ -1,5 +1,6 @@
 {
   "name": "NullFilter",
+  "databaseType": "Sqlite",
   "columns": [
     "county_spending_detail.amount"
   ],
