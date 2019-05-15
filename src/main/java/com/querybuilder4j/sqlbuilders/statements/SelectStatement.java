@@ -4,12 +4,16 @@ package com.querybuilder4j.sqlbuilders.statements;
 import com.google.gson.Gson;
 import com.querybuilder4j.config.*;
 import com.querybuilder4j.exceptions.NoMatchingParameterException;
-import com.querybuilder4j.exceptions.WrongNumberArgsException;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
 import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
-//import org.codehaus.jackson.map.ObjectMapper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Properties;
+import java.util.Collections;
 
 import static com.querybuilder4j.config.Parenthesis.EndParenthesis;
 import static com.querybuilder4j.config.Parenthesis.FrontParenthesis;
@@ -18,7 +22,6 @@ import static com.querybuilder4j.sqlbuilders.statements.Join.JoinType.RIGHT_EXCL
 import static com.querybuilder4j.sqlbuilders.statements.Join.JoinType.FULL_OUTER_EXCLUDING;
 
 public class SelectStatement {
-//    private Integer id;
     private String name = "";
     private DatabaseType databaseType;
     private List<String> columns = new ArrayList<>();
@@ -49,14 +52,6 @@ public class SelectStatement {
 
 
     public SelectStatement() {}
-
-//    public Integer getId() {
-//        return id;
-//    }
-//
-//    public void setId(Integer id) {
-//        this.id = id;
-//    }
 
     public SelectStatement(DatabaseType databaseType) {
         this.databaseType = databaseType;
@@ -151,11 +146,6 @@ public class SelectStatement {
         return limit;
     }
 
-//    public SelectStatement setLimit(long limit) {
-//        this.limit = limit;
-//        return this;
-//    }
-
     public boolean isAscending() {
         return ascending;
     }
@@ -167,11 +157,6 @@ public class SelectStatement {
     public Long getOffset() {
         return offset;
     }
-
-//    public SelectStatement setOffset(long offset) {
-//        this.offset = offset;
-//        return this;
-//    }
 
     public boolean isSuppressNulls() {
         return suppressNulls;
@@ -198,97 +183,70 @@ public class SelectStatement {
      * Automatically sets the subQueries field assuming that the subQuery calls are hand-written into a criterion's filter.
      * If you want to set the subQueries field manually, use the public setSubQueries method.
      */
-    protected void setSubqueries() throws IllegalArgumentException {
+    void setSubqueries() throws IllegalArgumentException {
         if (criteria.size() != 0 && queryTemplateDao != null) {
             criteria.forEach((criterion) -> {
-//                String[] filters = criterion.filter.split(",");
-//                for (String filter : filters) {
-                    if (SqlBuilder.argIsSubQuery(criterion.filter)) {
-                        LinkedList<Integer> begSubQueryIndeces = new LinkedList<>();
-                        LinkedList<Integer> endSubQueryIndeces = new LinkedList<>();
-                        char[] filterChars = criterion.filter.toCharArray();
+                if (SqlBuilder.argIsSubQuery(criterion.filter)) {
+                    LinkedList<Integer> begSubQueryIndeces = new LinkedList<>();
+                    LinkedList<Integer> endSubQueryIndeces = new LinkedList<>();
+                    char[] filterChars = criterion.filter.toCharArray();
 
-                        for (int i=0; i<filterChars.length; i++) {
-                            if (filterChars[i] == '$') {
-                                begSubQueryIndeces.add(i);
-                            } else if (filterChars[i] == ')') {
-                                endSubQueryIndeces.add(i);
-                            }
-                        }
-
-                        // Check that there are equal number of beginning and ending subQuery indeces - otherwise we have
-                        // a malformed subQuery call.
-                        if (begSubQueryIndeces.size() == endSubQueryIndeces.size()) {
-                            // It's okay to make the while condition based on only one of the LinkedLists because we know at this
-                            // point that both LinkedLists are equal sizes.
-                            String newFilter = new String(criterion.filter);
-                            while (begSubQueryIndeces.size() != 0) {
-                                String subQueryId = "$" + subQueries.size();
-
-                                // Match up beginning subQuery index with ending subQuery index.
-//                                int consecutiveEndParenthesis = 0;
-//                                for (int i=newFilter.length()-2; i>=0; i--) {
-//                                    if (newFilter.charAt(i) == ')') {
-//                                        consecutiveEndParenthesis ++;
-//                                    } else {
-//                                        break;
-//                                    }
-//                                }
-
-                                // Always remove last beginning subQuery index.
-                                // Only remove last ending subQuery index if it is the last item in the list - because it will
-                                // always match up with the first beginning subQuery index.  Otherwise, calculate the ending
-                                // subQuery index to remove.
-//                                int begSubQueryIndex = begSubQueryIndeces.removeLast();
-//                                int endSubQueryIndex;
-//                                if (endSubQueryIndeces.size() > 1 && consecutiveEndParenthesis != 0) {
-//                                    endSubQueryIndex = endSubQueryIndeces.remove(endSubQueryIndeces.size() - 1 - consecutiveEndParenthesis);
-//                                } else if (endSubQueryIndeces.size() > 1 && consecutiveEndParenthesis == 0) {
-//                                    endSubQueryIndex = endSubQueryIndeces.remove(endSubQueryIndeces.size() - 2);
-//                                } else {
-//                                    endSubQueryIndex = endSubQueryIndeces.removeLast();
-//                                }
-                                int begSubQueryIndex = begSubQueryIndeces.removeLast();
-                                int endSubQueryIndex = 1000;
-                                // Find ending index that is greater than beginning index, but closest to ending index.
-                                for (Integer endIndex : endSubQueryIndeces) {
-                                    if (endIndex > begSubQueryIndex) {
-                                        if ((endIndex - begSubQueryIndex) < (endSubQueryIndex - begSubQueryIndex)) {
-                                            endSubQueryIndex = endIndex;
-                                        }
-                                    }
-                                }
-                                endSubQueryIndeces.remove(new Integer(endSubQueryIndex));
-
-                                // Now, get the subQueryCall from filter (which does not change)
-                                String subQueryCall = newFilter.substring(begSubQueryIndex + 1, endSubQueryIndex + 1);
-
-                                // Now, look in newFilter (which changes) and replace that subQueryCall with the subQueryId
-                                newFilter = newFilter.replace("$" + subQueryCall, subQueryId);
-
-                                // Now, add the subQueryId and subQueryCall to subQueries.
-                                subQueries.put(subQueryId, subQueryCall);
-
-                                for (int i=0; i<begSubQueryIndeces.size(); i++) {
-                                    int begElement = begSubQueryIndeces.get(i);
-                                    if (begElement > begSubQueryIndex) {
-                                        int newElement = begElement - (subQueryCall.length());
-                                        begSubQueryIndeces.set(i, newElement);
-                                    }
-
-                                    int endElement = endSubQueryIndeces.get(i);
-                                    if (endElement > endSubQueryIndex) {
-                                        int newElement = endElement - (subQueryCall.length()-1);
-                                        endSubQueryIndeces.set(i, newElement);
-                                    }
-                                }
-                            }
-                            criterion.filter = newFilter;
-                        } else {
-                            throw new IllegalArgumentException("SubQuery is malformed");
+                    for (int i=0; i<filterChars.length; i++) {
+                        if (filterChars[i] == '$') {
+                            begSubQueryIndeces.add(i);
+                        } else if (filterChars[i] == ')') {
+                            endSubQueryIndeces.add(i);
                         }
                     }
-//                }
+
+                    // Check that there are equal number of beginning and ending subQuery indeces - otherwise we have
+                    // a malformed subQuery call.
+                    if (begSubQueryIndeces.size() == endSubQueryIndeces.size()) {
+                        // It's okay to make the while condition based on only one of the LinkedLists because we know at this
+                        // point that both LinkedLists are equal sizes.
+                        String newFilter = new String(criterion.filter);
+                        while (begSubQueryIndeces.size() != 0) {
+                            String subQueryId = "$" + subQueries.size();
+                            int begSubQueryIndex = begSubQueryIndeces.removeLast();
+                            int endSubQueryIndex = 1000;
+                            // Find ending index that is greater than beginning index, but closest to ending index.
+                            for (Integer endIndex : endSubQueryIndeces) {
+                                if (endIndex > begSubQueryIndex) {
+                                    if ((endIndex - begSubQueryIndex) < (endSubQueryIndex - begSubQueryIndex)) {
+                                        endSubQueryIndex = endIndex;
+                                    }
+                                }
+                            }
+                            endSubQueryIndeces.remove(new Integer(endSubQueryIndex));
+
+                            // Now, get the subQueryCall from filter (which does not change)
+                            String subQueryCall = newFilter.substring(begSubQueryIndex + 1, endSubQueryIndex + 1);
+
+                            // Now, look in newFilter (which changes) and replace that subQueryCall with the subQueryId
+                            newFilter = newFilter.replace("$" + subQueryCall, subQueryId);
+
+                            // Now, add the subQueryId and subQueryCall to subQueries.
+                            subQueries.put(subQueryId, subQueryCall);
+
+                            for (int i=0; i<begSubQueryIndeces.size(); i++) {
+                                int begElement = begSubQueryIndeces.get(i);
+                                if (begElement > begSubQueryIndex) {
+                                    int newElement = begElement - (subQueryCall.length());
+                                    begSubQueryIndeces.set(i, newElement);
+                                }
+
+                                int endElement = endSubQueryIndeces.get(i);
+                                if (endElement > endSubQueryIndex) {
+                                    int newElement = endElement - (subQueryCall.length()-1);
+                                    endSubQueryIndeces.set(i, newElement);
+                                }
+                            }
+                        }
+                        criterion.filter = newFilter;
+                    } else {
+                        throw new IllegalArgumentException("SubQuery is malformed");
+                    }
+                }
             });
         }
     }
@@ -443,16 +401,10 @@ public class SelectStatement {
 
     @Override
     public String toString() {
+        // Set queryTemplateDao to null or Gson will throw a StackOverflowError!!!
+        this.setQueryTemplateDao(null);
         Gson gson = new Gson();
         return gson.toJson(this);
-//        ObjectMapper mapper = new ObjectMapper();
-//        try {
-//            return mapper.writeValueAsString(this);
-//        } catch (IOException ex) {
-//            return "";
-//        }
-
-        //return "hello";
     }
 
     /**
@@ -463,25 +415,6 @@ public class SelectStatement {
      * @throws NoMatchingParameterException if the parameter cannot be found as a key in criteriaArguments.
      */
     private void replaceParameters() throws NoMatchingParameterException {
-        // Throw exception if there are parameters in the criteria, but not the same number of criteria arguments.
-//        int numOfParams = 0;
-//        for (Criteria criterion : criteria) {
-//            if (criterion.filter != null) {
-//                String[] splitFilters = criterion.filter.split(",");
-//                for (String splitFilter : splitFilters) {
-//                    if (splitFilter.length() >= 7 && (splitFilter.substring(0, 7).equals("$param:") || splitFilter.substring(0, 8).equals("subquery"))) {
-//                        numOfParams++;
-//                    }
-//                }
-//            }
-//
-//        }
-//        if (numOfParams != criteriaArguments.size()) {
-//            String message = String.format("There are %d parameters in the statement's criteria, but %d criteria arguments.  " +
-//                    "There should be the same number of parameters and arguments.  Object:  %S", numOfParams, criteriaArguments.size(), this.toString());
-//            throw new WrongNumberArgsException(message);
-//        }
-
         // Now that we know there are equal number of parameters and arguments, try replacing the parameters with arguments.
         if (criteriaArguments.size() != 0) {
             for (Criteria criterion : criteria) {

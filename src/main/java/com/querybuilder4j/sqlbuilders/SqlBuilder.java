@@ -632,8 +632,11 @@ public abstract class SqlBuilder {
      * @return boolean
      */
     public static boolean argIsSubQuery(String arg) {
-        int begIndexOfSubQuery = arg.toLowerCase().indexOf("$");
-        return begIndexOfSubQuery == 0;
+        if (arg == null || arg.isEmpty()) {
+            return false;
+        } else {
+            return 0 == arg.toLowerCase().indexOf("$");
+        }
     }
 
     private String buildSubQuery(String subQueryId, String subQueryName, String[] subQueryArgs) throws Exception {
