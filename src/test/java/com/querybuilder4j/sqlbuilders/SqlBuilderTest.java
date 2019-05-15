@@ -56,15 +56,17 @@ public class SqlBuilderTest {
         testProperties.keySet().forEach((dbType) -> dirs.add(dbType.toString()));
         for (String dir : dirs) {
             File dbTypeTestDirectory = new File(String.format(STATIC_TEST_FILE_PATH, dir));
-            for (File file : dbTypeTestDirectory.listFiles()) {
-                FileReader fileReader = new FileReader(file);
-                System.out.println("Loading file at this path:  " + file.toString());
-                JsonElement jsonElement = new JsonParser().parse(fileReader);
-                SelectStatement selectStatement = gson.fromJson(jsonElement, SelectStatement.class);
-                selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl());
+            if (dbTypeTestDirectory != null) {
+                for (File file : dbTypeTestDirectory.listFiles()) {
+                    FileReader fileReader = new FileReader(file);
+                    System.out.println("Loading file at this path:  " + file.toString());
+                    JsonElement jsonElement = new JsonParser().parse(fileReader);
+                    SelectStatement selectStatement = gson.fromJson(jsonElement, SelectStatement.class);
+                    selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl());
 
-                // Add selectStatement based on selectStatement's database type.
-                selectStatementsByDatabase.get(selectStatement.getDatabaseType()).add(selectStatement);
+                    // Add selectStatement based on selectStatement's database type.
+                    selectStatementsByDatabase.get(selectStatement.getDatabaseType()).add(selectStatement);
+                }
             }
         }
 
