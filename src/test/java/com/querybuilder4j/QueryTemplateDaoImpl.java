@@ -38,6 +38,17 @@ public class QueryTemplateDaoImpl implements QueryTemplateDao {
         return new ArrayList<>(queries.keySet());
     }
 
+    /**
+     * This method only exists so that Gson will not throw a StackOverflow exception when serializing a SelectStatement
+     * object and so that a QueryTemplateDaoImpl object just shows up as "" in the debugger when debugging (because
+     * the debugger calls an object's toString() method.
+     * @return
+     */
+    @Override
+    public String toString() {
+        return "";
+    }
+
     private void addQueries() {
         // No arg subquery
         Criteria criteria = new Criteria();

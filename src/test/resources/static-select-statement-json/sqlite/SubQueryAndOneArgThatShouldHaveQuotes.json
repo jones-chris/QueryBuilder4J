@@ -1,5 +1,6 @@
 {
-  "name": "SubQueryAndOneArg_SQLite",
+  "name": "SubQueryAndOneArg",
+  "databaseType": "Sqlite",
   "columns": [
     "county_spending_detail.amount"
   ],

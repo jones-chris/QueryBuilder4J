@@ -402,7 +402,7 @@ public class SelectStatement {
     @Override
     public String toString() {
         // Set queryTemplateDao to null or Gson will throw a StackOverflowError!!!
-        this.setQueryTemplateDao(null);
+//        this.setQueryTemplateDao(null);
         Gson gson = new Gson();
         return gson.toJson(this);
     }
