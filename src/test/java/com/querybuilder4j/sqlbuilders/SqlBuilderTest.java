@@ -53,11 +53,12 @@ public class SqlBuilderTest {
         Gson gson = new Gson();
         Set<String> dirs = new HashSet<>();
 
-        testProperties.keySet().forEach((dbType) -> dirs.add(dbType.toString()));
+        testProperties.keySet().forEach((dbType) -> dirs.add(dbType.toString().toLowerCase()));
         for (String dir : dirs) {
             File dbTypeTestDirectory = new File(String.format(STATIC_TEST_FILE_PATH, dir));
-            if (dbTypeTestDirectory != null) {
-                for (File file : dbTypeTestDirectory.listFiles()) {
+            File[] jsonFiles = dbTypeTestDirectory.listFiles();
+            if (jsonFiles != null) {
+                for (File file : jsonFiles) {
                     FileReader fileReader = new FileReader(file);
                     System.out.println("Loading file at this path:  " + file.toString());
                     JsonElement jsonElement = new JsonParser().parse(fileReader);
