@@ -1,4 +1,4 @@
-package com.querybuilder4j.sqlbuilders.statements;
+package com.querybuilder4j.statements;
 
 
 import java.util.ArrayList;

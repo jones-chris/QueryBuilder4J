@@ -1,7 +1,7 @@
 package com.querybuilder4j.sqlbuilders;
 
 
-import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
+import com.querybuilder4j.statements.SelectStatement;
 
 import java.util.Properties;
 
