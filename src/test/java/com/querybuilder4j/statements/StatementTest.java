@@ -1,7 +1,7 @@
-package com.querybuilder4j.sqlbuilders.statements;
+package com.querybuilder4j.statements;
 
 import com.querybuilder4j.config.DatabaseType;
-import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
+import com.querybuilder4j.dao.QueryTemplateDao;
 import com.querybuilder4j.utils.SelectStatementFactory;
 import org.junit.After;
 import org.junit.Before;

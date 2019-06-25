@@ -1,11 +1,12 @@
-package com.querybuilder4j.sqlbuilders.statements;
+package com.querybuilder4j.statements;
 
 
 import com.google.gson.Gson;
 import com.querybuilder4j.config.*;
 import com.querybuilder4j.exceptions.NoMatchingParameterException;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
-import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
+import com.querybuilder4j.dao.QueryTemplateDao;
+import com.querybuilder4j.sqlbuilders.SqlCleanser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +18,10 @@ import java.util.Collections;
 
 import static com.querybuilder4j.config.Parenthesis.EndParenthesis;
 import static com.querybuilder4j.config.Parenthesis.FrontParenthesis;
-import static com.querybuilder4j.sqlbuilders.statements.Join.JoinType.LEFT_EXCLUDING;
-import static com.querybuilder4j.sqlbuilders.statements.Join.JoinType.RIGHT_EXCLUDING;
-import static com.querybuilder4j.sqlbuilders.statements.Join.JoinType.FULL_OUTER_EXCLUDING;
+import static com.querybuilder4j.sqlbuilders.SqlCleanser.sqlIsClean;
+import static com.querybuilder4j.statements.Join.JoinType.LEFT_EXCLUDING;
+import static com.querybuilder4j.statements.Join.JoinType.RIGHT_EXCLUDING;
+import static com.querybuilder4j.statements.Join.JoinType.FULL_OUTER_EXCLUDING;
 
 public class SelectStatement {
     private String name = "";
@@ -48,7 +50,7 @@ public class SelectStatement {
      * The query's criteria parameters.  The key is the name of the parameter to find in the query criteria.  The value is
      * a description of the parameter that can be referenced by developers or in the application UI.
      */
-    private Map<String, String> criteriaParameters = new HashMap<>();
+    private List<CriteriaParameter> criteriaParameters = new ArrayList<>();
 
 
     public SelectStatement() {}
@@ -267,11 +269,11 @@ public class SelectStatement {
         this.criteriaArguments = criteriaArguments;
     }
 
-    public Map<String, String> getCriteriaParameters() {
+    public List<CriteriaParameter> getCriteriaParameters() {
         return criteriaParameters;
     }
 
-    public void setCriteriaParameters(Map<String, String> criteraParameters) {
+    public void setCriteriaParameters(List<CriteriaParameter> criteraParameters) {
         this.criteriaParameters = criteraParameters;
     }
 

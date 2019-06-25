@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import com.querybuilder4j.QueryTemplateDaoImpl;
 import com.querybuilder4j.TestUtils;
 import com.querybuilder4j.config.DatabaseType;
-import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
+import com.querybuilder4j.statements.SelectStatement;
 import com.querybuilder4j.utils.SelectStatementFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -109,28 +109,6 @@ public class SqlBuilderTest {
     public void tearDown() throws Exception {
 
     }
-
-//    /**
-//     *
-//     * @throws Exception
-//     */
-//    @Test
-//    public void runStaticStatementTests() throws Exception {
-//        for (DatabaseType dbType : selectStatements.keySet()) {
-//            List<SelectStatement> selectStatements = selectStatements.get(dbType);
-//            Properties props = testProperties.get(selectStatement.getDatabaseType());
-//            String sql = "If you see this then the SelectStatement has not been built into a SQL string yet";
-//            try {
-//                buildAndRunQuery(selectStatement, props);
-//            } catch (Exception ex) {
-//                throw createDetailedQb4jException(selectStatement, sql, ex);
-//            }
-//
-//        }
-//
-//        // After all SelectStatements are run, pass the test.
-//        assertTrue(true);
-//    }
 
     /**
      *

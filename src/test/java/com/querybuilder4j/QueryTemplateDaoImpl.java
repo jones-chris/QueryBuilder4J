@@ -2,9 +2,9 @@ package com.querybuilder4j;
 
 import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.config.Operator;
-import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
-import com.querybuilder4j.sqlbuilders.statements.Criteria;
-import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
+import com.querybuilder4j.dao.QueryTemplateDao;
+import com.querybuilder4j.statements.Criteria;
+import com.querybuilder4j.statements.SelectStatement;
 
 import java.util.Map;
 import java.util.HashMap;

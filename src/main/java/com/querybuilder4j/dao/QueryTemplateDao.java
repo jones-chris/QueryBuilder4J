@@ -1,6 +1,6 @@
-package com.querybuilder4j.sqlbuilders.dao;
+package com.querybuilder4j.dao;
 
-import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
+import com.querybuilder4j.statements.SelectStatement;
 
 import java.util.List;
 

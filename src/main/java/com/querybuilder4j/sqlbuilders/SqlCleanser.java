@@ -1,8 +1,7 @@
 package com.querybuilder4j.sqlbuilders;
 
 
-import com.querybuilder4j.config.Parenthesis;
-import com.querybuilder4j.sqlbuilders.statements.Criteria;
+import com.querybuilder4j.statements.Criteria;
 
 import java.sql.Types;
 import java.util.regex.Matcher;

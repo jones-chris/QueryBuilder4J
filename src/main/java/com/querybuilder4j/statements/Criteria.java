@@ -1,4 +1,4 @@
-package com.querybuilder4j.sqlbuilders.statements;
+package com.querybuilder4j.statements;
 
 
 import com.querybuilder4j.config.Conjunction;
@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.escape;
+import static com.querybuilder4j.sqlbuilders.SqlCleanser.sqlIsClean;
 import static java.util.Optional.ofNullable;
 
 
@@ -149,7 +150,7 @@ public class Criteria implements Cloneable, Comparable {
         return newCriteria;
     }
 
-    public boolean isValid() {
+    public boolean isValid() throws Exception {
         if (column == null) return false;
         if (operator == null) return false;
         return true;

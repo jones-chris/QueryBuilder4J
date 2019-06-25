@@ -3,10 +3,10 @@ package com.querybuilder4j.utils;
 import com.querybuilder4j.config.Conjunction;
 import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.config.Operator;
-import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
-import com.querybuilder4j.sqlbuilders.statements.Criteria;
-import com.querybuilder4j.sqlbuilders.statements.Join;
-import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
+import com.querybuilder4j.dao.QueryTemplateDao;
+import com.querybuilder4j.statements.Criteria;
+import com.querybuilder4j.statements.Join;
+import com.querybuilder4j.statements.SelectStatement;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,7 +14,6 @@ import java.util.List;
 public class SelectStatementFactory {
 
     private static SelectStatement stmt;
-
 
     /**
      * Serves as the getter for the stmt field.

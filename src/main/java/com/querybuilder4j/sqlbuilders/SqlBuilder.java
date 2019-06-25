@@ -2,12 +2,15 @@ package com.querybuilder4j.sqlbuilders;
 
 
 import com.querybuilder4j.config.*;
+import com.querybuilder4j.dao.MetaDataDaoImpl;
+import com.querybuilder4j.dao.QueryTemplateDao;
 import com.querybuilder4j.exceptions.BadSqlException;
 import com.querybuilder4j.exceptions.ColumnNameNotFoundException;
 import com.querybuilder4j.exceptions.DataTypeNotFoundException;
 import com.querybuilder4j.exceptions.EmptyCollectionException;
-import com.querybuilder4j.sqlbuilders.statements.*;
-import com.querybuilder4j.sqlbuilders.dao.*;
+import com.querybuilder4j.statements.Criteria;
+import com.querybuilder4j.statements.Join;
+import com.querybuilder4j.statements.SelectStatement;
 
 import java.sql.Types;
 import java.util.*;
@@ -140,14 +143,11 @@ public abstract class SqlBuilder {
     public SqlBuilder(SelectStatement stmt, Properties properties) throws Exception {
         this.stmt = stmt;
         this.properties = properties;
+        setTableSchemas();
 
-        if (stmt.getQueryTemplateDao() != null) {
-            this.queryTemplateDao = stmt.getQueryTemplateDao();
-        }
+        if (stmt.getQueryTemplateDao() != null) { this.queryTemplateDao = stmt.getQueryTemplateDao(); }
 
-        if (! criteriaAreValid()) {
-            throw new Exception("A criteria is not valid");
-        }
+        if (! criteriaAreValid()) { throw new Exception("A criteria is not valid"); }
 
         // First, get all SelectStatements that are listed in subqueries.  Later we will replace the params in each subquery.
         // TODO:  this eager loads the subqueries.  It may be beneficial to consider having a class boolean field for lazy loading.
@@ -163,27 +163,6 @@ public abstract class SqlBuilder {
                 }
             });
         }
-//        if (stmt.getCriteria().size() != 0 && queryTemplateDao != null) {
-//            this.stmt.getCriteria().forEach((criterion) -> {
-//                // Split on , or ( or ).
-//                String[] filters = criterion.filter.split("[,()]");
-//                for (String filter : filters) {
-//                    if (argIsSubQuery(filter)) {
-//                        SelectStatement queryTemplate = queryTemplateDao.getQueryTemplateByName(filter);
-//
-//                        if (queryTemplate == null) {
-//                            throw new RuntimeException(String.format("Could not find subquery named, %s, in SqlBuilder's queryTemplateDao", filter));
-//                        }
-//
-//                        // Substitute subQueryId for the place that the subquery is called in the criterion's filter.
-//                        String subQueryId = "$" + unbuiltSubQueries.size();
-//                        this.unbuiltSubQueries.put(subQueryId, queryTemplate);
-//                        String textToReplace =
-//                        criterion.filter = criterion.filter.replace(filter, subQueryId);
-//                    }
-//                }
-//            });
-//        }
 
         if (statementIsValid()) {
             buildSubQueries();
@@ -297,44 +276,27 @@ public abstract class SqlBuilder {
                 }
 
                 // If the criteria's filter is a SubQuery, then generate the SelectStatement's SQL string.
-                // TODO:  Make this easy to understand.  Why is argIsSubQuery() being called twice?
-//                if (argIsSubQuery(criteriaClone.filter)) {
                 String[] tableAndColumn = criteriaClone.column.split("\\.");
-                int columnDataType = getColumnDataType(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
-                boolean shouldHaveQuotes = isColumnQuoted(columnDataType);
+                boolean shouldHaveQuotes = isColumnQuoted(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
 
                 // The criteria's filter should be the subquery id that can be retrieved from builtSubQueries.
                 String[] args = criteriaClone.filter.split(",");
                 String[] newArgs = args.clone();
-//                for (String arg : args) {
                 for (int i=0; i<args.length; i++) {
                     String arg = args[i];
 
                     if (argIsSubQuery(arg)) {
-                        String subquery = builtSubQueries.get(arg); //todo:  add null check - if can't find subquery, then throw exception?  Or would subquery have to be there?
-//                        criteriaClone.filter = criteriaClone.filter.replace(arg, "(" + subquery + ")");
+                        String subquery = builtSubQueries.get(arg);
+
+                        if (subquery == null) { throw new RuntimeException("Could not find subquery with name:  " + arg); }
+
                         newArgs[i] = "(" + subquery + ")";
                     } else {
-
                         arg = escape(arg);
-                        if (shouldHaveQuotes) {
-                            arg = "'" + escape(arg) + "'";
-                        }
-                        newArgs[i] = arg;
 
-//                        if (criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) {
-//                            if (shouldHaveQuotes) {
-//                                wrapFilterInQuotes(criteriaClone);
-//                            } else {
-//                                criteriaClone.filter = "(" + escape(criteriaClone.filter) + ")";
-//                            }
-//                        } else {
-//                            if (shouldHaveQuotes) {
-//                                criteriaClone.filter = "'" + escape(criteriaClone.filter) + "'";
-//                            } else {
-//                                criteriaClone.filter = escape(criteriaClone.filter);
-//                            }
-//                        }
+                        if (shouldHaveQuotes) { arg = "'" + escape(arg) + "'"; }
+
+                        newArgs[i] = arg;
                     }
                 }
 
@@ -345,19 +307,8 @@ public abstract class SqlBuilder {
                     criteriaClone.filter = "(" + criteriaClone.filter + ")";
                 }
 
-                    // todo:  this should not wrap filter if the filter is a subQuery because it duplicates line 308 above which already wraps subQuery in parenthesis.
-                    // todo:  remove these lines?
-//                    if (criteriaClone.operator.equals(Operator.in) || criteriaClone.operator.equals(Operator.notIn)) {
-//                        criteriaClone.filter = "(" + criteriaClone.filter + ")";
-//                    }
-
-                    String criteriaSql = criteriaClone.toSql(beginningDelimiter, endingDelimter);
-                    sql.append(criteriaSql).append(" ");
-//                    continue;
-//                }
-
-//                String criteriaSql = criteriaClone.toSql(beginningDelimiter, endingDelimter);
-//                sql.append(criteriaSql).append(" ");
+                String criteriaSql = criteriaClone.toSql(beginningDelimiter, endingDelimter);
+                sql.append(criteriaSql).append(" ");
             }
         }
         return sql;
@@ -476,25 +427,38 @@ public abstract class SqlBuilder {
     }
 
     /**
-     * Gets a boolean from the typeMappings class field associated with the SQL JDBC Types parameter, which is an int.
-     * The typeMappings field will return true if the SQL JDBC Types parameter should be quoted in a WHERE SQL clause and
-     * false if it should not be quoted.
+     *
+     * First, gets the SQL JDBC Type for the table and column parameters.  Then, gets a boolean from the typeMappings
+     * class field associated with the SQL JDBC Types parameter, which is an int.  The typeMappings field will return
+     * true if the SQL JDBC Types parameter should be quoted in a WHERE SQL clause and false if it should not be quoted.
      *
      * For example, the VARCHAR Type will return true, because it should be wrapped in single quotes in a WHERE SQL condition.
      * On the other hand, the INTEGER Type will return false, because it should NOT be wrapped in single quotes in a WHERE SQL condition.
      *
-     * @param columnDataType
+     * @param table
+     * @param columnName
      * @return boolean
      * @throws DataTypeNotFoundException
+     * @throws ColumnNameNotFoundException
      */
-    private boolean isColumnQuoted(int columnDataType) throws DataTypeNotFoundException {
-        Boolean isQuoted = typeMappings.get(columnDataType);
-        if (isQuoted == null) {
-            throw new DataTypeNotFoundException(String.format("Data type, %s, is not recognized", columnDataType));
-        } else {
-            return isQuoted;
-        }
+    private boolean isColumnQuoted(String table, String columnName) throws DataTypeNotFoundException, ColumnNameNotFoundException {
+        Integer dataType = getColumnDataType(table, columnName);
+
+        Boolean isQuoted = typeMappings.get(dataType);
+
+        if (isQuoted == null) { throw new DataTypeNotFoundException(String.format("Data type, %s, is not recognized", dataType)); }
+
+        return isQuoted;
     }
+
+//    private boolean isColumnQuoted(int columnDataType) throws DataTypeNotFoundException {
+//        Boolean isQuoted = typeMappings.get(columnDataType);
+//        if (isQuoted == null) {
+//            throw new DataTypeNotFoundException(String.format("Data type, %s, is not recognized", columnDataType));
+//        } else {
+//            return isQuoted;
+//        }
+//    }
 
     /**
      * Wraps the criteria's filter in quotes.  If the criteria's filter is a list of items, the function assumes the list is
@@ -502,16 +466,16 @@ public abstract class SqlBuilder {
      *
      * @param criteria
      */
-    private void wrapFilterInQuotes(Criteria criteria) {
-        String[] originalFilters = criteria.filter.split(",");
-        String[] newFilters = new String[originalFilters.length];
-
-        for (int i=0; i<originalFilters.length; i++) {
-            newFilters[i] = String.format("'%s'", escape(originalFilters[i]));
-        }
-
-        criteria.filter = "(" + String.join(",", newFilters) + ")";
-    }
+//    private void wrapFilterInQuotes(Criteria criteria) {
+//        String[] originalFilters = criteria.filter.split(",");
+//        String[] newFilters = new String[originalFilters.length];
+//
+//        for (int i=0; i<originalFilters.length; i++) {
+//            newFilters[i] = String.format("'%s'", escape(originalFilters[i]));
+//        }
+//
+//        criteria.filter = "(" + String.join(",", newFilters) + ")";
+//    }
 
     /**
      * Gets all table schemas for the tables included in the columns and criteria parameters.
@@ -520,34 +484,24 @@ public abstract class SqlBuilder {
     private void setTableSchemas() {
         MetaDataDaoImpl metaDataDao = new MetaDataDaoImpl(properties);
 
-        Map<String, Map<String, Integer>> stmtTableSchemas = new HashMap<>();
-        for (String col : stmt.getColumns()) {
+        // Create list with all columns in it - from both columns and criteria collections.
+        List<String> allColumns = new ArrayList<>(stmt.getColumns());
+        stmt.getCriteria().forEach((criterion) -> allColumns.add(criterion.getColumn()));
+
+        for (String col : allColumns){
             String[] tableAndColumn = col.split("\\.");
+
             if (tableAndColumn.length != 2) {
                 throw new RuntimeException("A column needs to be in the format [table.column].  The ill-formatted column was " + col);
             }
+
             String table = tableAndColumn[0];
             String column = tableAndColumn[1];
-            if (! stmtTableSchemas.containsKey(table)) {
+            if (! this.tableSchemas.containsKey(table)) {
                 Map<String, Integer> tableSchema = metaDataDao.getTableSchema(table, column);
-                stmtTableSchemas.put(table, tableSchema);
+                this.tableSchemas.put(table, tableSchema);
             }
         }
-
-        for (Criteria criterion : stmt.getCriteria()) {
-            String[] tableAndColumn = criterion.column.split("\\.");
-            if (tableAndColumn.length != 2) {
-                throw new RuntimeException("A column needs to be in the format [table.column].  The ill-formatted column was " + criterion.column);
-            }
-            String table = tableAndColumn[0];
-            String column = tableAndColumn[1];
-            if (! stmtTableSchemas.containsKey(table)) {
-                Map<String, Integer> tableSchema = metaDataDao.getTableSchema(table, column);
-                stmtTableSchemas.put(table, tableSchema);
-            }
-        }
-
-        this.tableSchemas = stmtTableSchemas;
     }
 
     /**
@@ -745,7 +699,7 @@ public abstract class SqlBuilder {
         }
 
         // Check that statement's table is legit.
-        if (! tableSchemas.containsKey(this.stmt.getTable())) return false;
+        if (! tableSchemas.containsKey(this.stmt.getTable())) return false; //todo:  simplify this.
 
         return true;
     }
@@ -760,13 +714,9 @@ public abstract class SqlBuilder {
         if (tableSchemas.isEmpty()) { setTableSchemas(); }
 
         for (Criteria criterion : this.stmt.getCriteria()) {
-            if (! criterion.isValid()) {
-                return false;
-            }
+            if (! criterion.isValid()) { return false; }
 
-            if (! sqlIsClean(criterion)) {
-                throw new Exception(String.format("%s failed to be clean SQL", criterion));
-            }
+            if (! sqlIsClean(criterion)) { throw new Exception(String.format("%s failed to be clean SQL", criterion)); }
 
             // Now that we know that the criteria's operator is not 'isNull' or 'isNotNull', we can assume that the
             // criteria's filter is needed.  Therefore, we should check if the filter is null or an empty string.
@@ -776,11 +726,8 @@ public abstract class SqlBuilder {
                     if (criterion.filter == null || criterion.filter.equals("")) {
                         throw new Exception("The criteria has a null or empty filter, but the operator is not \"IsNull\" or \"IsNotNull\"");
                     } else {
-//                        if (tableSchemas.isEmpty()) { setTableSchemas(); }
-
                         String[] tableAndColumn = criterion.column.split("\\.");
-                        int columnDataType = getColumnDataType(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
-                        boolean shouldHaveQuotes = isColumnQuoted(columnDataType);
+                        boolean shouldHaveQuotes = isColumnQuoted(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
                         if (! shouldHaveQuotes && (criterion.operator.equals(Operator.like) || criterion.operator.equals(Operator.notLike))) {
                             throw new Exception("Like/Not Like WHERE clauses are not supported for non-quoted columns yet.  " +
                                     "Please use greater than or less than operators.");
@@ -789,6 +736,7 @@ public abstract class SqlBuilder {
                         if (! shouldHaveQuotes && criterion.filter != null) {
                             String[] filters = criterion.filter.split(",");
                             for (String filter : filters) {
+                                int columnDataType = getColumnDataType(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
                                 if (! SqlCleanser.canParseNonQuotedFilter(filter, columnDataType)) {
                                     throw new Exception(String.format("The criteria's filter is not an number type, but the column is:  %s", criterion));
                                 }

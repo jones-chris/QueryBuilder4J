@@ -3,10 +3,10 @@ package com.querybuilder4j.sqlbuilders;
 import com.querybuilder4j.QueryTemplateDaoImpl;
 import com.querybuilder4j.TestUtils;
 import com.querybuilder4j.config.DatabaseType;
-import com.querybuilder4j.sqlbuilders.dao.QueryTemplateDao;
-import com.querybuilder4j.sqlbuilders.statements.Criteria;
-import com.querybuilder4j.sqlbuilders.statements.Join;
-import com.querybuilder4j.sqlbuilders.statements.SelectStatement;
+import com.querybuilder4j.dao.QueryTemplateDao;
+import com.querybuilder4j.statements.Criteria;
+import com.querybuilder4j.statements.Join;
+import com.querybuilder4j.statements.SelectStatement;
 import org.apache.commons.lang.math.RandomUtils;
 
 import java.util.*;

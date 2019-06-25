@@ -1,4 +1,4 @@
-package com.querybuilder4j.sqlbuilders.dao;
+package com.querybuilder4j.dao;
 
 import com.querybuilder4j.utils.ResultSetToHashMapConverter;
 

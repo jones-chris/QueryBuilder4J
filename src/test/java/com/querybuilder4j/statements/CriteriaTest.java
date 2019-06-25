@@ -1,4 +1,4 @@
-package com.querybuilder4j.sqlbuilders.statements;
+package com.querybuilder4j.statements;
 
 import com.querybuilder4j.config.Operator;
 import org.junit.After;
