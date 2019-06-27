@@ -1,4 +1,4 @@
-package com.querybuilder4j.config;
+package com.querybuilder4j.statements;
 
 
 public enum Conjunction {

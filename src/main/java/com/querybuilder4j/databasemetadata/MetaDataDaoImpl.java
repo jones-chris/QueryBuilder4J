@@ -17,11 +17,6 @@ public class MetaDataDaoImpl {
     private final String password;
 
 
-
-//    public MetaDataDaoImpl(Properties properties) {
-//        this.properties = properties;
-//    }
-
     public MetaDataDaoImpl(Properties properties) {
         this.url = properties.getProperty(Constants.DATABASE_URL);
         this.username = properties.getProperty(Constants.DATABASE_USERNAME);
@@ -40,14 +35,6 @@ public class MetaDataDaoImpl {
         return password;
     }
 
-    //    public Properties getProperties() {
-//        return properties;
-//    }
-//
-//    public void setProperties(Properties properties) {
-//        this.properties = properties;
-//    }
-
     public Map<String, Integer> getTableSchema(String table) {
         try (Connection conn = getConnection()) {
             ResultSet columnMetaData = conn.getMetaData().getColumns(null, null, table, "%");
@@ -60,17 +47,5 @@ public class MetaDataDaoImpl {
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(this.url, this.username, this.password);
     }
-
-//    private Connection getConnection(Properties properties) throws Exception {
-//        String url = properties.getProperty("url");
-//        String username = properties.getProperty("username");
-//        String password = properties.getProperty("password");
-//
-//        return DriverManager.getConnection(
-//                url,
-//                (username != null) ? username : null,
-//                (password != null) ? password : null
-//        );
-//    }
-
+    
 }

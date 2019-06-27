@@ -2,7 +2,7 @@ package com.querybuilder4j;
 
 
 import com.querybuilder4j.config.Constants;
-import com.querybuilder4j.config.DatabaseType;
+import com.querybuilder4j.statements.DatabaseType;
 
 import java.sql.*;
 import java.util.Properties;

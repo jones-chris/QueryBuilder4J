@@ -1,8 +1,8 @@
 package com.querybuilder4j.utils;
 
-import com.querybuilder4j.config.Conjunction;
-import com.querybuilder4j.config.DatabaseType;
-import com.querybuilder4j.config.Operator;
+import com.querybuilder4j.statements.Conjunction;
+import com.querybuilder4j.statements.DatabaseType;
+import com.querybuilder4j.statements.Operator;
 import com.querybuilder4j.databasemetadata.QueryTemplateDao;
 import com.querybuilder4j.statements.Criteria;
 import com.querybuilder4j.statements.Join;

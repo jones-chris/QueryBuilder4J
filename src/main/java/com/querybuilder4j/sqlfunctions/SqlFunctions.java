@@ -1,6 +1,6 @@
 package com.querybuilder4j.sqlfunctions;
 
-import com.querybuilder4j.config.DatabaseType;
+import com.querybuilder4j.statements.DatabaseType;
 
 public class SqlFunctions {
 

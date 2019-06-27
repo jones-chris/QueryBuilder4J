@@ -1,6 +1,6 @@
 package com.querybuilder4j;
 
-import com.querybuilder4j.config.Operator;
+import com.querybuilder4j.statements.Operator;
 import com.querybuilder4j.databasemetadata.QueryTemplateDao;
 import com.querybuilder4j.statements.Criteria;
 import com.querybuilder4j.statements.SelectStatement;

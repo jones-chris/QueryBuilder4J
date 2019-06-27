@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.querybuilder4j.QueryTemplateDaoImpl;
 import com.querybuilder4j.TestUtils;
-import com.querybuilder4j.config.DatabaseType;
+import com.querybuilder4j.statements.DatabaseType;
 import com.querybuilder4j.statements.SelectStatement;
 import com.querybuilder4j.utils.SelectStatementFactory;
 import org.junit.After;
@@ -18,7 +18,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.*;
 
-import static com.querybuilder4j.config.Operator.in;
+import static com.querybuilder4j.statements.Operator.in;
 import static org.junit.Assert.*;
 
 public class SqlBuilderTest {

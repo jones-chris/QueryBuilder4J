@@ -1,7 +1,7 @@
 package com.querybuilder4j.validators;
 
 import com.querybuilder4j.config.Constants;
-import com.querybuilder4j.config.Operator;
+import com.querybuilder4j.statements.Operator;
 import com.querybuilder4j.exceptions.ColumnNameNotFoundException;
 import com.querybuilder4j.exceptions.DataTypeNotFoundException;
 import com.querybuilder4j.sqlbuilders.SqlCleanser;

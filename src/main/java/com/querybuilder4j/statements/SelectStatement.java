@@ -2,11 +2,11 @@ package com.querybuilder4j.statements;
 
 
 import com.google.gson.Gson;
-import com.querybuilder4j.config.*;
 import com.querybuilder4j.databasemetadata.DatabaseMetaData;
 import com.querybuilder4j.exceptions.NoMatchingParameterException;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
 import com.querybuilder4j.databasemetadata.QueryTemplateDao;
+import com.querybuilder4j.sqlbuilders.SqlBuilderFactory;
 import com.querybuilder4j.validators.SelectStatementValidatorImpl;
 
 import java.util.ArrayList;
@@ -17,8 +17,8 @@ import java.util.LinkedList;
 import java.util.Properties;
 import java.util.Collections;
 
-import static com.querybuilder4j.config.Parenthesis.EndParenthesis;
-import static com.querybuilder4j.config.Parenthesis.FrontParenthesis;
+import static com.querybuilder4j.statements.Parenthesis.EndParenthesis;
+import static com.querybuilder4j.statements.Parenthesis.FrontParenthesis;
 import static com.querybuilder4j.statements.Join.JoinType.LEFT_EXCLUDING;
 import static com.querybuilder4j.statements.Join.JoinType.RIGHT_EXCLUDING;
 import static com.querybuilder4j.statements.Join.JoinType.FULL_OUTER_EXCLUDING;
@@ -60,7 +60,7 @@ public class SelectStatement {
 
     public SelectStatement() {}
 
-    public SelectStatement(DatabaseType databaseType, String name) {
+    public SelectStatement(DatabaseType databaseType, String name) { // todo:  fix this.
 //        this.databaseType = databaseType;
         this.name = name;
     }
@@ -281,8 +281,6 @@ public class SelectStatement {
     @SuppressWarnings("unchecked")
     public String toSql(Properties properties) {
         try {
-//            databaseType = Enum.valueOf(DatabaseType.class, properties.getProperty(Constants.DATABASE_TYPE)); // todo:  make DatabaseMetaData object encapsulate properties and make it field of SelectStatement?
-
             addExcludingJoinCriteria();
 
             Collections.sort(this.criteria);
@@ -297,7 +295,7 @@ public class SelectStatement {
 
             replaceParameters();
 
-            statementValidator = new SelectStatementValidatorImpl(this); // todo:  pass databaseMetaData into validator if it just needs properties and tableSchemas?
+            statementValidator = new SelectStatementValidatorImpl(this); // todo:  does this need to be a class field?  Can it just be a method variable?  If it's not used after this, then it should be garbage collected.
             statementValidator.passesBasicValidation();
 
             // Get database meta data - namely tableMetaData - now that we know that basic validation has passed.
@@ -305,28 +303,12 @@ public class SelectStatement {
             databaseMetaData = new DatabaseMetaData(properties, this);
             statementValidator.passesDatabaseValidation();
 
-            SqlBuilder sqlBuilder = SqlBuilderFactory.buildSqlBuilder(this); // subQueries get built here. //todo:  wrap datasource and tableschemas in DatabaseMetaData object?
+            SqlBuilder sqlBuilder = SqlBuilderFactory.buildSqlBuilder(this); // subQueries get built here.
             return sqlBuilder.buildSql(); // root query gets built here.
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
-//    private boolean isValid() throws Exception {
-//        if (this.getColumns() == null) { throw new Exception("Columns parameter is null"); }
-//
-//        if (this.getColumns().size() == 0) { throw new Exception("Columns parameter is empty"); }
-//
-//        if (this.getTable() == null || this.getTable().equals("")) {
-//            throw new Exception("The Table parameter cannot be null or an empty string.");
-//        }
-//
-//        if (this.getJoins() == null) { throw new Exception("Joins parameter is null"); }
-//
-//        if (this.getCriteria() == null) { throw new Exception("The criteria parameter is null"); }
-//
-//        return true;
-//    }
 
     private void clearParenthesisFromCriteria() {
         if (criteria.size() > 0) {
@@ -401,34 +383,6 @@ public class SelectStatement {
         }
         return false;
     }
-
-//    public Map<String, Object> getSqlParameterMap(int startingIndex) {
-//        //int namedParameterCount = 0;
-//        int namedParameterCount = startingIndex;
-//        Map<String, Object> namedParameters = new HashMap<>();
-//
-//        for (Criteria crit : criteria) {
-//            if (crit.operator.equals(Operator.isNull) || crit.operator.equals(Operator.isNotNull)) {
-//                namedParameterCount++;
-//                continue;
-//            }
-//
-//            if (crit.operator.equals(Operator.in) || crit.operator.equals(Operator.notIn)) {
-//                String[] filters = crit.filter.split(",");
-//                for (String filter : filters) {
-//                    String paramName = "filter" + namedParameterCount;
-//                    namedParameters.put(paramName, filter);
-//                    namedParameterCount++;
-//                }
-//            } else {
-//                String paramName = "filter" + namedParameterCount;
-//                namedParameters.put(paramName, crit.filter);
-//                namedParameterCount++;
-//            }
-//        }
-//
-//        return namedParameters;
-//    }
 
     @Override
     public String toString() {

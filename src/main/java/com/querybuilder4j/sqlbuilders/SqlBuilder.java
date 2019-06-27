@@ -6,27 +6,18 @@ import com.querybuilder4j.databasemetadata.QueryTemplateDao;
 import com.querybuilder4j.exceptions.BadSqlException;
 import com.querybuilder4j.statements.Criteria;
 import com.querybuilder4j.statements.Join;
+import com.querybuilder4j.statements.Operator;
 import com.querybuilder4j.statements.SelectStatement;
 import com.querybuilder4j.validators.SelectStatementValidatorImpl;
 
 import java.util.*;
 
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.escape;
-import static com.querybuilder4j.sqlbuilders.SqlCleanser.sqlIsClean;
 
 /**
  * This class uses a SelectStatement to generate a SELECT SQL string.
  */
 public abstract class SqlBuilder {
-
-//    /**
-//     * A Map with the keys being JDBC Types and the values being booleans.  The boolean values represent whether filters
-//     * with the given JDBC type should be quoted.  For example, if a column's JDBC type is INTEGER, then the value in the
-//     * typeMappings field is false, because integers do not need to be wrapped in quotes in a SQL WHERE clause.  On the
-//     * other hand, if a column's JDBC type is NVARCHAR, then the value in the typeMappings field is true, because varchar's
-//     * do not need to be wrapped in quotes in a SQL WHERE clause.
-//     */
-//    protected final static Map<Integer, Boolean> typeMappings = new HashMap<>();
 
     /**
      * The character to begin wrapping the table and column in a SQL statement.  For example, PostgreSQL uses a double quote
@@ -41,24 +32,6 @@ public abstract class SqlBuilder {
      * uses back ticks like so:  SELECT `employees`.`name` from `employees`.
      */
     protected char endingDelimter;
-
-//    /**
-//     * A Map with the values being the stmt's table columns and the values being their JDBC types.
-//     */
-//    //TODO:  pass tableSchemas to subqueries so that the metadata does not have to be fetched from the database again.
-//    protected Map<String, Map<String, Integer>> tableSchemas = new HashMap<>();
-
-//    /**
-//     * The database connection properties.  The first three properties below are required and the last two are optional.
-//     * 1) Database URL
-//     * 2) JDCB driver class
-//     *      ex) org.sqlite.JDBC
-//     * 3) QueryBuilder4J DatabaseType
-//     *      ex) Sqlite
-//     * 4) Database username (optional)
-//     * 5) Database password (optional)
-//     */
-//    protected final Properties properties;
 
     /**
      * The SelectStatement that encapsulates the data to generate the SELECT SQL string.
@@ -77,70 +50,14 @@ public abstract class SqlBuilder {
      */
     protected Map<String, String> builtSubQueries = new HashMap<>();
 
-//    /**
-//     * A constant to be used after a column is split on "." and the resulting array is [table_name, column_name].  In
-//     * such an array, index 0 returns table_name.
-//     */
-//    protected final int TABLE_INDEX = 0;
-//
-//    /**
-//     * A constant to be used after a column is split on "." and the resulting array is [table_name, column_name].  In
-//     * such an array, index 1 returns column_name.
-//     */
-//    protected final int COLUMN_INDEX = 1;
-
     /**
      * The class that will be used to retrieve subqueries, if they exist in the stmt.
      */
     protected QueryTemplateDao queryTemplateDao;
 
-//    static {
-//        typeMappings.put(Types.ARRAY, true);
-//        typeMappings.put(Types.BIGINT, false);
-//        typeMappings.put(Types.BINARY, true);
-//        typeMappings.put(Types.BIT, false);
-//        typeMappings.put(Types.BLOB, true);
-//        typeMappings.put(Types.BOOLEAN, false);
-//        typeMappings.put(Types.CHAR, true);
-//        typeMappings.put(Types.CLOB, true);
-//        //typeMappings.put(Types.DATALINK, false);
-//        typeMappings.put(Types.DATE, true);
-//        typeMappings.put(Types.DECIMAL, true);
-//        typeMappings.put(Types.DISTINCT, true);
-//        typeMappings.put(Types.DOUBLE, false);
-//        typeMappings.put(Types.FLOAT, false);
-//        typeMappings.put(Types.INTEGER, false);
-//        typeMappings.put(Types.JAVA_OBJECT, true);
-//        typeMappings.put(Types.LONGNVARCHAR, true);
-//        typeMappings.put(Types.LONGVARBINARY, true);
-//        typeMappings.put(Types.LONGVARCHAR, true);
-//        typeMappings.put(Types.NCHAR, true);
-//        typeMappings.put(Types.NCLOB, true);
-//        typeMappings.put(Types.NULL, true);
-//        typeMappings.put(Types.NUMERIC, false);
-//        typeMappings.put(Types.NVARCHAR, true);
-//        typeMappings.put(Types.OTHER, true);
-//        typeMappings.put(Types.REAL, false);
-//        typeMappings.put(Types.REF, true);
-//        typeMappings.put(Types.REF_CURSOR, true);
-//        typeMappings.put(Types.ROWID, false);
-//        typeMappings.put(Types.SMALLINT, false);
-//        typeMappings.put(Types.SQLXML, true);
-//        typeMappings.put(Types.STRUCT, true);
-//        typeMappings.put(Types.TIME, true);
-//        typeMappings.put(Types.TIME_WITH_TIMEZONE, true);
-//        typeMappings.put(Types.TIMESTAMP, true);
-//        typeMappings.put(Types.TIMESTAMP_WITH_TIMEZONE, true);
-//        typeMappings.put(Types.TINYINT, false);
-//        typeMappings.put(Types.VARBINARY, true);
-//        typeMappings.put(Types.VARCHAR, true);
-//    }
-
     public SqlBuilder(SelectStatement stmt) throws Exception {
         this.stmt = stmt;
         if (stmt.getQueryTemplateDao() != null) { this.queryTemplateDao = stmt.getQueryTemplateDao(); } //todo:  is this needed?  The queryTemplateDao can just be called from the stmt.
-
-//        if (! criteriaAreValid()) { throw new Exception("A criteria is not valid"); }
 
         // First, get all SelectStatements that are listed in subqueries.  Later we will replace the params in each subquery.
         // TODO:  this eager loads the subqueries.  It may be beneficial to consider having a class boolean field for lazy loading.
@@ -157,11 +74,7 @@ public abstract class SqlBuilder {
             });
         }
 
-//        if (statementIsValid()) {
         buildSubQueries();
-//        } else {
-//            throw new RuntimeException("The statement was not valid");
-//        }
     }
 
     public abstract String buildSql() throws Exception;
@@ -411,76 +324,6 @@ public abstract class SqlBuilder {
         return sql.append(") ");
     }
 
-//    /**
-//     * Gets the SQL JDBC Type for the table and column parameters.
-//     *
-//     * @param table
-//     * @param columnName
-//     * @return int
-//     * @throws ColumnNameNotFoundException
-//     */
-//    private int getColumnDataType(String table, String columnName) throws ColumnNameNotFoundException {
-//        Integer dataType = tableSchemas.get(table).get(columnName);
-//
-//        if (dataType == null) {
-//            throw new ColumnNameNotFoundException(String.format("Could not find column, %s", columnName));
-//        } else {
-//            return dataType;
-//        }
-//    }
-
-//    /**
-//     *
-//     * First, gets the SQL JDBC Type for the table and column parameters.  Then, gets a boolean from the typeMappings
-//     * class field associated with the SQL JDBC Types parameter, which is an int.  The typeMappings field will return
-//     * true if the SQL JDBC Types parameter should be quoted in a WHERE SQL clause and false if it should not be quoted.
-//     *
-//     * For example, the VARCHAR Type will return true, because it should be wrapped in single quotes in a WHERE SQL condition.
-//     * On the other hand, the INTEGER Type will return false, because it should NOT be wrapped in single quotes in a WHERE SQL condition.
-//     *
-//     * @param table
-//     * @param columnName
-//     * @return boolean
-//     * @throws DataTypeNotFoundException
-//     * @throws ColumnNameNotFoundException
-//     */
-//    private boolean isColumnQuoted(String table, String columnName) throws DataTypeNotFoundException, ColumnNameNotFoundException {
-//        Integer dataType = getColumnDataType(table, columnName);
-//
-//        Boolean isQuoted = typeMappings.get(dataType);
-//
-//        if (isQuoted == null) { throw new DataTypeNotFoundException(String.format("Data type, %s, is not recognized", dataType)); }
-//
-//        return isQuoted;
-//    }
-
-//    /**
-//     * Gets all table schemas for the tables included in the columns and criteria parameters.
-//     * The function assumes that the columns are in the [table.column] format.
-//     */
-//    private void setTableSchemas() {
-//        MetaDataDaoImpl metaDataDao = new MetaDataDaoImpl(properties);
-//
-//        // Create list with all columns in it - from both columns and criteria collections.
-//        List<String> allColumns = new ArrayList<>(stmt.getColumns());
-//        stmt.getCriteria().forEach((criterion) -> allColumns.add(criterion.getColumn()));
-//
-//        for (String col : allColumns){
-//            String[] tableAndColumn = col.split("\\.");
-//
-//            if (tableAndColumn.length != 2) {
-//                throw new RuntimeException("A column needs to be in the format [table.column].  The ill-formatted column was " + col);
-//            }
-//
-//            String table = tableAndColumn[0];
-//            String column = tableAndColumn[1];
-//            if (! this.tableSchemas.containsKey(table)) {
-//                Map<String, Integer> tableSchema = metaDataDao.getTableSchema(table, column);
-//                this.tableSchemas.put(table, tableSchema);
-//            }
-//        }
-//    }
-
     /**
      * This method controls building subqueries.
      *
@@ -639,119 +482,5 @@ public abstract class SqlBuilder {
 
         return args;
     }
-
-//    /**
-//     * Tests whether each column in the columns parameter has a table and column that can be found in the target database.
-//     * This method assumes that each column is in the format of [table.column].  After splitting the column on a period (.),
-//     * the method will return false if the resulting array does not have exactly 2 elements (a table and a column).
-//     *
-//     * @return boolean
-//     */
-//    private boolean statementTablesAndColumnsAreLegit() {
-//        boolean tableIsLegit;
-//        boolean columnIsLegit;
-//
-//        if (tableSchemas.isEmpty()) {
-//            setTableSchemas();
-//        }
-//
-//        // Create list of statement's SELECT columns and WHERE columns.
-//        List<String> columns = new ArrayList<>(this.stmt.getColumns());
-//        this.stmt.getCriteria().forEach((criterion) -> columns.add(criterion.getColumn()));
-//
-//        for (String column : this.stmt.getColumns()) {
-//            String[] tableAndColumn = column.split("\\.");
-//
-//            // Check that the tableAndColumn variable has two elements.  The column format should be [table.column].
-//            if (tableAndColumn.length != 2) return false;
-//
-//            // Now that we know that the tableAndColumn variable has 2 elements, test if the table and column can be found
-//            // in the database.
-//            tableIsLegit = tableSchemas.containsKey(tableAndColumn[TABLE_INDEX]);
-//            if (! tableIsLegit) return false;
-//
-//            columnIsLegit = tableSchemas.get(tableAndColumn[TABLE_INDEX]).containsKey(tableAndColumn[COLUMN_INDEX]);
-//            if (! columnIsLegit) return false;
-//
-//        }
-//
-//        // Check that statement's table is legit.
-//        if (! tableSchemas.containsKey(this.stmt.getTable())) return false; //todo:  simplify this.
-//
-//        return true;
-//    }
-
-//    /**
-//     * Determines if the stmt's criteria are valid.
-//     *
-//     * @return boolean
-//     * @throws Exception
-//     */
-//    private boolean criteriaAreValid() throws Exception {
-//        if (tableSchemas.isEmpty()) { setTableSchemas(); }
-//
-//        for (Criteria criterion : this.stmt.getCriteria()) {
-//            if (! criterion.isValid()) { return false; }
-//
-//            if (! sqlIsClean(criterion)) { throw new Exception(String.format("%s failed to be clean SQL", criterion)); }
-//
-//            // Now that we know that the criteria's operator is not 'isNull' or 'isNotNull', we can assume that the
-//            // criteria's filter is needed.  Therefore, we should check if the filter is null or an empty string.
-//            // If so, throw an exception.
-//            if (! criterion.operator.equals(Operator.isNull)) {
-//                if (! criterion.operator.equals(Operator.isNotNull)) {
-//                    if (criterion.filter != null) {
-//                        String[] tableAndColumn = criterion.column.split("\\.");
-//                        boolean shouldHaveQuotes = isColumnQuoted(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
-//
-//                        if (! shouldHaveQuotes && criterion.filter != null) {
-//                            String[] filters = criterion.filter.split(",");
-//                            for (String filter : filters) {
-//                                int columnDataType = getColumnDataType(tableAndColumn[TABLE_INDEX], tableAndColumn[COLUMN_INDEX]);
-//                                if (! SqlCleanser.canParseNonQuotedFilter(filter, columnDataType)) {
-//                                    throw new Exception(String.format("The criteria's filter is not an number type, but the column is:  %s", criterion));
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        return true;
-//    }
-
-//    /**
-//     * Determines if the stmt is valid.
-//     *
-//     * @return boolean
-//     * @throws Exception
-//     */
-//    private boolean statementIsValid() throws Exception {
-//        if (this.stmt.getColumns() == null) {
-//            throw new IllegalArgumentException("Columns parameter is null");
-//        }
-//        if (this.stmt.getColumns().size() == 0) {
-//            throw new EmptyCollectionException("Columns parameter is empty");
-//        }
-//        if (this.stmt.getTable() == null || this.stmt.getTable().equals("")) {
-//            throw new IllegalArgumentException("The Table parameter cannot be null or an empty string.");
-//        }
-//        if (this.stmt.getJoins() == null) {
-//            throw new IllegalArgumentException("Joins parameter is null");
-//        }
-//        if (this.stmt.getCriteria() == null) {
-//            throw new IllegalArgumentException("The criteria parameter is null");
-//        }
-//
-//        // Test that the columns in the stmt's columns and criteria fields can be found in the target database.
-//        if (! statementTablesAndColumnsAreLegit()) {
-//            throw new Exception("One of the columns in either the SelectStatement's columns or criteria fields is " +
-//                    "either is not in the correct [table.column] format or a column's table name or column name could not be " +
-//                    "found in the database.");
-//        }
-//
-//        return true;
-//    }
 
 }

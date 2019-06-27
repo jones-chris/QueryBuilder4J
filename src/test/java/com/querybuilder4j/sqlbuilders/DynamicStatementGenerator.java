@@ -2,8 +2,7 @@ package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.QueryTemplateDaoImpl;
 import com.querybuilder4j.TestUtils;
-import com.querybuilder4j.config.Constants;
-import com.querybuilder4j.config.DatabaseType;
+import com.querybuilder4j.statements.DatabaseType;
 import com.querybuilder4j.databasemetadata.QueryTemplateDao;
 import com.querybuilder4j.statements.Criteria;
 import com.querybuilder4j.statements.Join;
@@ -12,8 +11,8 @@ import org.apache.commons.lang.math.RandomUtils;
 
 import java.util.*;
 
-import static com.querybuilder4j.config.Conjunction.*;
-import static com.querybuilder4j.config.Operator.*;
+import static com.querybuilder4j.statements.Conjunction.*;
+import static com.querybuilder4j.statements.Operator.*;
 
 public class DynamicStatementGenerator {
 //    private DatabaseType databaseType;

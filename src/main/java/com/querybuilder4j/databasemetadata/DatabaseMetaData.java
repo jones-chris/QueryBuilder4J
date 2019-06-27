@@ -1,7 +1,7 @@
 package com.querybuilder4j.databasemetadata;
 
 import com.querybuilder4j.config.Constants;
-import com.querybuilder4j.config.DatabaseType;
+import com.querybuilder4j.statements.DatabaseType;
 import com.querybuilder4j.statements.SelectStatement;
 
 import java.util.*;

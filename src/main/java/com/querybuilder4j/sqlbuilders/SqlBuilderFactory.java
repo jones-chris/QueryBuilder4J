@@ -1,6 +1,6 @@
-package com.querybuilder4j.config;
+package com.querybuilder4j.sqlbuilders;
 
-import com.querybuilder4j.sqlbuilders.*;
+import com.querybuilder4j.statements.DatabaseType;
 import com.querybuilder4j.statements.SelectStatement;
 
 
