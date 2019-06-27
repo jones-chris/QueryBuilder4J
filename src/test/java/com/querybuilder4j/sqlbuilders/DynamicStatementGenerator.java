@@ -2,8 +2,9 @@ package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.QueryTemplateDaoImpl;
 import com.querybuilder4j.TestUtils;
+import com.querybuilder4j.config.Constants;
 import com.querybuilder4j.config.DatabaseType;
-import com.querybuilder4j.dao.QueryTemplateDao;
+import com.querybuilder4j.databasemetadata.QueryTemplateDao;
 import com.querybuilder4j.statements.Criteria;
 import com.querybuilder4j.statements.Join;
 import com.querybuilder4j.statements.SelectStatement;
@@ -15,17 +16,20 @@ import static com.querybuilder4j.config.Conjunction.*;
 import static com.querybuilder4j.config.Operator.*;
 
 public class DynamicStatementGenerator {
-    private DatabaseType databaseType;
+//    private DatabaseType databaseType;
+    private Properties databaseProperties;
     private List<String> randomColumns = new ArrayList<>();
     private List<String> randomTables = new ArrayList<>();
     private List<Criteria> randomCriteria = new ArrayList<>();
     private int numberOfSelectStatements;
-    private QueryTemplateDao queryTemplateDao = new QueryTemplateDaoImpl();
+    private QueryTemplateDao queryTemplateDao;
 
 
-    public DynamicStatementGenerator(DatabaseType databaseType, int numberOfSelectStatements) {
-        this.databaseType = databaseType;
+    public DynamicStatementGenerator(Properties databaseProperties, int numberOfSelectStatements) {
+//        this.databaseType = databaseType;
+        this.databaseProperties = databaseProperties;
         this.numberOfSelectStatements = numberOfSelectStatements;
+        this.queryTemplateDao = new QueryTemplateDaoImpl(databaseProperties);
 
         randomColumns.add("county_spending_detail.department");
         randomColumns.add("county_spending_detail.service");
@@ -125,7 +129,7 @@ public class DynamicStatementGenerator {
             long offset = (long) RandomUtils.nextInt(100);
 
             // Create select statement with randomized properties
-            SelectStatement stmt = new SelectStatement(databaseType);
+            SelectStatement stmt = new SelectStatement();
             stmt.setColumns(columnsList);
             stmt.setTable(table);
             stmt.setJoins(joins);
@@ -137,6 +141,7 @@ public class DynamicStatementGenerator {
             stmt.setLimit(limit);
             stmt.setOffset(offset);
             stmt.setQueryTemplateDao(queryTemplateDao);
+            stmt.setDatabaseMetaData(databaseProperties);
 
             results.add(stmt);
         }
@@ -459,14 +464,15 @@ public class DynamicStatementGenerator {
 
         Join join = new Join();
         int randomInt;
-        if (databaseType.equals(DatabaseType.Sqlite)) {
+
+        if (TestUtils.getDatabaseType(databaseProperties).equals(DatabaseType.Sqlite)) {
             randomInt = TestUtils.getRandomInt(0, joinTypesForSqlite.length - 1);
         } else {
             randomInt = TestUtils.getRandomInt(0, joinTypes.length - 1);
         }
 
         Join.JoinType joinType;
-        if (databaseType.equals(DatabaseType.Sqlite)) {
+        if (TestUtils.getDatabaseType(databaseProperties).equals(DatabaseType.Sqlite)) {
             joinType = joinTypesForSqlite[randomInt];
         } else {
             joinType = joinTypes[randomInt];

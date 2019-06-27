@@ -2,12 +2,13 @@ package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.statements.SelectStatement;
 
+import java.util.Map;
 import java.util.Properties;
 
 public class MySqlSqlBuilder extends SqlBuilder {
 
-    public MySqlSqlBuilder(SelectStatement stmt, Properties properties) throws Exception {
-        super(stmt, properties);
+    public MySqlSqlBuilder(SelectStatement stmt) throws Exception {
+        super(stmt);
         beginningDelimiter = '`';
         endingDelimter = '`';
     }

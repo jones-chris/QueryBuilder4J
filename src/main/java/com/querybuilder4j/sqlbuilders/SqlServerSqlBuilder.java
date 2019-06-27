@@ -2,12 +2,13 @@ package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.statements.SelectStatement;
 
+import java.util.Map;
 import java.util.Properties;
 
 public class SqlServerSqlBuilder extends SqlBuilder {
 
-    public SqlServerSqlBuilder(SelectStatement stmt, Properties properties) throws Exception {
-        super(stmt, properties);
+    public SqlServerSqlBuilder(SelectStatement stmt) throws Exception {
+        super(stmt);
         beginningDelimiter = '[';
         endingDelimter = ']';
     }

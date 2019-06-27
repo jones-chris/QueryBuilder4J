@@ -42,11 +42,13 @@ public class SqlBuilderTest {
         testProperties = getTestProperties();
 
         // Create randomly generated/dynamic SelectStatements.
-        for (DatabaseType dbType : testProperties.keySet()) {
-            DynamicStatementGenerator dynamicStatementGenerator = new DynamicStatementGenerator(dbType,
+        for (Properties properties : testProperties.values()) {
+
+            DynamicStatementGenerator dynamicStatementGenerator = new DynamicStatementGenerator(properties,
                     NUMBER_OF_SELECT_STATEMENTS_TO_GENERATE);
             List<SelectStatement> dynamicSelectStatements = dynamicStatementGenerator.createRandomSelectStatements();
-            selectStatementsByDatabase.put(dbType, dynamicSelectStatements);
+            DatabaseType databaseType = TestUtils.getDatabaseType(properties);
+            selectStatementsByDatabase.put(databaseType, dynamicSelectStatements);
         }
 
         // Get static SelectStatements JSON by database type.
@@ -63,10 +65,12 @@ public class SqlBuilderTest {
                     System.out.println("Loading file at this path:  " + file.toString());
                     JsonElement jsonElement = new JsonParser().parse(fileReader);
                     SelectStatement selectStatement = gson.fromJson(jsonElement, SelectStatement.class);
-                    selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl());
+                    Properties databaseProperties = testProperties.get(DatabaseType.Sqlite);
+                    selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl(databaseProperties));
+                    selectStatement.setDatabaseMetaData(databaseProperties); // todo:  don't hard code this to Sqlite.
 
                     // Add selectStatement based on selectStatement's database type.
-                    selectStatementsByDatabase.get(selectStatement.getDatabaseType()).add(selectStatement);
+                    selectStatementsByDatabase.get(selectStatement.getDatabaseMetaData().getDatabaseType()).add(selectStatement);
                 }
             }
         }
@@ -81,11 +85,14 @@ public class SqlBuilderTest {
             // Add the the SelectStatement for each database type in properties file, so that it is tested for each database type.
             for (DatabaseType dbType : testProperties.keySet()) {
                 SelectStatement selectStatement = gson.fromJson(jsonElement, SelectStatement.class);
-                selectStatement.setDatabaseType(dbType);
-                selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl());
+                selectStatement.setDatabaseMetaData(testProperties.get(dbType));
+//                selectStatement.setDatabaseType(dbType);
+                Properties databaseProperties = testProperties.get(dbType);
+                selectStatement.setQueryTemplateDao(new QueryTemplateDaoImpl(databaseProperties));
 
                 // Add selectStatement based on selectStatement's database type.
-                selectStatementsByDatabase.get(selectStatement.getDatabaseType()).add(selectStatement);
+                DatabaseType databaseType = selectStatement.getDatabaseMetaData().getDatabaseType();
+                selectStatementsByDatabase.get(databaseType).add(selectStatement);
             }
         }
     }
@@ -120,7 +127,7 @@ public class SqlBuilderTest {
                 .select("county_spending_detail.amount")
                 .from("county_spending_detail")
                 .where("county_spending_detail.department", in, "$getDepartmentsIn2014()")
-                .setQueryTemplateDao(new QueryTemplateDaoImpl())
+                .setQueryTemplateDao(new QueryTemplateDaoImpl(testProperties.get(DatabaseType.Sqlite)))
                 .getSelectStatement(DatabaseType.Sqlite);
 
         // Get properties.
@@ -143,7 +150,7 @@ public class SqlBuilderTest {
                 .select("county_spending_detail.department")
                 .from("county_spending_detail")
                 .where("county_spending_detail.department", in, "$getDepartmentsByYear(year=2014)")
-                .setQueryTemplateDao(new QueryTemplateDaoImpl())
+                .setQueryTemplateDao(new QueryTemplateDaoImpl(testProperties.get(DatabaseType.Sqlite)))
                 .getSelectStatement(DatabaseType.Sqlite);
 
         // Get properties.
@@ -166,7 +173,7 @@ public class SqlBuilderTest {
                 .select("county_spending_detail.amount")
                 .from("county_spending_detail")
                 .where("county_spending_detail.department", in, "$getDepartmentsByYear(year=$get2014FiscalYear())")
-                .setQueryTemplateDao(new QueryTemplateDaoImpl())
+                .setQueryTemplateDao(new QueryTemplateDaoImpl(testProperties.get(DatabaseType.Sqlite)))
                 .getSelectStatement(DatabaseType.Sqlite);
 
         // Get properties.
@@ -190,7 +197,7 @@ public class SqlBuilderTest {
                 .from("county_spending_detail")
                 .where("county_spending_detail.department", in, "$getDepartmentsByMultipleYears(year1=$get2014FiscalYear();year2=2017)")
                 .and("county_spending_detail.department", in, "$get2014FiscalYear()", null)
-                .setQueryTemplateDao(new QueryTemplateDaoImpl())
+                .setQueryTemplateDao(new QueryTemplateDaoImpl(testProperties.get(DatabaseType.Sqlite)))
                 .getSelectStatement(DatabaseType.Sqlite);
 
         // Get properties.

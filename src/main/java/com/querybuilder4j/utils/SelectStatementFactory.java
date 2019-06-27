@@ -3,7 +3,7 @@ package com.querybuilder4j.utils;
 import com.querybuilder4j.config.Conjunction;
 import com.querybuilder4j.config.DatabaseType;
 import com.querybuilder4j.config.Operator;
-import com.querybuilder4j.dao.QueryTemplateDao;
+import com.querybuilder4j.databasemetadata.QueryTemplateDao;
 import com.querybuilder4j.statements.Criteria;
 import com.querybuilder4j.statements.Join;
 import com.querybuilder4j.statements.SelectStatement;
@@ -22,7 +22,7 @@ public class SelectStatementFactory {
      * @return
      */
     public SelectStatement getSelectStatement(DatabaseType databaseType) {
-        stmt.setDatabaseType(databaseType);
+//        stmt.setDatabaseType(databaseType); //todo:  fix this.
         return stmt;
     }
 
