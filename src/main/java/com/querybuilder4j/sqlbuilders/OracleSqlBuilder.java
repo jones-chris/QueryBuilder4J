@@ -2,12 +2,10 @@ package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.statements.SelectStatement;
 
-import java.util.Properties;
-
 public class OracleSqlBuilder extends SqlBuilder {
 
-    public OracleSqlBuilder(SelectStatement stmt, Properties properties) throws Exception {
-        super(stmt, properties);
+    public OracleSqlBuilder(SelectStatement stmt) throws Exception {
+        super(stmt);
         beginningDelimiter = '"';
         endingDelimter = '"';
     }

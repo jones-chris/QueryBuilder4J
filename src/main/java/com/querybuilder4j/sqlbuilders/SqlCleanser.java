@@ -80,21 +80,9 @@ public class SqlCleanser {
         //todo:  don't pass params and subqueries into sqlIsClean().
         //todo:  also make Criteria's filter field a String again instead of Object since we're not using SubQuery class anymore.
         if (criteria.getFilter() != null) {
-            //tring[] filterItems = criteria.getFilter().split(",");
-
-//            for (String filterItem : filterItems) {
-//                Pattern patternSubQuery = Pattern.compile("^subquery[0-9]+");
-//                Pattern patternParam = Pattern.compile("^\\$param:");
-//                Matcher matcherSubQuery = patternSubQuery.matcher(filterItem);
-//                Matcher matcherParam = patternParam.matcher(filterItem);
-//
-//                // If filter does NOT contain a param or subquery, then check that string is clean using sqlIsClean().
-//                if (! matcherSubQuery.find() && ! matcherParam.find()) {
-                if (! isSubQueryOrParam(criteria.filter)) {
-                    boolean filterIsClean = sqlIsClean(criteria.getFilter());
-                    if (! filterIsClean) return false;
-                }
-//            }
+            if (! isSubQueryOrParam(criteria.filter)) {
+                return sqlIsClean(criteria.getFilter());
+            }
         }
 
         return true;

@@ -1,14 +1,13 @@
 package com.querybuilder4j.statements;
 
-import com.querybuilder4j.config.DatabaseType;
-import com.querybuilder4j.dao.QueryTemplateDao;
+import com.querybuilder4j.databasemetadata.QueryTemplateDao;
 import com.querybuilder4j.utils.SelectStatementFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static com.querybuilder4j.config.Operator.in;
+import static com.querybuilder4j.statements.Operator.in;
 import static org.junit.Assert.*;
 
 public class StatementTest {

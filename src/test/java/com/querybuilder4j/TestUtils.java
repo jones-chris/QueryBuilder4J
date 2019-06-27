@@ -1,6 +1,9 @@
 package com.querybuilder4j;
 
 
+import com.querybuilder4j.config.Constants;
+import com.querybuilder4j.statements.DatabaseType;
+
 import java.sql.*;
 import java.util.Properties;
 
@@ -33,6 +36,11 @@ public class TestUtils {
 
     public static int getRandomInt(int minInclusive, int maxExclusive) {
         return org.apache.commons.lang3.RandomUtils.nextInt(minInclusive, maxExclusive);
+    }
+
+    public static DatabaseType getDatabaseType(Properties properties) {
+        String databaseTypeString = properties.get(Constants.DATABASE_TYPE).toString();
+        return Enum.valueOf(DatabaseType.class, databaseTypeString);
     }
 
 }

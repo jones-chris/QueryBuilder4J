@@ -2,11 +2,12 @@ package com.querybuilder4j.statements;
 
 
 import com.google.gson.Gson;
-import com.querybuilder4j.config.*;
+import com.querybuilder4j.databasemetadata.DatabaseMetaData;
 import com.querybuilder4j.exceptions.NoMatchingParameterException;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
-import com.querybuilder4j.dao.QueryTemplateDao;
-import com.querybuilder4j.sqlbuilders.SqlCleanser;
+import com.querybuilder4j.databasemetadata.QueryTemplateDao;
+import com.querybuilder4j.sqlbuilders.SqlBuilderFactory;
+import com.querybuilder4j.validators.SelectStatementValidatorImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +17,14 @@ import java.util.LinkedList;
 import java.util.Properties;
 import java.util.Collections;
 
-import static com.querybuilder4j.config.Parenthesis.EndParenthesis;
-import static com.querybuilder4j.config.Parenthesis.FrontParenthesis;
-import static com.querybuilder4j.sqlbuilders.SqlCleanser.sqlIsClean;
+import static com.querybuilder4j.statements.Parenthesis.EndParenthesis;
+import static com.querybuilder4j.statements.Parenthesis.FrontParenthesis;
 import static com.querybuilder4j.statements.Join.JoinType.LEFT_EXCLUDING;
 import static com.querybuilder4j.statements.Join.JoinType.RIGHT_EXCLUDING;
 import static com.querybuilder4j.statements.Join.JoinType.FULL_OUTER_EXCLUDING;
 
 public class SelectStatement {
     private String name = "";
-    private DatabaseType databaseType;
     private List<String> columns = new ArrayList<>();
     private String table = "";
     private List<Criteria> criteria = new ArrayList<>();
@@ -39,6 +38,7 @@ public class SelectStatement {
     private boolean suppressNulls;
     private Map<String, String> subQueries = new HashMap<>();
     private QueryTemplateDao queryTemplateDao;
+    private DatabaseMetaData databaseMetaData;
 
     /**
      * The query's criteria runtime arguments.  The key is the name of the parameter to find in the query criteria.  The
@@ -52,15 +52,16 @@ public class SelectStatement {
      */
     private List<CriteriaParameter> criteriaParameters = new ArrayList<>();
 
+    /**
+     * The object that will be responsible for the advanced/expensive SelectStatement validation.
+     */
+    private SelectStatementValidatorImpl statementValidator;
+
 
     public SelectStatement() {}
 
-    public SelectStatement(DatabaseType databaseType) {
-        this.databaseType = databaseType;
-    }
-
-    public SelectStatement(DatabaseType databaseType, String name) {
-        this.databaseType = databaseType;
+    public SelectStatement(DatabaseType databaseType, String name) { // todo:  fix this.
+//        this.databaseType = databaseType;
         this.name = name;
     }
 
@@ -70,14 +71,6 @@ public class SelectStatement {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public DatabaseType getDatabaseType() {
-        return databaseType;
-    }
-
-    public void setDatabaseType(DatabaseType databaseType) {
-        this.databaseType = databaseType;
     }
 
     public List<String> getColumns() {
@@ -181,6 +174,14 @@ public class SelectStatement {
         this.subQueries = subQueries;
     }
 
+    public DatabaseMetaData getDatabaseMetaData() {
+        return databaseMetaData;
+    }
+
+    public void setDatabaseMetaData(Properties properties) {
+        this.databaseMetaData = new DatabaseMetaData(properties, this);
+    }
+
     /**
      * Automatically sets the subQueries field assuming that the subQuery calls are hand-written into a criterion's filter.
      * If you want to set the subQueries field manually, use the public setSubQueries method.
@@ -273,8 +274,40 @@ public class SelectStatement {
         return criteriaParameters;
     }
 
-    public void setCriteriaParameters(List<CriteriaParameter> criteraParameters) {
-        this.criteriaParameters = criteraParameters;
+    public void setCriteriaParameters(List<CriteriaParameter> criteriaParameters) {
+        this.criteriaParameters = criteriaParameters;
+    }
+
+    @SuppressWarnings("unchecked")
+    public String toSql(Properties properties) {
+        try {
+            addExcludingJoinCriteria();
+
+            Collections.sort(this.criteria);
+
+            clearParenthesisFromCriteria();
+            addParenthesisToCriteria();
+
+            // If subQueries has not been set (if this is the case, it will have a 0 size), then set subQueries.
+            // This is done because if this SelectStatement is a subquery, then it will already have subQueries and we
+            // don't want to change them.
+            if (subQueries.size() == 0) { setSubqueries(); }
+
+            replaceParameters();
+
+            statementValidator = new SelectStatementValidatorImpl(this); // todo:  does this need to be a class field?  Can it just be a method variable?  If it's not used after this, then it should be garbage collected.
+            statementValidator.passesBasicValidation();
+
+            // Get database meta data - namely tableMetaData - now that we know that basic validation has passed.
+            // The database meta data will be used for database validation.
+            databaseMetaData = new DatabaseMetaData(properties, this);
+            statementValidator.passesDatabaseValidation();
+
+            SqlBuilder sqlBuilder = SqlBuilderFactory.buildSqlBuilder(this); // subQueries get built here.
+            return sqlBuilder.buildSql(); // root query gets built here.
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void clearParenthesisFromCriteria() {
@@ -350,56 +383,6 @@ public class SelectStatement {
         }
         return false;
     }
-
-    @SuppressWarnings("unchecked")
-    public String toSql(Properties properties) {
-        try {
-            databaseType = Enum.valueOf(DatabaseType.class, properties.getProperty("databaseType"));
-            addExcludingJoinCriteria();
-            Collections.sort(this.criteria);
-            clearParenthesisFromCriteria();
-            addParenthesisToCriteria();
-
-            // If subQueries has not been set (if this is the case, it will have a 0 size), then set subQueries.
-            // This is done because if this SelectStatement is a subquery, then it will already have subQueries and we
-            // don't want to change them.
-            if (subQueries.size() == 0) { setSubqueries(); }
-
-            replaceParameters();
-            SqlBuilder sqlBuilder = SqlBuilderFactory.buildSqlBuilder(databaseType, this, properties); // subQueries get built here.
-            return sqlBuilder.buildSql(); // root query gets built here.
-        } catch (Exception e) {
-            throw new RuntimeException(e);  // Todo:  pass exception into RunTimeException constructor instead of just the message for better error descriptions.
-        }
-    }
-
-//    public Map<String, Object> getSqlParameterMap(int startingIndex) {
-//        //int namedParameterCount = 0;
-//        int namedParameterCount = startingIndex;
-//        Map<String, Object> namedParameters = new HashMap<>();
-//
-//        for (Criteria crit : criteria) {
-//            if (crit.operator.equals(Operator.isNull) || crit.operator.equals(Operator.isNotNull)) {
-//                namedParameterCount++;
-//                continue;
-//            }
-//
-//            if (crit.operator.equals(Operator.in) || crit.operator.equals(Operator.notIn)) {
-//                String[] filters = crit.filter.split(",");
-//                for (String filter : filters) {
-//                    String paramName = "filter" + namedParameterCount;
-//                    namedParameters.put(paramName, filter);
-//                    namedParameterCount++;
-//                }
-//            } else {
-//                String paramName = "filter" + namedParameterCount;
-//                namedParameters.put(paramName, crit.filter);
-//                namedParameterCount++;
-//            }
-//        }
-//
-//        return namedParameters;
-//    }
 
     @Override
     public String toString() {

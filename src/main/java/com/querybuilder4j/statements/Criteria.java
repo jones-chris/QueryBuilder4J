@@ -1,15 +1,10 @@
 package com.querybuilder4j.statements;
 
 
-import com.querybuilder4j.config.Conjunction;
-import com.querybuilder4j.config.Operator;
-import com.querybuilder4j.config.Parenthesis;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.querybuilder4j.sqlbuilders.SqlCleanser.escape;
-import static com.querybuilder4j.sqlbuilders.SqlCleanser.sqlIsClean;
 import static java.util.Optional.ofNullable;
 
 

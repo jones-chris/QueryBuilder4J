@@ -1,6 +1,5 @@
 package com.querybuilder4j.statements;
 
-import com.querybuilder4j.config.Operator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,8 +7,8 @@ import org.junit.Test;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static com.querybuilder4j.config.Conjunction.*;
-import static com.querybuilder4j.config.Operator.*;
+import static com.querybuilder4j.statements.Conjunction.*;
+import static com.querybuilder4j.statements.Operator.*;
 import static org.junit.Assert.*;
 
 public class CriteriaTest {
