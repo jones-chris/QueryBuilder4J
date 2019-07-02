@@ -37,8 +37,8 @@ public class SelectStatement {
     private Long offset = null;
     private boolean suppressNulls;
     private Map<String, String> subQueries = new HashMap<>();
-    private QueryTemplateDao queryTemplateDao;
-    private DatabaseMetaData databaseMetaData;
+    private transient QueryTemplateDao queryTemplateDao;
+    private transient DatabaseMetaData databaseMetaData;
 
     /**
      * The query's criteria runtime arguments.  The key is the name of the parameter to find in the query criteria.  The
@@ -55,7 +55,7 @@ public class SelectStatement {
     /**
      * The object that will be responsible for the advanced/expensive SelectStatement validation.
      */
-    private SelectStatementValidatorImpl statementValidator;
+    private transient SelectStatementValidatorImpl statementValidator;
 
 
     public SelectStatement() {}
