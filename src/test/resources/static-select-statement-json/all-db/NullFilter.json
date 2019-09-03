@@ -2,7 +2,10 @@
   "name": "NullFilter",
   "databaseType": "Sqlite",
   "columns": [
-    "county_spending_detail.amount"
+    {
+      "fullyQualifiedName": "county_spending_detail.amount",
+      "alias": ""
+    }
   ],
   "table": "county_spending_detail",
   "criteria": [

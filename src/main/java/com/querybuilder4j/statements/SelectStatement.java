@@ -25,7 +25,7 @@ import static com.querybuilder4j.statements.Join.JoinType.FULL_OUTER_EXCLUDING;
 
 public class SelectStatement {
     private String name = "";
-    private List<String> columns = new ArrayList<>();
+    private List<Column> columns = new ArrayList<>();
     private String table = "";
     private List<Criteria> criteria = new ArrayList<>();
     private List<Join> joins = new ArrayList<>();
@@ -73,11 +73,11 @@ public class SelectStatement {
         this.name = name;
     }
 
-    public List<String> getColumns() {
+    public List<Column> getColumns() {
         return columns;
     }
 
-    public void setColumns(List<String> columns) {
+    public void setColumns(List<Column> columns) {
         this.columns = columns;
     }
 
@@ -483,6 +483,19 @@ public class SelectStatement {
             criterion.setOperator(Operator.isNull);
             criteria.add(criterion);
         }
+    }
+
+    /**
+     * Returns a List of all fully qualified column names (table.column) contained in the SelectStatement, which includes
+     * all Columns and all Criteria Columns.
+     *
+     * @return
+     */
+    public List<String> getAllFullyQualifiedColumnNames() {
+        List<String> allFullyQualifiedNames = new ArrayList<>();
+        columns.forEach(column -> allFullyQualifiedNames.add(column.getFullyQualifiedName()));
+        criteria.forEach(criterion -> allFullyQualifiedNames.add(criterion.column));
+        return allFullyQualifiedNames;
     }
 
 }

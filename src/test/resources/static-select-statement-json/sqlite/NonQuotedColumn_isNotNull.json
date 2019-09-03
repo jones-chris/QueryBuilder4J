@@ -2,7 +2,10 @@
   "name": "NonQuotedColumn_isNonNull",
   "databaseType": "Sqlite",
   "columns": [
-    "county_spending_detail.service"
+    {
+      "fullyQualifiedName": "county_spending_detail.service",
+      "alias": ""
+    }
   ],
   "table": "county_spending_detail",
   "criteria": [

@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.querybuilder4j.QueryTemplateDaoImpl;
 import com.querybuilder4j.TestUtils;
+import com.querybuilder4j.statements.Column;
 import com.querybuilder4j.statements.DatabaseType;
 import com.querybuilder4j.statements.SelectStatement;
 import com.querybuilder4j.utils.SelectStatementFactory;
@@ -24,7 +25,7 @@ import static org.junit.Assert.*;
 public class SqlBuilderTest {
     private static Map<DatabaseType, Properties> testProperties = new HashMap<>();
     private static Map<DatabaseType, List<SelectStatement>> selectStatementsByDatabase = new HashMap<>();
-    private static final int NUMBER_OF_SELECT_STATEMENTS_TO_GENERATE = 100;
+    private static final int NUMBER_OF_SELECT_STATEMENTS_TO_GENERATE = 0;
     private static final String STATIC_TEST_FILE_PATH = "./src/test/resources/static-select-statement-json/%s";
 
     public SqlBuilderTest() { }

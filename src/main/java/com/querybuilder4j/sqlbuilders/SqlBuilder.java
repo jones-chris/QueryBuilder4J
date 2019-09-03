@@ -4,10 +4,7 @@ package com.querybuilder4j.sqlbuilders;
 import com.querybuilder4j.config.*;
 import com.querybuilder4j.databasemetadata.QueryTemplateDao;
 import com.querybuilder4j.exceptions.BadSqlException;
-import com.querybuilder4j.statements.Criteria;
-import com.querybuilder4j.statements.Join;
-import com.querybuilder4j.statements.Operator;
-import com.querybuilder4j.statements.SelectStatement;
+import com.querybuilder4j.statements.*;
 import com.querybuilder4j.validators.SelectStatementValidatorImpl;
 
 import java.util.*;
@@ -86,14 +83,33 @@ public abstract class SqlBuilder {
      * @param columns
      * @return StringBuilder
      */
-    protected StringBuilder createSelectClause(boolean distinct, List<String> columns) {
+    protected StringBuilder createSelectClause(boolean distinct, List<Column> columns) throws Exception {
         String startSql = (distinct) ? "SELECT DISTINCT " : "SELECT ";
         StringBuilder sql = new StringBuilder(startSql);
-        for (String column : columns) {
-            String[] tableAndColumn = column.split("\\.");
-            sql.append(String.format("%s%s%s.%s%s%s, ",
-                    beginningDelimiter, escape(tableAndColumn[Constants.TABLE_INDEX]), endingDelimter,
-                    beginningDelimiter, escape(tableAndColumn[Constants.COLUMN_INDEX]), beginningDelimiter));
+        for (Column column : columns) {
+            String columnSql = column.toSql(beginningDelimiter, endingDelimter);
+
+//            String table = column.split("\\.")[Constants.TABLE_INDEX];
+//            String columnName = column.split("\\.")[Constants.COLUMN_INDEX];
+//            String columnSql = String.format("%s%s%s.%s%s%s",
+//                    beginningDelimiter, escape(table), endingDelimter,
+//                    beginningDelimiter, escape(columnName), endingDelimter);
+            sql.append(columnSql)
+                    .append(", ");
+
+            // if column as alias, then format
+//            if (column.hasAlias()) {
+//                String[] tableAndColumn = column.getDatabaseName().split("\\.");
+//                sql.append(String.format("%s%s%s.%s%s%s AS %s%s%s, ",
+//                        beginningDelimiter, escape(tableAndColumn[Constants.TABLE_INDEX]), endingDelimter,
+//                        beginningDelimiter, escape(tableAndColumn[Constants.COLUMN_INDEX]), beginningDelimiter,
+//                        beginningDelimiter, escape(column.getAlias()), endingDelimter));
+//            } else {
+//                String[] tableAndColumn = column.getDatabaseName().split("\\.");
+//                sql.append(String.format("%s%s%s.%s%s%s, ",
+//                        beginningDelimiter, escape(tableAndColumn[Constants.TABLE_INDEX]), endingDelimter,
+//                        beginningDelimiter, escape(tableAndColumn[Constants.COLUMN_INDEX]), beginningDelimiter));
+//            }
         }
         return sql.delete(sql.length() - 2, sql.length()).append(" ");
     }
@@ -236,14 +252,17 @@ public abstract class SqlBuilder {
      * @param columns
      * @return StringBuilder
      */
-    protected StringBuilder createGroupByClause(List<String> columns) {
+    protected StringBuilder createGroupByClause(List<Column> columns) throws Exception {
         StringBuilder sql = new StringBuilder(" GROUP BY ");
 
-        for (String column : columns) {
-            String[] tableAndColumn = column.split("\\.");
-            sql.append(String.format("%s%s%s.%s%s%s, ",
-                                      beginningDelimiter, escape(tableAndColumn[Constants.TABLE_INDEX]), endingDelimter,
-                                      beginningDelimiter, escape(tableAndColumn[Constants.COLUMN_INDEX]), endingDelimter));
+        for (Column column : columns) {
+            sql.append(column.toSql(beginningDelimiter, endingDelimter))
+                    .append(", ");
+
+//            String[] tableAndColumn = column.split("\\.");
+//            sql.append(String.format("%s%s%s.%s%s%s, ",
+//                                      beginningDelimiter, escape(tableAndColumn[Constants.TABLE_INDEX]), endingDelimter,
+//                                      beginningDelimiter, escape(tableAndColumn[Constants.COLUMN_INDEX]), endingDelimter));
         }
 
         return sql.delete(sql.length() - 2, sql.length()).append(" ");
@@ -256,14 +275,17 @@ public abstract class SqlBuilder {
      * @param ascending
      * @return StringBuilder
      */
-    protected StringBuilder createOrderByClause(List<String> columns, boolean ascending) {
+    protected StringBuilder createOrderByClause(List<Column> columns, boolean ascending) throws Exception {
         StringBuilder sql = new StringBuilder(" ORDER BY ");
 
-        for (String column : columns) {
-            String[] tableAndColumn = column.split("\\.");
-            sql.append(String.format("%s%s%s.%s%s%s, ",
-                    beginningDelimiter, escape(tableAndColumn[Constants.TABLE_INDEX]), endingDelimter,
-                    beginningDelimiter, escape(tableAndColumn[Constants.COLUMN_INDEX]), endingDelimter));
+        for (Column column : columns) {
+            sql.append(column.toSql(beginningDelimiter, endingDelimter))
+                    .append(", ");
+
+//            String[] tableAndColumn = column.split("\\.");
+//            sql.append(String.format("%s%s%s.%s%s%s, ",
+//                    beginningDelimiter, escape(tableAndColumn[Constants.TABLE_INDEX]), endingDelimter,
+//                    beginningDelimiter, escape(tableAndColumn[Constants.COLUMN_INDEX]), endingDelimter));
         }
 
         sql.delete(sql.length() - 2, sql.length()).append(" ");
@@ -305,19 +327,26 @@ public abstract class SqlBuilder {
      * @param columns
      * @return StringBuilder
      */
-    protected StringBuilder createSuppressNullsClause(List<String> columns) {
+    protected StringBuilder createSuppressNullsClause(List<Column> columns) throws Exception {
         StringBuilder sql = new StringBuilder();
 
         for (int i=0; i<columns.size(); i++) {
-            String[] tableAndColumn = columns.get(i).split("\\.");
+//            String[] tableAndColumn = columns.get(i).split("\\.");
+            Column column = columns.get(i);
             if (i == 0) {
-                sql.append(String.format(" (%s%s%s.%s%s%s IS NOT NULL ",
-                                            beginningDelimiter, tableAndColumn[Constants.TABLE_INDEX], endingDelimter,
-                                            beginningDelimiter, tableAndColumn[Constants.COLUMN_INDEX], endingDelimter));
+                sql.append("(")
+                        .append(column.toSql(beginningDelimiter, endingDelimter))
+                        .append(" IS NOT NULL ");
+//                sql.append(String.format(" (%s%s%s.%s%s%s IS NOT NULL ",
+//                                            beginningDelimiter, tableAndColumn[Constants.TABLE_INDEX], endingDelimter,
+//                                            beginningDelimiter, tableAndColumn[Constants.COLUMN_INDEX], endingDelimter));
             } else {
-                sql.append(String.format(" OR %s%s%s.%s%s%s IS NOT NULL ",
-                                           beginningDelimiter, tableAndColumn[Constants.TABLE_INDEX], endingDelimter,
-                                           beginningDelimiter, tableAndColumn[Constants.COLUMN_INDEX], endingDelimter));
+                sql.append(" OR ")
+                        .append(column.toSql(beginningDelimiter, endingDelimter))
+                        .append(" IS NOT NULL ");
+//                sql.append(String.format(" OR %s%s%s.%s%s%s IS NOT NULL ",
+//                                           beginningDelimiter, tableAndColumn[Constants.TABLE_INDEX], endingDelimter,
+//                                           beginningDelimiter, tableAndColumn[Constants.COLUMN_INDEX], endingDelimter));
             }
         }
 

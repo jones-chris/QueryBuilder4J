@@ -2,11 +2,8 @@ package com.querybuilder4j.sqlbuilders;
 
 import com.querybuilder4j.QueryTemplateDaoImpl;
 import com.querybuilder4j.TestUtils;
-import com.querybuilder4j.statements.DatabaseType;
+import com.querybuilder4j.statements.*;
 import com.querybuilder4j.databasemetadata.QueryTemplateDao;
-import com.querybuilder4j.statements.Criteria;
-import com.querybuilder4j.statements.Join;
-import com.querybuilder4j.statements.SelectStatement;
 import org.apache.commons.lang.math.RandomUtils;
 
 import java.util.*;
@@ -47,15 +44,15 @@ public class DynamicStatementGenerator {
 
             //get columns
             boolean getSingleColumn = RandomUtils.nextBoolean();
-            List<String> columnsList = new ArrayList<>();
+            List<Column> columnsList = new ArrayList<>();
             if (getSingleColumn) {
                 int randomIndex = RandomUtils.nextInt(randomColumns.size());
-                columnsList.add(randomColumns.get(randomIndex));
+                columnsList.add(new Column(randomColumns.get(randomIndex)));
             } else {
                 int numOfColumns = org.apache.commons.lang3.RandomUtils.nextInt(1, randomColumns.size());
                 for (int j=0; j<numOfColumns; j++) {
                     int randomIndex = RandomUtils.nextInt(randomColumns.size());
-                    columnsList.add(randomColumns.get(randomIndex));
+                    columnsList.add(new Column(randomColumns.get(randomIndex)));
                 }
             }
 

@@ -16,8 +16,10 @@ public class DatabaseMetaData {
         this.properties = properties;
 
         // Create list with all columns in it - from both columns and criteria collections.
-        List<String> allColumns = new ArrayList<>(stmt.getColumns());
-        stmt.getCriteria().forEach((criterion) -> allColumns.add(criterion.getColumn()));
+//        List<String> allColumns = new ArrayList<>();
+//        stmt.getColumns().forEach(column -> allColumns.add(column.getFullyQualifiedName()));
+//        stmt.getCriteria().forEach(criterion -> allColumns.add(criterion.getColumn()));
+        List<String> allColumns = stmt.getAllFullyQualifiedColumnNames();
         setTablesMetaData(allColumns);
     }
 

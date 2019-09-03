@@ -1,5 +1,6 @@
 package com.querybuilder4j;
 
+import com.querybuilder4j.statements.Column;
 import com.querybuilder4j.statements.Operator;
 import com.querybuilder4j.databasemetadata.QueryTemplateDao;
 import com.querybuilder4j.statements.Criteria;
@@ -61,7 +62,7 @@ public class QueryTemplateDaoImpl implements QueryTemplateDao {
 
         SelectStatement getDepartmentsIn2014 = new SelectStatement();
         getDepartmentsIn2014.setName("getDepartmentsIn2014");
-        getDepartmentsIn2014.getColumns().add("county_spending_detail.department");
+        getDepartmentsIn2014.getColumns().add(new Column("county_spending_detail.department"));
         getDepartmentsIn2014.setTable("county_spending_detail");
         getDepartmentsIn2014.getCriteria().add(criteria);
         getDepartmentsIn2014.setDatabaseMetaData(properties);
@@ -75,7 +76,7 @@ public class QueryTemplateDaoImpl implements QueryTemplateDao {
         criteria1.setFilter("@year");
 
         SelectStatement getDepartmentsByYear = new SelectStatement();
-        getDepartmentsByYear.getColumns().add("county_spending_detail.department");
+        getDepartmentsByYear.getColumns().add(new Column("county_spending_detail.department"));
         getDepartmentsByYear.setTable("county_spending_detail");
         getDepartmentsByYear.getCriteria().add(criteria1);
         getDepartmentsByYear.setDatabaseMetaData(properties);
@@ -90,7 +91,7 @@ public class QueryTemplateDaoImpl implements QueryTemplateDao {
         criteria2.setFilter("2014");
 
         SelectStatement get2014FiscalYear = new SelectStatement();
-        get2014FiscalYear.getColumns().add("county_spending_detail.fiscal_year");
+        get2014FiscalYear.getColumns().add(new Column("county_spending_detail.fiscal_year"));
         get2014FiscalYear.setTable("county_spending_detail");
         get2014FiscalYear.getCriteria().add(criteria2);
         get2014FiscalYear.setDatabaseMetaData(properties);
@@ -104,7 +105,7 @@ public class QueryTemplateDaoImpl implements QueryTemplateDao {
         criteria3.setFilter("@year1,@year2");
 
         SelectStatement getDepartmentsByMultipleYears = new SelectStatement();
-        getDepartmentsByMultipleYears.getColumns().add("county_spending_detail.department");
+        getDepartmentsByMultipleYears.getColumns().add(new Column("county_spending_detail.department"));
         getDepartmentsByMultipleYears.setTable("county_spending_detail");
         getDepartmentsByMultipleYears.getCriteria().add(criteria3);
         getDepartmentsByMultipleYears.setDatabaseMetaData(properties);
