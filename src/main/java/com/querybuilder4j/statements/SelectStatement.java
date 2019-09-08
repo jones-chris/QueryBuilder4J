@@ -2,6 +2,7 @@ package com.querybuilder4j.statements;
 
 
 import com.google.gson.Gson;
+import com.querybuilder4j.SubQueryParser;
 import com.querybuilder4j.databasemetadata.DatabaseMetaData;
 import com.querybuilder4j.exceptions.NoMatchingParameterException;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
@@ -189,7 +190,7 @@ public class SelectStatement {
     void setSubqueries() throws IllegalArgumentException {
         if (criteria.size() != 0 && queryTemplateDao != null) {
             criteria.forEach((criterion) -> {
-                if (SqlBuilder.argIsSubQuery(criterion.filter)) {
+                if (SubQueryParser.argIsSubQuery(criterion.filter)) {
                     LinkedList<Integer> begSubQueryIndeces = new LinkedList<>();
                     LinkedList<Integer> endSubQueryIndeces = new LinkedList<>();
                     char[] filterChars = criterion.filter.toCharArray();
