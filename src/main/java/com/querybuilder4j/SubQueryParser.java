@@ -1,6 +1,5 @@
 package com.querybuilder4j;
 
-import com.querybuilder4j.databasemetadata.QueryTemplateDao;
 import com.querybuilder4j.statements.SelectStatement;
 
 import java.util.HashMap;
@@ -78,21 +77,21 @@ public class SubQueryParser {
         }
     }
 
-    /**
-     * Determines if an arg is a subquery.
-     *
-     * @param args
-     * @return boolean
-     */
-    private boolean argsContainSubQuery(String[] args) {
-        for (String arg : args) {
-            if (arg.length() >= 8 && arg.substring(0,8).equals("subquery")) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+//    /**
+//     * Determines if an arg is a subquery.
+//     *
+//     * @param args
+//     * @return boolean
+//     */
+//    private boolean argsContainSubQuery(String[] args) {
+//        for (String arg : args) {
+//            if (arg.length() >= 8 && arg.substring(0,8).equals("subquery")) {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
 
     /**
      * Gets all of the subqueries that match the subQueryArgs.  The resulted Map is intended to be used to set a child
@@ -113,16 +112,31 @@ public class SubQueryParser {
         return relevantSubQueries;
     }
 
-    private String buildSubQuery(String subQueryId, String subQueryName, String[] subQueryArgs) throws Exception {
+    /**
+     * Convenience method for retrieving a subQuery SelectStatement by id, calling the SelectStatement setters (if needed),
+     * calling toSql() to build the SelectStatement's SQL string, and putting the id and SQL string in the builtSubQueries
+     * field.
+     *
+     * @param subQueryId
+     * @param subQueryName
+     * @param subQueryArgs
+     * @throws Exception
+     */
+    private void buildSubQuery(String subQueryId, String subQueryName, String[] subQueryArgs) throws Exception {
         SelectStatement stmt = unbuiltSubQueries.get(subQueryId);
-        if (stmt != null) {
-            stmt.setCriteriaArguments(getSubQueryArgs(subQueryArgs));
-            stmt.setQueryTemplateDao(this.stmt.getQueryTemplateDao());
-            stmt.setSubQueries(getRelevantSubQueries(subQueryArgs));
-            return stmt.toSql(this.stmt.getDatabaseMetaData().getProperties());
-        } else {
+
+        if (stmt == null) {
             String message = String.format("Could not find statement object with name:  %s", subQueryName);
             throw new Exception(message);
+        } else {
+            if (subQueryArgs.length != 0) {
+                stmt.setCriteriaArguments(getSubQueryArgs(subQueryArgs));
+                stmt.setQueryTemplateDao(this.stmt.getQueryTemplateDao());
+                stmt.setSubQueries(getRelevantSubQueries(subQueryArgs));
+            }
+
+            String sql = stmt.toSql(this.stmt.getDatabaseMetaData().getProperties());
+            builtSubQueries.put(subQueryId, sql);
         }
     }
 
@@ -177,32 +191,34 @@ public class SubQueryParser {
                 }
 
                 if (! builtSubQueries.containsKey(subQueryId)) {
+                    buildSubQuery(subQueryId, subQueryName, subQueryArgs);
                     // run query if subQuery has no args
-                    if (subQueryArgs.length == 0) {
-                        SelectStatement queryTemplate = unbuiltSubQueries.get(subQueryId);
-                        String sql = queryTemplate.toSql(this.stmt.getDatabaseMetaData().getProperties());
-                        builtSubQueries.put(subQueryId, sql);
-                    } else { // else subquery has args
-                        // test if it is a lowest level query by using contains("subquery")
-                        if (! argsContainSubQuery(subQueryArgs)) {
-                            String builtSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
-                            builtSubQueries.put(subQueryId, builtSubQuery);
-                        } else {
-                            for (String arg : subQueryArgs) {
-                                // determine if arg is a subquery
-                                if (argIsSubQuery(arg)) {
-                                    if (builtSubQueries.containsKey(arg)) {
-                                        // subquery has already been built.
-                                        break;
-                                    } else {
-                                        // subquery has NOT already been built.
-                                        String builtSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
-                                        builtSubQueries.put(subQueryId, builtSubQuery);
-                                    }
-                                }
-                            }
-                        }
-                    }
+//                    if (subQueryArgs.length == 0) {
+//                        SelectStatement queryTemplate = unbuiltSubQueries.get(subQueryId);
+//                        String sql = queryTemplate.toSql(this.stmt.getDatabaseMetaData().getProperties());
+//                        builtSubQueries.put(subQueryId, sql);
+//                    } else { // else subquery has args
+//                        // test if it is a lowest level query by using contains("subquery")
+////                        if (! argsContainSubQuery(subQueryArgs)) {
+//                            String builtSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
+//                            builtSubQueries.put(subQueryId, builtSubQuery);
+////                        }
+////                        else {
+////                            for (String arg : subQueryArgs) {
+////                                // determine if arg is a subquery
+////                                if (argIsSubQuery(arg)) {
+////                                    if (builtSubQueries.containsKey(arg)) {
+////                                        // subquery has already been built.
+////                                        break;
+////                                    } else {
+////                                        // subquery has NOT already been built.
+////                                        String builtSubQuery = buildSubQuery(subQueryId, subQueryName, subQueryArgs);
+////                                        builtSubQueries.put(subQueryId, builtSubQuery);
+////                                    }
+////                                }
+////                            }
+////                        }
+//                    }
                 }
             }
 
