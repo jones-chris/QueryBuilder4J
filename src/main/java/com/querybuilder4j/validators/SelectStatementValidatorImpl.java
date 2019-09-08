@@ -35,8 +35,9 @@ public class SelectStatementValidatorImpl implements SelectStatementValidator {
     //todo:  add joins' tables and columns here.
     private boolean statementTablesAndColumnsExist() throws Exception {
         // Create list of statement's SELECT columns and WHERE columns.
-        List<String> columns = new ArrayList<>(this.stmt.getColumns());
-        this.stmt.getCriteria().forEach((criterion) -> columns.add(criterion.getColumn()));
+//        List<String> columns = new ArrayList<>(this.stmt.getAllFullyQualifiedColumnNames());
+//        this.stmt.getCriteria().forEach((criterion) -> columns.add(criterion.getColumn()));
+        List<String> columns = this.stmt.getAllFullyQualifiedColumnNames();
 
         for (String column : columns) {
             String[] tableAndColumn = column.split("\\.");

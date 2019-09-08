@@ -1,5 +1,5 @@
 {
-  "name": "SubQueryAndOneArg",
+  "name": "DecimalFilterWithNonQuotedColumn",
   "databaseType": "Sqlite",
   "columns": [
     {
@@ -12,9 +12,9 @@
     {
       "id": 0,
       "conjunction": "And",
-      "column": "county_spending_detail.department",
-      "operator": "in",
-      "filter": "$getDepartmentsByMultipleYears(year1=2017;year2=2018),Human Resources",
+      "column": "county_spending_detail.amount",
+      "operator": "equalTo",
+      "filter": 100.01,
       "endParenthesis": []
     }
   ],

@@ -2,7 +2,10 @@
   "name":"PostgreSQL1",
   "databaseType":"PostgreSQL",
   "columns":[
-    "county_spending_detail.fiscal_year_period"
+    {
+      "fullyQualifiedName": "county_spending_detail.fiscal_year_period",
+      "alias": ""
+    }
   ],
   "table":"county_spending_detail",
   "criteria":[

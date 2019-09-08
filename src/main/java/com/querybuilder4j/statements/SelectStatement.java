@@ -2,6 +2,7 @@ package com.querybuilder4j.statements;
 
 
 import com.google.gson.Gson;
+import com.querybuilder4j.SubQueryParser;
 import com.querybuilder4j.databasemetadata.DatabaseMetaData;
 import com.querybuilder4j.exceptions.NoMatchingParameterException;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
@@ -25,7 +26,7 @@ import static com.querybuilder4j.statements.Join.JoinType.FULL_OUTER_EXCLUDING;
 
 public class SelectStatement {
     private String name = "";
-    private List<String> columns = new ArrayList<>();
+    private List<Column> columns = new ArrayList<>();
     private String table = "";
     private List<Criteria> criteria = new ArrayList<>();
     private List<Join> joins = new ArrayList<>();
@@ -73,11 +74,11 @@ public class SelectStatement {
         this.name = name;
     }
 
-    public List<String> getColumns() {
+    public List<Column> getColumns() {
         return columns;
     }
 
-    public void setColumns(List<String> columns) {
+    public void setColumns(List<Column> columns) {
         this.columns = columns;
     }
 
@@ -189,7 +190,7 @@ public class SelectStatement {
     void setSubqueries() throws IllegalArgumentException {
         if (criteria.size() != 0 && queryTemplateDao != null) {
             criteria.forEach((criterion) -> {
-                if (SqlBuilder.argIsSubQuery(criterion.filter)) {
+                if (SubQueryParser.argIsSubQuery(criterion.filter)) {
                     LinkedList<Integer> begSubQueryIndeces = new LinkedList<>();
                     LinkedList<Integer> endSubQueryIndeces = new LinkedList<>();
                     char[] filterChars = criterion.filter.toCharArray();
@@ -483,6 +484,19 @@ public class SelectStatement {
             criterion.setOperator(Operator.isNull);
             criteria.add(criterion);
         }
+    }
+
+    /**
+     * Returns a List of all fully qualified column names (table.column) contained in the SelectStatement, which includes
+     * all Columns and all Criteria Columns.
+     *
+     * @return
+     */
+    public List<String> getAllFullyQualifiedColumnNames() {
+        List<String> allFullyQualifiedNames = new ArrayList<>();
+        columns.forEach(column -> allFullyQualifiedNames.add(column.getFullyQualifiedName()));
+        criteria.forEach(criterion -> allFullyQualifiedNames.add(criterion.column));
+        return allFullyQualifiedNames;
     }
 
 }

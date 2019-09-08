@@ -1,13 +1,9 @@
 package com.querybuilder4j.utils;
 
-import com.querybuilder4j.statements.Conjunction;
-import com.querybuilder4j.statements.DatabaseType;
-import com.querybuilder4j.statements.Operator;
+import com.querybuilder4j.statements.*;
 import com.querybuilder4j.databasemetadata.QueryTemplateDao;
-import com.querybuilder4j.statements.Criteria;
-import com.querybuilder4j.statements.Join;
-import com.querybuilder4j.statements.SelectStatement;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,17 +24,24 @@ public class SelectStatementFactory {
 
     public SelectStatementFactory select(String... columns) {
         stmt = new SelectStatement();
-        stmt.setColumns(Arrays.asList(columns));
+
+
+        List<Column> columnsList = new ArrayList<>();
+        for (String columnName : columns) {
+            columnsList.add(new Column(columnName));
+        }
+
+        stmt.setColumns(columnsList);
         return this;
     }
 
-    public SelectStatementFactory select(List<String> columns) {
+    public SelectStatementFactory select(List<Column> columns) {
         stmt = new SelectStatement();
         stmt.setColumns(columns);
         return this;
     }
 
-    public SelectStatementFactory selectDistinct(String... columns) {
+    public SelectStatementFactory selectDistinct(Column... columns) {
         stmt = new SelectStatement();
         stmt.setColumns(Arrays.asList(columns));
         return this;
