@@ -1,10 +1,8 @@
 package com.querybuilder4j.sqlbuilders;
 
 
-import com.querybuilder4j.SubQueryParser;
+import com.querybuilder4j.parsers.SubQueryParser;
 import com.querybuilder4j.config.*;
-import com.querybuilder4j.databasemetadata.QueryTemplateDao;
-import com.querybuilder4j.exceptions.BadSqlException;
 import com.querybuilder4j.statements.*;
 import com.querybuilder4j.validators.SelectStatementValidatorImpl;
 
@@ -52,9 +50,9 @@ public abstract class SqlBuilder {
     /**
      * Creates the SELECT clause of a SELECT SQL statement.
      *
-     * @param distinct
-     * @param columns
-     * @return StringBuilder
+     * @param distinct Whether the generated SELECT SQL should have a DISTINCT clause.
+     * @param columns A list of columns to generate the SELECT SQL statement.
+     * @return StringBuilder If a Column object raises an Exception.
      */
     protected StringBuilder createSelectClause(boolean distinct, List<Column> columns) throws Exception {
         String startSql = (distinct) ? "SELECT DISTINCT " : "SELECT ";
@@ -72,9 +70,8 @@ public abstract class SqlBuilder {
     /**
      * Creates the FROM clause of a SELECT SQL statement.
      *
-     * @param table
-     * @return
-     * @throws IllegalArgumentException
+     * @param table The table name.
+     * @return StringBuilder
      */
     protected StringBuilder createFromClause(String table) {
         String s = String.format(" FROM %s%s%s ", beginningDelimiter, escape(table), endingDelimter);
@@ -84,9 +81,9 @@ public abstract class SqlBuilder {
     /**
      * Creates the JOIN clause of a SELECT SQL statement.
      *
-     * @param joins
-     * @return
-     * @throws IllegalArgumentException
+     * @param joins A list of Join.
+     * @return StringBuilder
+     * @throws RuntimeException If a Join has differing numbers of parent table columns and target table columns.
      */
     protected StringBuilder createJoinClause(List<Join> joins) {
         StringBuilder sb = new StringBuilder();
@@ -124,9 +121,9 @@ public abstract class SqlBuilder {
     /**
      * Creates the WHERE clause of a SQL CRUD statement.
      *
-     * @param criteria
-     * @return
-     * @throws Exception
+     * @param criteria A list of Criteria.
+     * @return StringBuilder
+     * @throws Exception If cloning the a Criteria raises an Exception.
      */
     protected StringBuilder createWhereClause(List<Criteria> criteria) throws Exception {
         StringBuilder sql = new StringBuilder();
@@ -203,8 +200,9 @@ public abstract class SqlBuilder {
     /**
      * Creates the GROUP BY clause of a SELECT SQL statement.
      *
-     * @param columns
+     * @param columns A list of columns.
      * @return StringBuilder
+     * @throws Exception If a Column object raises an Excepton.
      */
     protected StringBuilder createGroupByClause(List<Column> columns) throws Exception {
         StringBuilder sql = new StringBuilder(" GROUP BY ");
@@ -220,9 +218,10 @@ public abstract class SqlBuilder {
     /**
      * Creates the ORDER BY clause of a SELECT SQL statement.
      *
-     * @param columns
-     * @param ascending
+     * @param columns A list of columns.
+     * @param ascending Whether the generated SQL ORDER BY clause should be ascending or not.
      * @return StringBuilder
+     * @throws Exception If a Column object raises an Exception.
      */
     protected StringBuilder createOrderByClause(List<Column> columns, boolean ascending) throws Exception {
         StringBuilder sql = new StringBuilder(" ORDER BY ");
@@ -239,7 +238,7 @@ public abstract class SqlBuilder {
     /**
      * Creates the LIMIT clause of a SELECT SQL statement.
      *
-     * @param limit
+     * @param limit The limit.
      * @return StringBuilder
      */
     protected StringBuilder createLimitClause(Long limit) throws IllegalArgumentException {
@@ -253,7 +252,7 @@ public abstract class SqlBuilder {
     /**
      * Creates the OFFSET clause of a SELECT SQL statement.
      *
-     * @param offset
+     * @param offset The offset.
      * @return StringBuilder
      */
     protected StringBuilder createOffsetClause(Long offset) throws IllegalArgumentException {
@@ -268,8 +267,9 @@ public abstract class SqlBuilder {
      * Creates a WHERE clause condition that all columns in the columns parameter cannot be null.  This condition
      * should is used to not return records where all selected columns have a null value.
      *
-     * @param columns
+     * @param columns A list of columns.
      * @return StringBuilder
+     * @throws Exception If a Column object raises an Exception.
      */
     protected StringBuilder createSuppressNullsClause(List<Column> columns) throws Exception {
         StringBuilder sql = new StringBuilder();

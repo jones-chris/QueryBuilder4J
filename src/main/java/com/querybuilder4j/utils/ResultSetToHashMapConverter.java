@@ -11,9 +11,9 @@ public class ResultSetToHashMapConverter {
      * A convience method for converting a ResultSet to a Map of String and Integers.  The only two ResultSet columns
      * relevant to querybuilder4j are COLUMN_NAME and DATA_TYPE.
      *
-     * @param rs
+     * @param rs a ResultSet
      * @return Map
-     * @throws SQLException
+     * @throws SQLException if rs cannot be walked or the COLUMN_NAME or DATA_TYPE columns do not exist in rs.
      */
     public static Map<String, Integer> toHashMap(ResultSet rs) throws SQLException {
         Map<String, Integer> map = new HashMap<>();

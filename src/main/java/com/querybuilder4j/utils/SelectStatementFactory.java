@@ -14,8 +14,8 @@ public class SelectStatementFactory {
     /**
      * Serves as the getter for the stmt field.
      *
-     * @param databaseType
-     * @return
+     * @param databaseType A DatabaseType.
+     * @return A SelectStatement.
      */
     public SelectStatement getSelectStatement(DatabaseType databaseType) {
 //        stmt.setDatabaseType(databaseType); //todo:  fix this.

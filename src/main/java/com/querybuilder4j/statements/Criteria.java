@@ -105,8 +105,8 @@ public class Criteria implements Cloneable, Comparable {
      * Returns the SQL string representation of the criteria in this format:
      * [AND/OR] [FRONT PARENTHESIS] table_name.column_name [OPERATOR] filter [END PARENTHESIS]
      *
-     * @param beginningDelimiter
-     * @param endingDelimiter
+     * @param beginningDelimiter The beginning delimiter based on the SQL dialect.
+     * @param endingDelimiter The ending delimiter based on the SQL dialect.
      * @return String
      */
     public String toSql(char beginningDelimiter, char endingDelimiter) {

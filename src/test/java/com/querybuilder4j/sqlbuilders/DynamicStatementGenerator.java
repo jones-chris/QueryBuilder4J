@@ -12,7 +12,6 @@ import static com.querybuilder4j.statements.Conjunction.*;
 import static com.querybuilder4j.statements.Operator.*;
 
 public class DynamicStatementGenerator {
-//    private DatabaseType databaseType;
     private Properties databaseProperties;
     private List<String> randomColumns = new ArrayList<>();
     private List<String> randomTables = new ArrayList<>();
@@ -22,7 +21,6 @@ public class DynamicStatementGenerator {
 
 
     public DynamicStatementGenerator(Properties databaseProperties, int numberOfSelectStatements) {
-//        this.databaseType = databaseType;
         this.databaseProperties = databaseProperties;
         this.numberOfSelectStatements = numberOfSelectStatements;
         this.queryTemplateDao = new QueryTemplateDaoImpl(databaseProperties);
@@ -448,6 +446,11 @@ public class DynamicStatementGenerator {
             Join.JoinType.LEFT,
             Join.JoinType.INNER
         };
+        final Join.JoinType[] joinTypesForMySql = {
+            Join.JoinType.INNER,
+            Join.JoinType.LEFT,
+            Join.JoinType.RIGHT
+        };
         final Join.JoinType[] joinTypes = {
             Join.JoinType.LEFT_EXCLUDING,
             Join.JoinType.FULL_OUTER_EXCLUDING,
@@ -460,17 +463,15 @@ public class DynamicStatementGenerator {
 
         Join join = new Join();
         int randomInt;
-
-        if (TestUtils.getDatabaseType(databaseProperties).equals(DatabaseType.Sqlite)) {
-            randomInt = TestUtils.getRandomInt(0, joinTypesForSqlite.length - 1);
-        } else {
-            randomInt = TestUtils.getRandomInt(0, joinTypes.length - 1);
-        }
-
         Join.JoinType joinType;
         if (TestUtils.getDatabaseType(databaseProperties).equals(DatabaseType.Sqlite)) {
+            randomInt = TestUtils.getRandomInt(0, joinTypesForSqlite.length - 1);
             joinType = joinTypesForSqlite[randomInt];
+        } else if (TestUtils.getDatabaseType(databaseProperties).equals(DatabaseType.MySql)) {
+            randomInt = TestUtils.getRandomInt(0, joinTypesForMySql.length - 1);
+            joinType = joinTypesForMySql[randomInt];
         } else {
+            randomInt = TestUtils.getRandomInt(0, joinTypes.length - 1);
             joinType = joinTypes[randomInt];
         }
         join.setJoinType(joinType);

@@ -91,20 +91,21 @@ public class SqlCleanser {
     /**
      * Tests whether a String (s) can be parsed into a numerical or boolean type successfully based on the sqlType parameter.
      * This method is used to prevent SQL Injection on columns that would not be wrapped in single quotes in the WHERE clause
-     * of the SQL statement.  For example:
+     * of the SQL statement.  Take this example:
      *
-     *     SELECT * FROM students WHERE age > ?
+     *     SELECT * FROM students WHERE age = ?
      *
-     * If the column, Age, has a database type of Integer, and I passed " '' OR 1=1 --", then the input would not be wrapped in
-     * single quotes and the SQL Injection attack would be successful.  However, if I passed the input into this method, it would
-     * not parse into an Java integer and the method would return false.
+     * If the column, age, has a database type of Integer, and " '' OR 1=1 --" was given, then the input would not be wrapped in
+     * single quotes and the SQL Injection attack would be successful.  However, if that SQL injection attempt was passed into
+     * this method, it would not parse into an Java integer and the method would return false.
      *
      * Therefore, this assures is that the input String (s) is indeed numeric or boolean and is safe to not be wrapped in single
      * quotes.
      *
-     * @param s
-     * @param sqlType
+     * @param s The String to test.
+     * @param sqlType The integer found in java.sql.Types.
      * @return boolean
+     * @throws Exception If the sqlType is not supported.
      */
     public static boolean canParseNonQuotedFilter(String s, int sqlType) throws Exception {
         if (s == null) {

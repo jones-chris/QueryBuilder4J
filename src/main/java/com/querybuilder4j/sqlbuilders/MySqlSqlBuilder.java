@@ -12,7 +12,7 @@ public class MySqlSqlBuilder extends SqlBuilder {
 
     @Override
     public String buildSql() throws Exception {
-        StringBuilder sql = new StringBuilder("");
+        StringBuilder sql = new StringBuilder();
 
         // Select
         StringBuilder select = createSelectClause(stmt.isDistinct(), stmt.getColumns());
@@ -49,7 +49,7 @@ public class MySqlSqlBuilder extends SqlBuilder {
         // Order By
         if (stmt.isOrderBy()) sql.append(createOrderByClause(stmt.getColumns(), stmt.isAscending()));
 
-        // Liimit
+        // Limit
         sql.append(createLimitClause(stmt.getLimit()));
 
         // Offset
