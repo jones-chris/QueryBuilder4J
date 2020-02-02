@@ -33,10 +33,10 @@ phases:
 artifacts:
   files:
     - target/querybuilder4j-1.jar
-  name: querybuilder-$(date +"%Y-%m-%d %H:%M:%S")
+  name: querybuilder4j
   discard-paths: yes
   secondary-artifacts:
     code_coverage:
       files:
         - target/site/jacoco/**/*  # All files recursively in jacoco directory.
-      name: code_coverage-$(date +"%Y-%m-%d %H:%M:%S").zip
+      name: code_coverage.zip
