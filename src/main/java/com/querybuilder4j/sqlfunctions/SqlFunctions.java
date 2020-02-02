@@ -8,9 +8,9 @@ public class SqlFunctions {
      * Takes a String and DatabaseType parameters and creates the SQL CAST function call string to convert the String
      * parameter into a SQL TEXT or VARCHAR type.
      *
-     * @param s
-     * @param databaseType
-     * @return
+     * @param s The function call as a String.
+     * @param databaseType A DatabaseType to determine SQL syntax.
+     * @return String
      */
     public static String castToString(String s, DatabaseType databaseType) {
         String functionString = "";

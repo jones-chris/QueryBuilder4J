@@ -70,7 +70,7 @@ public class SelectStatementValidatorImpl implements SelectStatementValidator {
      * True will be returned if the criteria are valid.
      *
      * @return boolean
-     * @throws Exception
+     * @throws Exception If the criteria is not valid or if the criteria is not clean SQL.
      */
     private boolean criteriaAreValid() throws Exception {
         for (Criteria criterion : this.stmt.getCriteria()) {
@@ -116,11 +116,12 @@ public class SelectStatementValidatorImpl implements SelectStatementValidator {
      * For example, the VARCHAR Type will return true, because it should be wrapped in single quotes in a WHERE SQL condition.
      * On the other hand, the INTEGER Type will return false, because it should NOT be wrapped in single quotes in a WHERE SQL condition.
      *
-     * @param table
-     * @param columnName
+     * @param table The table name.
+     * @param columnName The column name.
+     * @param tableSchemas A Map with the keys being table names and the values being the SQL type as an integer per java.sql.Types.
      * @return boolean
-     * @throws DataTypeNotFoundException
-     * @throws ColumnNameNotFoundException
+     * @throws DataTypeNotFoundException If the data type is not supported by QueryBuilder4J.
+     * @throws ColumnNameNotFoundException If the column does not exist in the table.
      */
     public static boolean isColumnQuoted(String table, String columnName, Map<String, Map<String, Integer>> tableSchemas) throws DataTypeNotFoundException, ColumnNameNotFoundException {
         Integer dataType = getColumnDataType(table, columnName, tableSchemas);
@@ -135,10 +136,10 @@ public class SelectStatementValidatorImpl implements SelectStatementValidator {
     /**
      * Gets the SQL JDBC Type for the table and column parameters.
      *
-     * @param table
-     * @param columnName
+     * @param table The table name.
+     * @param columnName The column name.
      * @return int
-     * @throws ColumnNameNotFoundException
+     * @throws ColumnNameNotFoundException If the column does not exist in the table.
      */
     // todo:  is this method needed anymore now that we have a static method by same name and isColumnQuoted is static also?
     public int getColumnDataType(String table, String columnName) throws ColumnNameNotFoundException {
@@ -148,10 +149,11 @@ public class SelectStatementValidatorImpl implements SelectStatementValidator {
     /**
      * Gets the SQL JDBC Type for the table and column parameters.
      *
-     * @param table
-     * @param columnName
+     * @param table The table name.
+     * @param columnName The column name.
+     * @param tableSchemas A Map with the keys being table names and the values being the SQL type as an integer per java.sql.Types.
      * @return int
-     * @throws ColumnNameNotFoundException
+     * @throws ColumnNameNotFoundException If the column does not exist in the table.
      */
     public static int getColumnDataType(String table, String columnName, Map<String, Map<String, Integer>> tableSchemas) throws ColumnNameNotFoundException {
         Integer dataType = tableSchemas.get(table).get(columnName); //todo:  pass tableSchemas as parameter into SqlBuilder from SelectStatementValidator?  Because SelectStatementValidator already got tableSchemas.

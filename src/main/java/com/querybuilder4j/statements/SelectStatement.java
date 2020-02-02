@@ -2,7 +2,7 @@ package com.querybuilder4j.statements;
 
 
 import com.google.gson.Gson;
-import com.querybuilder4j.SubQueryParser;
+import com.querybuilder4j.parsers.SubQueryParser;
 import com.querybuilder4j.databasemetadata.DatabaseMetaData;
 import com.querybuilder4j.exceptions.NoMatchingParameterException;
 import com.querybuilder4j.sqlbuilders.SqlBuilder;
@@ -169,7 +169,7 @@ public class SelectStatement {
     /**
      * One of two setters for subQueries field.  It's not recommended that developers use this because the parameter-less
      * setter will set subQueries automatically if subQuery calls are hand-written into the a criterion's filter.
-     * @param subQueries
+     * @param subQueries A Map of subqueries.
      */
     public void setSubQueries(Map<String, String> subQueries) {
         this.subQueries = subQueries;
