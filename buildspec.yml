@@ -1,0 +1,42 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+      java: openjdk8
+    commands:
+      # Get information about this image, the current directory, maven version, docker version, then update apt-get.
+      - lsb_release -a
+      - pwd
+      - mvn --version
+      - docker --version
+      - docker info
+      - apt-get update
+
+  pre_build:
+    commands:
+      # Start database containers
+      - docker-compose -f src/test/resources/docker/docker-compose.yml up -d
+
+      # Pause script while containers initialize
+      - sleep 20s
+
+  build:
+    commands:
+      - mvn clean package  # Includes running unit tests.
+
+  post_build:
+    commands:
+      - docker-compose -f src/test/resources/docker/docker-compose.yml down
+
+artifacts:
+  files:
+    - target/querybuilder4j-1.jar
+  name: querybuilder-$(date +"%Y-%m-%d %H:%M:%S")
+  discard-paths: yes
+  secondary-artifacts:
+    code_coverage:
+      files:
+        - target/site/jacoco/**/*  # All files recursively in jacoco directory.
+      name: code_coverage-$(date +"%Y-%m-%d %H:%M:%S").zip
