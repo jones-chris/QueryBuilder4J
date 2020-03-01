@@ -1,5 +1,5 @@
 # QueryBuilder4J
-![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiYWNYVXdQWWlCWmMvWmVOL2tnTXhTZ0dEd3RvQTl5QzBaalJRYXBVMnBQdm5YY0d5RmFzR3dUajBMRlNBVGtrMVVDeG1WVWVzeVZIYytVVjlnblhQblpNPSIsIml2UGFyYW1ldGVyU3BlYyI6IkdJcGdGNTVOVHB3U0l1K3giLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiaHJWd2JuM0NKdGtjOGlpK1BNdVFMZ0JGcm4zSGNvNStySVlrdjN1NC9CVFVCUjcycTFLcDBGZUExTDl5NjJieSt1QjNEUEsrZG9LaFpQeVpza01iOG5jPSIsIml2UGFyYW1ldGVyU3BlYyI6Ii9PdDRGWlVlWXA1WHRZY2YiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
 [![codecov](https://codecov.io/gh/jones-chris/QueryBuilder4J/branch/master/graph/badge.svg)](https://codecov.io/gh/jones-chris/QueryBuilder4J)
 
